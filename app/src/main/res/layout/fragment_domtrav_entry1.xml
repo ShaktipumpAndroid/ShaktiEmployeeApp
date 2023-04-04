@@ -1,0 +1,269 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <!-- TODO: Update blank fragment layout -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:scrollbars="none">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="2dp"
+            android:background="@android:color/transparent">
+
+            <LinearLayout
+                android:id="@+id/pos_od_status"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:baselineAligned="false"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:id="@+id/Domentry"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:background="@drawable/top_left_right_rounded"
+                    android:gravity="center"
+                    android:padding="@dimen/space_mid6"
+                    android:text="Domestic Travel Entry"
+                    android:textColor="@color/white"
+                    android:textSize="17sp"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
+                <LinearLayout
+                    android:id="@+id/dom_start_datetime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="10dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="@dimen/space_tinny4"
+                        android:layout_weight="1"
+                        android:textColorHint="@color/colorPrimary">
+
+                        <EditText
+                            android:id="@+id/trav_date"
+                            style="@style/under_line_et"
+                            android:drawableRight="@drawable/ic_mendotry"
+                            android:hint="Start Date"
+                            android:padding="10dp"
+                            android:singleLine="true"
+                            android:textColorHint="@color/colorPrimary" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/trav_date_img"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:onClick="setDate"
+                        android:src="@mipmap/ic_date" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="10dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="@dimen/space_tinny4"
+                        android:layout_weight="1"
+                        android:textColorHint="@color/colorPrimary">
+
+                        <EditText
+                            android:id="@+id/end_date"
+                            style="@style/under_line_et"
+                            android:drawableRight="@drawable/ic_mendotry"
+                            android:hint="End Date"
+                            android:padding="10dp"
+                            android:singleLine="true"
+                            android:textColorHint="@color/colorPrimary" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/end_date_img"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:background="@color/white"
+                        android:onClick="setDate"
+                        android:src="@mipmap/ic_date" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:baselineAligned="false"
+                    android:paddingTop="0dp">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="10dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginRight="@dimen/space_tinny4"
+                        android:layout_weight="1"
+                        android:textColorHint="@color/colorPrimary">
+
+                        <EditText
+                            android:id="@+id/trav_country"
+                            style="@style/under_line_et"
+                            android:drawableRight="@drawable/ic_mendotry"
+                            android:hint="Country"
+                            android:padding="10dp"
+                            android:singleLine="true"
+                            android:textColorHint="@color/colorPrimary" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/pos_od_visitplace"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:baselineAligned="false">
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        android:layout_width="10dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="@dimen/space_tinny4"
+                        android:layout_weight="1"
+                        android:textColorHint="@color/colorPrimary">
+
+                        <EditText
+                            android:id="@+id/gp_visitplace"
+                            style="@style/under_line_et"
+                            android:drawableRight="@drawable/ic_mendotry"
+                            android:hint="Location"
+                            android:padding="10dp"
+                            android:singleLine="true"
+                            android:textColorHint="@color/colorPrimary" />
+                    </com.google.android.material.textfield.TextInputLayout>
+                </LinearLayout>
+
+                <!-- <LinearLayout
+                     android:id="@+id/list_lay"
+                     android:layout_width="match_parent"
+                     android:layout_height="match_parent"
+                     android:orientation="vertical"
+                     android:gravity="center"     >
+                     <android.support.v7.widget.RecyclerView
+                         android:id="@+id/reyView1"
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         android:layout_marginTop="3dp"
+                         />
+                 </LinearLayout>-->
+
+            </LinearLayout>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/OrderFiltercardViewID"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/pos_od_status"
+                android:layout_centerInParent="true"
+                android:layout_marginBottom="10dp"
+                android:background="@android:color/transparent"
+                android:elevation="10dp"
+                app:cardCornerRadius="10dp">
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/lvlMainParentLayoutID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:background="@android:color/transparent"
+                        android:orientation="vertical" />
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/cardAddMoreDestinationID"
+                        android:layout_width="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_below="@+id/lvlMainParentLayoutID"
+                        android:layout_centerInParent="true"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="18dp"
+                        app:cardBackgroundColor="@color/colorPrimary"
+                        app:cardCornerRadius="22dp"
+                        app:cardElevation="10dp">
+
+
+                        <TextView
+                            android:id="@+id/txtAddModeDestinantionTripBTNID"
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:paddingStart="20dp"
+                            android:paddingEnd="20dp"
+                            android:text="+ Add Multiple Expenses"
+                            android:textColor="@color/white"
+                            android:textSize="16sp" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/submit"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:layout_below="@+id/cardAddMoreDestinationID"
+                        android:layout_centerInParent="true"
+                        android:layout_marginStart="20dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginEnd="20dp"
+                        android:layout_marginBottom="18dp"
+                        app:cardBackgroundColor="@color/colorPrimary"
+                        app:cardCornerRadius="22dp"
+                        app:cardElevation="10dp">
+
+
+                        <TextView
+                            android:id="@+id/txtAddTripBTNID"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="center"
+                            android:gravity="center"
+                            android:text="SAVE"
+                            android:textColor="@color/white"
+                            android:textSize="20sp" />
+
+                    </androidx.cardview.widget.CardView>
+
+                </RelativeLayout>
+
+
+            </androidx.cardview.widget.CardView>
+
+        </RelativeLayout>
+
+    </ScrollView>
+</RelativeLayout>

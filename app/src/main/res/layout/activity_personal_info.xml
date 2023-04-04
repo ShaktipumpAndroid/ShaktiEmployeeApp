@@ -1,0 +1,307 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingTop="20dp"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    tools:context="shakti.shakti_employee.activity.PersonalInfoActivity">
+
+    <LinearLayout
+        android:id="@+id/per_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/LeaveBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/top_left_right_rounded"
+            android:gravity="center"
+            android:padding="@dimen/space_mid6"
+            android:text="Personal Info"
+            android:textColor="@color/white"
+            android:textSize="@dimen/size_large18"
+            android:textStyle="bold" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/a"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/per_info"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_dept"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Department"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pi_dept_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="55dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/b"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/a"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_desig"
+            style="@style/AlertDialog.AppCompat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Designation"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pi_desig_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="55dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/c"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/b"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_mob"
+            style="@style/AlertDialog.AppCompat"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Mob No"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pi_mob_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="85dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/d"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/c"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="E-Mail"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/pi_email_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="95dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/e"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/d"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_hod"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Reporting Person"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pi_hod_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/f"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/e"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Address"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/pi_add_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="83dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/g"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/f"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_dob"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="DOB"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/pi_dob_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="112dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/h"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/g"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_acno"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Ac No."
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/pi_acno_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="96dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/i"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/h"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/pi_bank"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="10dp"
+            android:text="Bank"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16"
+            android:textStyle="bold" />
+
+
+        <TextView
+            android:id="@+id/pi_bank_val"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="105dp"
+            android:paddingBottom="10dp"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/grey"
+            android:textSize="@dimen/size_mid16" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

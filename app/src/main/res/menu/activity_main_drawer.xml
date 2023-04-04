@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@drawable/navi_ic_home"
+            android:title="@string/nav_home" />
+        <item
+            android:id="@+id/nav_attendance"
+            android:icon="@drawable/navi_ic_attendance"
+            android:title="@string/nav_attendance" />
+        <item
+            android:id="@+id/nav_leave"
+            android:icon="@drawable/navi_ic_leave"
+            android:title="@string/nav_leave" />
+
+        <item
+            android:id="@+id/nav_od"
+            android:icon="@drawable/navi_ic_od"
+            android:title="@string/nav_od" />
+
+        <item
+            android:id="@+id/nav_payslip"
+            android:icon="@drawable/navi_ic_payslip"
+            android:title="@string/nav_payslip" />
+
+        <item
+            android:id="@+id/nav_leave_create"
+            android:icon="@mipmap/ic_settings"
+            android:title="@string/nav_payslip"
+            android:visible="false" />
+
+    </group>
+
+    <item android:title="User Info">
+        <menu>
+            <item
+                android:id="@+id/nav_personal_info"
+                android:icon="@drawable/navi_ic_personal"
+                android:title="@string/nav_info" />
+
+            <item
+                android:id="@+id/nav_personal_info_edit"
+                android:icon="@drawable/navi_ic_personal"
+                android:title="@string/nav_info_edit" />
+
+            <!--<item-->
+            <!--android:id="@+id/nav_privacy_policy"-->
+            <!--android:title="@string/privacy_policy" />-->
+        </menu>
+    </item>
+
+    <!--<item android:title="Edit User Info">-->
+    <!--<menu>-->
+    <!--<item-->
+    <!--android:id="@+id/nav_personal_info_edit"-->
+    <!--android:icon="@drawable/navi_ic_personal"-->
+    <!--android:title="@string/nav_info" />-->
+    <!--&lt;!&ndash;<item&ndash;&gt;-->
+    <!--&lt;!&ndash;android:id="@+id/nav_privacy_policy"&ndash;&gt;-->
+    <!--&lt;!&ndash;android:title="@string/privacy_policy" />&ndash;&gt;-->
+    <!--</menu>-->
+    <!--</item>-->
+
+</menu>

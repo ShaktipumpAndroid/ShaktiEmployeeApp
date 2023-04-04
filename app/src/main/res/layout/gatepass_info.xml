@@ -1,0 +1,128 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="6dip">
+
+
+    <LinearLayout
+        android:id="@+id/one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/gatePassNo"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/pernr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:paddingLeft="3dp"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/one1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/one"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:paddingLeft="3dp"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="19sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/gpDate"
+            android:layout_width="0sp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:paddingLeft="3dp"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp" />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/one1"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/gpTime"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp" />
+
+        <TextView
+            android:id="@+id/gpReqTypq"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.5"
+            android:paddingLeft="3dp"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/three"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/two"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/gpType"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="textview"
+            android:textColor="@color/colorPrimary"
+            android:textSize="17sp" />
+
+
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/approv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/three"
+        android:layout_alignParentRight="true"
+        android:background="@color/white"
+        android:padding="4dp"
+        android:paddingLeft="5dp"
+        android:text="Approve"
+        android:textColor="@color/colorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+</RelativeLayout>

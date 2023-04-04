@@ -1,0 +1,506 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    >
+
+    <TextView
+        android:id="@+id/txtLatID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold"
+        android:layout_centerInParent="true"
+        android:background="@drawable/ic_back_wt"
+        android:gravity="center_vertical|center_horizontal"
+        android:textColor="@color/white"
+        android:visibility="invisible"
+        android:maxLength="9"
+        android:text=""
+        />
+
+    <TextView
+        android:id="@+id/txtLongID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/_16ssp"
+        android:textStyle="bold"
+        android:layout_centerInParent="true"
+        android:background="@drawable/ic_back_wt"
+        android:gravity="center_vertical|center_horizontal"
+        android:textColor="@color/white"
+        android:visibility="invisible"
+        android:maxLength="9"
+        android:text=""
+        />
+
+
+    <LinearLayout
+        android:layout_marginBottom="@dimen/_5sdp"
+        android:layout_above="@+id/rlvSaveButtonID"
+        android:background="@android:color/transparent"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/lvlHeaderMainViewID"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/_50sdp"
+            android:background="@color/blue_fb"
+            android:weightSum="3">
+
+            <RelativeLayout
+
+                android:id="@+id/rlvBackViewID"
+                android:layout_weight="1.25"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:id="@+id/txtbackID"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="@dimen/_16ssp"
+                    android:textStyle="bold"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/ic_back_wt"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textColor="@color/white"
+                    android:text=""
+                    />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rlvTittleViewID"
+                android:layout_weight="0.5"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <TextView
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:textSize="@dimen/_16ssp"
+                    android:textStyle="normal"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:textColor="@color/white"
+                    android:text="Check In"
+                    />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/rlvOtherViewID"
+                android:layout_weight="1.25"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:orientation="vertical"
+                android:weightSum="3">
+
+
+                <!--11111111111111111   android:background="@drawable/item_bg_shape"-->
+
+
+                <LinearLayout
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:id="@+id/rlvContainerCompID1"
+                    android:background="@drawable/bg_shape_btn"
+                    android:layout_marginStart="@dimen/_10sdp"
+                    android:layout_marginEnd="@dimen/_10sdp"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+
+                    <!--1-->
+                    <TextView
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:id="@+id/txtApplicantNameID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="start"
+                        android:text="* Customer Name"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_14ssp"
+                        android:textStyle="normal"/>
+
+                    <RelativeLayout
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:id="@+id/rlvApplicantNameID"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_35sdp"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        android:background="@drawable/bg_shape_btn">
+
+                        <EditText
+                            android:id="@+id/edtVendorNameID"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/_10sdp"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:background="@android:color/transparent"
+                            android:digits=" abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                            android:hint="Enter Vendor Name"
+                            android:inputType="text"
+
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/gray_btn"
+                            android:textSize="@dimen/_13ssp">
+
+
+                        </EditText>
+
+
+                    </RelativeLayout>
+
+                    <!--2-->
+                    <TextView
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:id="@+id/txtContactNoID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="start"
+                        android:text="* Customer Mobile number."
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_14ssp"
+                        android:textStyle="normal"/>
+
+                    <RelativeLayout
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:id="@+id/rlvContactNoID"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_35sdp"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        android:background="@drawable/bg_shape_btn">
+
+                        <EditText
+                            android:id="@+id/edtContactNoID"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/_10sdp"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:background="@android:color/transparent"
+                            android:digits=" 0123456789+"
+                            android:hint="Enter Contact No. "
+                            android:inputType="text"
+                            android:maxLength="13"
+
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/gray_btn"
+                            android:textSize="@dimen/_13ssp">
+
+
+                        </EditText>
+
+
+                    </RelativeLayout>
+
+                    <!--3-->
+                    <TextView
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:id="@+id/txtApplicationNoID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="start"
+                        android:text="* Latitude"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_14ssp"
+                        android:textStyle="normal"/>
+
+                    <RelativeLayout
+                        android:layout_marginStart="@dimen/_5sdp"
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:id="@+id/rlvApplicationNoID"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_35sdp"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        android:background="@drawable/bg_shape_btn">
+
+                        <EditText
+                            android:id="@+id/edtLatitudeID"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/_10sdp"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:background="@android:color/transparent"
+                            android:digits=" 0123456789."
+                            android:hint="Enter Latitude"
+                            android:inputType="text"
+
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/gray_btn"
+                            android:textSize="@dimen/_13ssp">
+
+
+                        </EditText>
+
+
+                    </RelativeLayout>
+
+                    <!--4-->
+                    <TextView
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:id="@+id/txtSiteAddressID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="start"
+                        android:text="* Longitude"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_14ssp"
+                        android:textStyle="normal"/>
+
+                    <RelativeLayout
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:id="@+id/rlvSiteAddressID"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_35sdp"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        android:background="@drawable/bg_shape_btn">
+
+                        <EditText
+                            android:id="@+id/edtLongitudeID"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="@dimen/_10sdp"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:background="@android:color/transparent"
+                            android:digits=" 0123456789."
+                            android:hint="Enter Longitude. "
+                            android:inputType="text"
+
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/gray_btn"
+                            android:textSize="@dimen/_13ssp">
+
+
+                        </EditText>
+
+
+                    </RelativeLayout>
+
+                    <!--5-->
+                    <TextView
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        android:id="@+id/txtVillageNameID"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@android:color/transparent"
+                        android:gravity="start"
+                        android:text="* Remark/Conversation"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_14ssp"
+                        android:textStyle="normal"/>
+
+                    <RelativeLayout
+                        android:layout_marginStart="@dimen/_5sdp"
+
+                        android:layout_marginEnd="@dimen/_5sdp"
+                        android:id="@+id/rlvVillageNameID"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_80sdp"
+                        android:layout_marginTop="@dimen/_1sdp"
+                        android:background="@drawable/bg_shape_btn">
+
+                        <EditText
+                            android:id="@+id/edtremarkConversionID"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="@dimen/_10sdp"
+                            android:layout_marginEnd="@dimen/_10sdp"
+                            android:background="@android:color/transparent"
+                            android:digits=" 0123456789+abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+                            android:hint="Enter remark/conversation."
+                            android:inputType="text"
+
+                            android:text=""
+                            android:textColor="@color/black"
+                            android:textColorHint="@color/gray_btn"
+                            android:textSize="@dimen/_13ssp">
+
+
+                        </EditText>
+
+
+                    </RelativeLayout>
+
+
+
+
+
+
+
+                    <LinearLayout
+                        android:visibility="gone"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_width="@dimen/_270sdp"
+                        android:layout_height="@dimen/_50sdp"
+                        android:orientation="horizontal"
+                        >
+
+                        <TextView
+                            android:layout_gravity="center_vertical"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Remark:"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_12ssp"
+                            android:textStyle="normal"
+                            android:layout_marginStart="@dimen/_7sdp"/>
+
+                        <EditText
+
+                            android:id="@+id/edtRemarkID1"
+                            android:background="@drawable/bg_shape_btn"
+
+                            android:layout_gravity="center"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_50sdp"
+                            android:hint="Write Remark.."
+                            android:gravity="center"
+                            android:textColorHint="@color/gray"
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_10ssp"
+                            android:textStyle="normal"
+                            android:layout_marginStart="@dimen/_7sdp">
+
+
+                        </EditText>
+
+                    </LinearLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/rlvPhotoID1"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_40sdp"
+                        android:layout_marginStart="@dimen/_10sdp"
+                        android:layout_marginTop="@dimen/_12sdp"
+                        android:layout_marginEnd="@dimen/_10sdp"
+                        android:background="@android:color/transparent">
+
+                        <!--android:background="@drawable/edt_bg_shape"-->
+                        <!--
+
+                        <TextView
+                             android:layout_marginStart="@dimen/_10sdp"
+                             android:layout_centerVertical="true"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:text="Add Photo"
+                             android:textColor="@color/black"
+                             android:textSize="@dimen/_12ssp" />
+
+                         <ImageView
+                             android:id="@+id/imgPhotoID1"
+                             android:layout_centerVertical="true"
+                             android:layout_width="wrap_content"
+                             android:layout_height="wrap_content"
+                             android:layout_alignParentEnd="true"
+                             android:src="@drawable/right_mark_icn_green"/>-->
+
+                        <TextView
+
+                            android:id="@+id/photo1"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/_40sdp"
+                            android:layout_marginStart="@dimen/_1sdp"
+                            android:layout_marginEnd="@dimen/_1sdp"
+                            android:background="@drawable/bg_shape_btn"
+                            android:drawableStart="@drawable/ic_mendotry"
+                            android:drawableEnd="@drawable/red_icn"
+                            android:gravity="center_vertical"
+                            android:paddingStart="@dimen/_5ssp"
+                            android:paddingEnd="@dimen/_5sdp"
+                            android:singleLine="true"
+                            android:text="Farmers photographs with water source."
+                            android:textColor="@color/black"
+                            android:textSize="@dimen/_10ssp" />
+
+
+
+                    </RelativeLayout>
+
+
+
+
+                </LinearLayout>
+                <!--1111111-->
+
+
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/rlvSaveButtonID"
+        android:background="@color/colorPrimary"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_35sdp">
+
+
+        <TextView
+            android:layout_marginStart="@dimen/_10sdp"
+            android:layout_centerInParent="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Save"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_12ssp" />
+
+    </RelativeLayout>
+
+</RelativeLayout>

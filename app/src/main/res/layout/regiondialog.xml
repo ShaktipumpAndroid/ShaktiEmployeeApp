@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+    <ImageView
+        android:id="@+id/cancel"
+        android:layout_width="33sp"
+        android:layout_height="33sp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="5dp"
+        android:padding="9dp"
+        android:src="@drawable/cancel" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <Spinner
+            android:id="@+id/trav_country1"
+            style="@style/spinner_style"
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Select Country" />
+
+        <Spinner
+            android:id="@+id/trav_region1"
+            style="@style/spinner_style"
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:layout_below="@+id/trav_country1"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Select Region"
+            android:visibility="gone" />
+
+        <Spinner
+            android:id="@+id/trav_district1"
+            style="@style/spinner_style"
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:layout_below="@+id/trav_region1"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Select District"
+            android:visibility="gone" />
+
+        <Spinner
+            android:id="@+id/trav_tehsil1"
+            style="@style/spinner_style"
+            android:layout_width="fill_parent"
+            android:layout_height="35dp"
+            android:layout_below="@+id/trav_district1"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            android:hint="Select Tehsil"
+            android:visibility="gone" />
+
+    </RelativeLayout>
+
+
+    <TextView
+        android:id="@+id/done"
+        android:layout_width="95dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="15dp"
+        android:background="@color/colorAccent"
+        android:gravity="center"
+        android:text="Save"
+        android:textColor="@color/white"
+        android:textSize="16dp"
+        android:visibility="gone"
+
+        />
+
+
+</LinearLayout>
