@@ -1763,8 +1763,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 //
 //                        }
 //                    }).start();
-
-
                     Intent intent_gp_app = new Intent(context, GatepassApproveActivity.class);
                     startActivity(intent_gp_app);
 
@@ -3229,96 +3227,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
             e.printStackTrace();
             progressDialog.dismiss();
         }
-    }
-
-    public void downloadDataFromSap() {
-        // creating progress bar dialog
-        progressBar = new ProgressDialog(context);
-        progressBar.setCancelable(false);
-        // progressBar.setCancelable(true);
-        progressBar.setMessage("Downloading Data...");
-        progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        progressBar.show();
-        //reset progress bar and filesize status
-        progressBarStatus = 0;
-
-        new Thread(new Runnable() {
-            public void run() {
-
-//                while (progressBarStatus < 100) {
-                // performing operation
-
-                try {
-
-                    //Get All Data
-                    progressBarStatus = con.getAllData(context, userModel.uid);
-                    //progressBarStatus = 10 ;
-
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-
-                    progressBarStatus = 30;
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-                    progressBarStatus = 50;
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-                    progressBarStatus = 100;
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-//                }
-                //                  performing operation if file is downloaded,
-                if (progressBarStatus >= 100) {
-                    // sleeping for 1 second after operation completed
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // close the progress bar dialog
-                    progressBar.dismiss();
-
-                }
-            }
-        }).start();
-
     }
 
 

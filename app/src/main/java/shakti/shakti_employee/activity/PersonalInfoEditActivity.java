@@ -372,16 +372,6 @@ public class PersonalInfoEditActivity extends AppCompatActivity {
 
         if (CustomUtility.isInternetOn(mContext)) {
 
-            progressBar = new ProgressDialog(PersonalInfoEditActivity.this);
-            progressBar.setCancelable(true);
-            // progressBar.setCancelable(true);
-            progressBar.setMessage("Updating Data...");
-            progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-            progressBar.setProgress(0);
-            progressBar.setMax(100);
-            progressBar.show();
-            //reset progress bar and filesize status
-            progressBarStatus = 0;
 
             new Thread(new Runnable() {
                 public void run() {

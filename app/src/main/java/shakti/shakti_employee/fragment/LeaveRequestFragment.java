@@ -467,8 +467,10 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
                         for (int i = 0; i < 1; i++) {
                             JSONObject jo = ja.getJSONObject(i);
                             leave_return_msg = jo.getString("name");
-                            Log.d("leave_return_msg", leave_return_msg.toString());
+                            Log.d("leave_return_msg", leave_return_msg);
+
                             /*Toast.makeText(getActivity(), leave_return_msg, Toast.LENGTH_LONG).show();*/
+
                             Message msg = new Message();
                             msg.obj = leave_return_msg;
                             mHandler.sendMessage(msg);

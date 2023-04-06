@@ -400,6 +400,7 @@ public class ODRequestFragment extends Fragment {
         param.add(new BasicNameValuePair("app_od_remark", st_od_remark));
         param.add(new BasicNameValuePair("app_od_charge", st_od_charge));
 
+        Log.e("ODRequest","OD"+ param.toString());
 
         progressDialog = ProgressDialog.show(getActivity(), "", "Connecting to server..please wait !");
 
@@ -419,7 +420,7 @@ public class ODRequestFragment extends Fragment {
                         for (int i = 0; i < 1; i++) {
                             JSONObject jo = ja.getJSONObject(i);
                             od_request_msg = jo.getString("name");
-                            Log.d("leave_return_msg", od_request_msg.toString());
+                            Log.d("leave_return_msg", od_request_msg);
                             /*Toast.makeText(getActivity(), leave_return_msg, Toast.LENGTH_LONG).show();*/
                             Message msg = new Message();
                             msg.obj = od_request_msg;
