@@ -84,11 +84,11 @@ public class CreateTaskActivity extends AppCompatActivity {
         // initializing navigation menu
         setUpNavigationView();
 
-        if (!isDownloadServiceRunning()) {
+    /*    if (!isDownloadServiceRunning()) {
             //Toast.makeText(DashboardActivity.this, "Download Data", Toast.LENGTH_SHORT).show();
             startService(new Intent(CreateTaskActivity.this, TimeServiceDownloadData.class));
 
-        }
+        }*/
 
         getSupportActionBar().setTitle("Task Create");
 

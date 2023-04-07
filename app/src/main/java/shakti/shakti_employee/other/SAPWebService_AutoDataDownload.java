@@ -517,6 +517,7 @@ public class SAPWebService_AutoDataDownload {
                 JSONObject jsonObj = new JSONObject(obj);
                 JSONArray ja = jsonObj.getJSONArray("emp");
                 dataHelper.deleteempinfo();
+                Log.e("","length"+ja.length());
 
                 for (int i = 0; i < ja.length(); i++) {
 

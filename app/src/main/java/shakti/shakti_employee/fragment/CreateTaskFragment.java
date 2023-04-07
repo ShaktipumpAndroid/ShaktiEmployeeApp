@@ -245,8 +245,13 @@ public class CreateTaskFragment extends Fragment {
                         String CurrentString = ac_assign_to.getText().toString();
                         String[] separated = CurrentString.split("-");
                         //separated[0];
-                        task_assign_to = separated[1];
+                        if(separated.length>0) {
+                            task_assign_to = separated[1];
+                        }else {
+                            task_assign_to = separated[0];
+                        }
                     }
+
 
 
                     // Toast.makeText(getActivity(),userModel.uid+"---"+currentDate+"---"+currentTime+"---"+et_description.getText().toString().trim()+"---"+task_assign_to.trim()+"---"+fromDateEtxt.getText().toString()+"---"+toDateEtxt.getText().toString(),Toast.LENGTH_SHORT).show();

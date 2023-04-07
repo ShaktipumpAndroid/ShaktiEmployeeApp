@@ -1,5 +1,6 @@
 package shakti.shakti_employee.fragment;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -137,14 +138,14 @@ public class OfficialDutyFragment extends Fragment {
 
                     // Read columns data
 
-                    String odno = cursor.getString(cursor.getColumnIndex("odno"));
-                    String approved = cursor.getString(cursor.getColumnIndex("approved"));
-                    String horo = cursor.getString(cursor.getColumnIndex("horo"));
-                    String odstdate_c = cursor.getString(cursor.getColumnIndex("odstdate_c"));
-                    String odedate_c = cursor.getString(cursor.getColumnIndex("odedate_c"));
-                    String atn_status = cursor.getString(cursor.getColumnIndex("atn_status"));
-                    String vplace = cursor.getString(cursor.getColumnIndex("vplace"));
-                    String purpose1 = cursor.getString(cursor.getColumnIndex("purpose1"));
+                    @SuppressLint("Range")String odno = cursor.getString(cursor.getColumnIndex("odno"));
+                    @SuppressLint("Range") String approved = cursor.getString(cursor.getColumnIndex("approved"));
+                    @SuppressLint("Range") String horo = cursor.getString(cursor.getColumnIndex("horo"));
+                    @SuppressLint("Range") String odstdate_c = cursor.getString(cursor.getColumnIndex("odstdate_c"));
+                    @SuppressLint("Range") String odedate_c = cursor.getString(cursor.getColumnIndex("odedate_c"));
+                    @SuppressLint("Range")String atn_status = cursor.getString(cursor.getColumnIndex("atn_status"));
+                    @SuppressLint("Range") String vplace = cursor.getString(cursor.getColumnIndex("vplace"));
+                    @SuppressLint("Range") String purpose1 = cursor.getString(cursor.getColumnIndex("purpose1"));
 
                     // dara rows
                     TableRow row = new TableRow(getActivity());

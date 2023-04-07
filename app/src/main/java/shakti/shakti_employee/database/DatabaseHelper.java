@@ -1,5 +1,6 @@
 package shakti.shakti_employee.database;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -2008,7 +2009,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             String hodEname,
             String address,
             String birth1,
-            String bankn,
+            String pernr,
             String bankTxt) {
 
         SQLiteDatabase db = this.getWritableDatabase();
@@ -2023,7 +2024,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(E_HODNAME, hodEname);
         values.put(E_ADDRESS, address);
         values.put(E_BIRTH1, birth1);
-        values.put(E_BANKN, bankn);
+        values.put(E_BANKN, pernr);
         values.put(E_BANKTXT, bankTxt);
 
 
@@ -2787,6 +2788,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Select Pending Indirect Reporting OD data from database table and put into array
 
+    @SuppressLint("Range")
     public ArrayList<OD> getPendingOdIndirect() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2823,6 +2825,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Select Personal Info data from database table and put into array
 
+    @SuppressLint("Range")
     public ArrayList<PersonalInfo> getPersonalData() {
 
         SQLiteDatabase db = this.getReadableDatabase();

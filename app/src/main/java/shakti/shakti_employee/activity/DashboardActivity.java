@@ -113,6 +113,8 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_bar_main);
+
+        mContext = this;
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -345,114 +347,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                         navItemIndex = 4;
                         CURRENT_TAG = TAG_SETTINGS;
                         break;
-
-                    case R.id.nav_personal_info_edit:
-
-                        if (CustomUtility.isInternetOn(mContext)) {
-
-                            drawer.closeDrawers();
-
-                            progressBar = new ProgressDialog(DashboardActivity.this);
-                            progressBar.setCancelable(true);
-                            // progressBar.setCancelable(true);
-                            progressBar.setMessage("Downloading Data...");
-                            progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                            progressBar.setProgress(0);
-                            progressBar.setMax(100);
-                            progressBar.show();
-                            //reset progress bar and filesize status
-                            progressBarStatus = 0;
-
-                            new Thread(new Runnable() {
-                                public void run() {
-
-                                    final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-                                    param.add(new BasicNameValuePair("pernr", userModel.uid));
-
-                                    try {
-
-                                        String obj = CustomHttpClient.executeHttpPost1(SapUrl.employee_info_edit, param);
-
-                                        Log.d("emp_obj", obj);
-
-                                        if (obj != null) {
-
-//                                            databaseHelper.deleteempinfo();
-
-                                            JSONObject jsonObj = new JSONObject(obj);
-                                            JSONArray ja = jsonObj.getJSONArray("emp_edit");
-//                                            databaseHelper.deleteempinfo();
-
-                                            for (int i = 0; i < ja.length(); i++) {
-
-                                                JSONObject jo = ja.getJSONObject(i);
-
-
-                                                if (i == 0) {
-
-                                                    usrid = jo.getString("usrid");
-                                                    Log.d("edit_email_check1", usrid);
-                                                }
-
-                                                if (i == 1) {
-
-                                                    house_no = jo.getString("hsnmr");
-                                                    line1 = jo.getString("stras");
-                                                    line2 = jo.getString("locat");
-                                                    city = jo.getString("ort01");
-                                                    district = jo.getString("ort02");
-                                                    postal_code = jo.getString("pstlz");
-
-                                                    Log.d("edit_email_check2", house_no + "---" + line1 + "---" + line2 + "---" + city + "----" +
-                                                            district + "---" + postal_code);
-
-                                                }
-//                                                databaseHelper.insertEmployeeInfo(userModel.uid,
-//                                                        jo.getString("btrtl_txt"),
-//                                                        jo.getString("persk_txt"),
-//                                                        jo.getString("telnr"),
-//                                                        jo.getString("email_shkt"),
-//                                                        jo.getString("hod_ename"),
-//                                                        jo.getString("address"),
-//                                                        jo.getString("birth1"),
-//                                                        jo.getString("bankn"),
-//                                                        jo.getString("bank_txt"));
-                                            }
-
-                                        }
-
-
-                                        progressBarStatus = 100;
-                                    } catch (Exception e) {
-                                        progressBarStatus = 100;
-                                    }
-
-
-                                    progressBar.cancel();
-                                    progressBar.dismiss();
-
-                                    Intent intent = new Intent(DashboardActivity.this, PersonalInfoEditActivity.class);
-                                    intent.putExtra("USRID", usrid);
-                                    intent.putExtra("HOUSE_NO", house_no);
-                                    intent.putExtra("LINE1", line1);
-                                    intent.putExtra("LINE2", line2);
-                                    intent.putExtra("CITY", city);
-                                    intent.putExtra("DISTRICT", district);
-                                    intent.putExtra("POSTAL_CODE", postal_code);
-
-                                    startActivity(intent);
-
-
-                                }
-                            }).start();
-
-                        } else {
-                            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                        }
-
-
-                        break;
-
                     case R.id.nav_personal_info:
                         // launch new intent instead of loading fragment
                         startActivity(new Intent(DashboardActivity.this, PersonalInfoActivity.class));
@@ -549,7 +443,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
 
-            if (CustomUtility.isInternetOn(mContext)) {
+            if (CustomUtility.isInternetOn(getApplicationContext())) {
                 Toast.makeText(getApplicationContext(), "Logout user!", Toast.LENGTH_LONG).show();
 
                 // Delete Data from DB
@@ -607,6 +501,10 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 return true;
             }
         }
+        else {
+            Toast.makeText(getApplicationContext(), "Data already send to Server ", Toast.LENGTH_LONG).show();
+
+        }
 
         // user is in notifications fragment
         // and selected 'Mark all as Read'
@@ -649,93 +547,95 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         progressBar = new ProgressDialog(this);
         progressBar.setCancelable(false);
         // progressBar.setCancelable(true);
-        progressBar.setMessage("Downloading Data...");
+        progressBar.setMessage("Downloading Data from SAP...");
         progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         progressBar.setProgress(0);
         progressBar.setMax(100);
         progressBar.show();
-        //reset progress bar and filesize status
+        //reset progress bar and file size status
         progressBarStatus = 0;
         fileSize = 0;
 
-        new Thread(new Runnable() {
-            public void run() {
+        new Thread(() -> {
 
-//                while (progressBarStatus < 100) {
-                // performing operation
 
+            while (progressBarStatus < 100)
+            {
                 try {
-
                     //Get All Data
-                    progressBarStatus = con.getAllData(DashboardActivity.this, userModel.uid);
-                    //progressBarStatus = 10 ;
+                    progressBarStatus = con.getActiveEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
+                    progressBarStatus = con.getLeaveBalance(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getAttendanceEmp(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getInfoEmp(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
+                   /* progressBarStatus = con.getPendingLeaveForApp(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));*/
 
-                    progressBarStatus = 30;
+                    progressBarStatus = con.getPendingLeave(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getPendingOD(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getLeaveEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    progressBarStatus = 50;
+                    progressBarStatus = con.getODEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getPendingTask(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getCountry(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    progressBarStatus = 100;
+                    progressBarStatus = con.getRegion(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getDistrict(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getTehsil(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getTaxcode(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getExpenses(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getCurrency(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    // progressBarStatus = con.getAllData(DashboardActivity.this, userModel.uid);
+
 
 
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
-//                }
-                //                  performing operation if file is downloaded,
-                if (progressBarStatus >= 100) {
-                    // sleeping for 1 second after operation completed
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // close the progress bar dialog
-                    progressBar.dismiss();
-
-                    if (!isTrackingServiceRunning()) {
-                        Log.d("tracking_service", "Tracking Service Started");
-                        startService(new Intent(DashboardActivity.this, TimeService.class));
-                    }
-
-                }
+            }try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+                // close the progress bar dialog
+                progressBar.dismiss();
+
+                if (!isTrackingServiceRunning()) {
+                    Log.d("tracking_service", "Tracking Service Started");
+                    startService(new Intent(DashboardActivity.this, TimeService.class));
+                }
+
+
         }).start();
 
     }
