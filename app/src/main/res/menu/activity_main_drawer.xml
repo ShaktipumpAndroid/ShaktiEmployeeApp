@@ -40,11 +40,11 @@
                 android:icon="@drawable/navi_ic_personal"
                 android:title="@string/nav_info" />
 
-            <item
+         <!--   <item
                 android:id="@+id/nav_personal_info_edit"
                 android:icon="@drawable/navi_ic_personal"
                 android:title="@string/nav_info_edit" />
-
+-->
             <!--<item-->
             <!--android:id="@+id/nav_privacy_policy"-->
             <!--android:title="@string/privacy_policy" />-->

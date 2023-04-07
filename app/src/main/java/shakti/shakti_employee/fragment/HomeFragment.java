@@ -1531,7 +1531,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
             case R.id.act_od_app:
 
-                if (CustomUtility.isInternetOn(context)) {
+                if (dataHelper.getPendinOdCount() > 0)
+                {
+
+                    Intent intent4 = new Intent(context, OdApproveActivity.class);
+                    startActivity(intent4);
+
+                }
+               /* if (CustomUtility.isInternetOn(context)) {
 
 
                     progressBar = new ProgressDialog(context);
@@ -1631,7 +1638,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 } else {
                     Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
                 }
-
+*/
                 break;
 
 
@@ -2960,170 +2967,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         }
 
         }
-
-
-    /*private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2) {
-        // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
-
-        Map<String, String> mapQuery = new HashMap<>();
-
-        mapQuery.put("origins", lat1+","+lon1);
-        mapQuery.put("destinations", lat2+","+lon2);
-        mapQuery.put("units", "metric");
-        mapQuery.put("mode", "driving");
-        mapQuery.put("key", "AIzaSyAohhwZ11LRwoxsS8lJ0VHGkA4L-cwjWmw");
-
-        DistanceApiClient client = RestUtil.getInstance().getRetrofit().create(DistanceApiClient.class);
-
-        Call<DistanceResponse> call = client.getDistanceInfo(mapQuery);
-        call.enqueue(new Callback<DistanceResponse>() {
-            @Override
-            public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
-                if (response.body() != null &&
-                        response.body().getRows() != null &&
-                        response.body().getRows().size() > 0 &&
-                        response.body().getRows().get(0) != null &&
-                        response.body().getRows().get(0).getElements() != null &&
-                        response.body().getRows().get(0).getElements().size() > 0 &&
-                        response.body().getRows().get(0).getElements().get(0) != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDistance() != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDuration() != null) {
-
-                    try {
-
-                        if (progressDialog != null)
-                            if (progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                                progressDialog = null;
-                            }
-                        ;
-
-                        Element element = response.body().getRows().get(0).getElements().get(0);
-                        fullAddress = response.body().getOriginAddresses().get(0);
-                        fullAddress1 = response.body().getDestinationAddresses().get(0);
-                        distance1 = element.getDistance().getText();
-
-                        final Dialog dialog = new Dialog(context);
-                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        dialog.setCancelable(false);
-                        dialog.setContentView(R.layout.custom_dialog2);
-                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                        lp.copyFrom(dialog.getWindow().getAttributes());
-                        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                        dialog.getWindow().setAttributes(lp);
-
-                        final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
-                        final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
-                        final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
-                        final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
-                        final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
-                        final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
-                        final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
-                        final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
-                        final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
-                        final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
-                        final TextView ettxt1 = dialog.findViewById(R.id.txt1);
-                        final TextView ettxt2 = dialog.findViewById(R.id.txt2);
-                        ettrvlmod.requestFocus();
-
-                        etstrdt.setText(current_start_date + " " + current_start_time);
-                        etstrlatlng.setText(from_lat + "," + from_lng);
-                        etenddt.setText(current_end_date + " " + current_end_time);
-                        etendlatlng.setText(to_lat + "," + to_lng);
-
-                        etstrlocadd.setText(fullAddress);
-                        etendlocadd.setText(fullAddress1);
-
-                        ettotdis.setText(distance1);
-
-
-                        ettxt1.setText("Local Conveyance Details");
-                        ettxt2.setText("Press Confirm will end your Journey");
-
-                        etcncl.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                        etconfm.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                                final String travel_mode = ettrvlmod.getText().toString();
-
-                                if (CustomUtility.isInternetOn(context)) {
-                                    if (!TextUtils.isEmpty(travel_mode) && !travel_mode.equals("")) {
-
-                                        progressDialog = ProgressDialog.show(context, "", "Sending Data to server..please wait !");
-
-                                        new Thread(new Runnable() {
-                                            public void run() {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(LoginBean.getUseid(), current_start_date,
-                                                                current_end_date,
-                                                                current_start_time,
-                                                                current_end_time,
-                                                                from_lat,
-                                                                to_lat,
-                                                                from_lng,
-                                                                to_lng,
-                                                                fullAddress,
-                                                                fullAddress1,
-                                                                distance1);
-
-                                                        dataHelper.insertLocalconvenienceData(localConvenienceBean);
-
-                                                        SyncLocalConveneinceDataToSap(travel_mode, current_end_date, current_end_time);
-                                                    }
-                                                });
-                                            };
-                                        }).start();
-
-                                        dialog.dismiss();
-
-                                    } else {
-                                        Toast.makeText(context, "Please Enter Travel Mode.", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Please Connect to Internet...", Toast.LENGTH_SHORT).show();
-                                }
-
-                            }
-                        });
-
-                        dialog.show();
-
-                    } catch (Exception e) {
-                        Log.d("onResponse", "There is an error");
-                        e.printStackTrace();
-                        if(progressDialog!=null)
-                            if (progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                                progressDialog = null;
-                            };
-                    }
-                }
-            }
-
-            @Override
-            public void onFailure(Call<DistanceResponse> call, Throwable t) {
-
-                Log.e("Failed", "&&&", t);
-
-                if(progressDialog!=null)
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                        progressDialog = null;
-                    };
-
-            }
-        });
-    }*/
 
 
     public void  SyncLocalConveneinceDataToSap(String mode,String add,String add1,String date,String time, String pernr) {

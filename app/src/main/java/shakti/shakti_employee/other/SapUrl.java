@@ -59,7 +59,6 @@ public class SapUrl {
     public static final String leave_report = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/leave_report.htm";
     public static final String od_report = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/od_report.htm";
     public static final String employee_info = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/employee_info.htm";
-    public static final String employee_info_edit = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/employee_info_edit.htm";
     public static final String forgotpass_url = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/forgot_password.htm";
     public static final String payslip = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/employee_payslip.htm";
     public static final String SYNC_OFFLINE_DATA_TO_SAP = "https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/sync_offline_data.htm";

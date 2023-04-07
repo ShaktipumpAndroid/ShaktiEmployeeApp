@@ -438,7 +438,7 @@ public class SAPWebService {
                             jo.getString("hod_ename"),
                             jo.getString("address"),
                             jo.getString("birth1"),
-                            jo.getString("bankn"),
+                            jo.getString("pernr"),
                             jo.getString("bank_txt"));
                 }
 
