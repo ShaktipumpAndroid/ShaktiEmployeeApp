@@ -1,5 +1,8 @@
 package shakti.shakti_employee.fragment;
 
+import static shakti.shakti_employee.R.id;
+import static shakti.shakti_employee.R.layout;
+
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -7,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,7 +40,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.activity.DashboardActivity;
@@ -48,10 +49,6 @@ import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.other.SelectDateFragment;
-
-import static shakti.shakti_employee.R.id;
-import static shakti.shakti_employee.R.layout;
-import static shakti.shakti_employee.R.style;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -69,7 +66,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
     private static FragmentManager mFragmentManager;
     String leavetype;
     String obj_leave_balance;
-    Spinner leave_type, leave_duration;
+
     EditText leave_from, leave_to, leave_reason;
     Spinner spinner;
     int index;
@@ -174,16 +171,16 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
         View v = inflater.inflate(layout.fragment_leave_request, container, false);
 
         /*       Toast.makeText(getActivity(), "Leave Request form", Toast.LENGTH_SHORT).show();*/
-        leave_from = (EditText) v.findViewById(id.leave_from);
-        leave_to = (EditText) v.findViewById(id.leave_to);
-        leave_reason = (EditText) v.findViewById(id.leave_reason);
+        leave_from = v.findViewById(id.leave_from);
+        leave_to = v.findViewById(id.leave_to);
+        leave_reason = v.findViewById(id.leave_reason);
 
-        per_chrg1 = (AutoCompleteTextView) v.findViewById(id.per_chrg1);
-        per_chrg2 = (AutoCompleteTextView) v.findViewById(id.per_chrg2);
-        per_chrg3 = (AutoCompleteTextView) v.findViewById(id.per_chrg3);
-        per_chrg4 = (AutoCompleteTextView) v.findViewById(id.per_chrg4);
-        bt_dp_lev_frm = (ImageButton) v.findViewById(id.bt_dp_lev_frm);
-        bt_dp_lev_to = (ImageButton) v.findViewById(id.bt_dp_lev_to);
+        per_chrg1 = v.findViewById(id.per_chrg1);
+        per_chrg2 = v.findViewById(id.per_chrg2);
+        per_chrg3 = v.findViewById(id.per_chrg3);
+        per_chrg4 = v.findViewById(id.per_chrg4);
+        bt_dp_lev_frm = v.findViewById(id.bt_dp_lev_frm);
+        bt_dp_lev_to = v.findViewById(id.bt_dp_lev_to);
 
 
         //////////////////////
@@ -210,7 +207,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
                             String selectedDate = i2 + "/" + i1 + "/" + i;
                             Date date1 = sdf.parse(selectedDate);
 
-                            TextView tvDt = (TextView) getView().findViewById(R.id.leave_from);
+                            TextView tvDt = getView().findViewById(id.leave_from);
                             tvDt.setText(sdf.format(date1));
                         }
                         catch (ParseException e)
@@ -250,7 +247,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
                             String selectedDate = i2 + "/" + i1 + "/" + i;
                             Date date1 = sdf.parse(selectedDate);
 
-                            TextView tvDt = (TextView) getView().findViewById(id.leave_to);
+                            TextView tvDt = getView().findViewById(id.leave_to);
                             tvDt.setText(sdf.format(date1));
                         }
                         catch (ParseException e)
@@ -268,7 +265,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
 
         // Save Date (Send Request to SAP)
-        TextView save = (TextView) v.findViewById(id.save);
+        TextView save = v.findViewById(id.save);
         save.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -286,11 +283,11 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
         // Spinner for Leave type
         /*String [] values = { "Earned", "Casual", "Medical", "Paternity", "Maternity", "Without Pay",};*/
-        Spinner spinner = (Spinner) v.findViewById(id.leave_type);
+        Spinner spinner = v.findViewById(id.leave_type);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), layout.spinner_item, leavebalance);
         adapter.setDropDownViewResource(layout.spinner_item);
         spinner.setAdapter(adapter);
-        spinner = (Spinner) v.findViewById(id.leave_type);
+        spinner = v.findViewById(id.leave_type);
 
 
         // Spinner selection item for leave type
@@ -312,7 +309,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
         // Spinner selection for Leave Duration
         String[] leave_duration = {"Full Day or More", "Half Day",};
-        Spinner spinner1 = (Spinner) v.findViewById(id.leave_duration);
+        Spinner spinner1 = v.findViewById(id.leave_duration);
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(this.getActivity(),
                 layout.spinner_item, leave_duration);
         adapter.setDropDownViewResource(layout.spinner_item);
@@ -342,7 +339,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
         /*Toast.makeText(getActivity(),"Leave Request get data activ emp", Toast.LENGTH_SHORT).show();*/
         languages = dataHelper.getDiscription();
         Log.d("languages", " " + languages);
-        per_chrg1 = (AutoCompleteTextView) v.findViewById(id.per_chrg1);
+        per_chrg1 = v.findViewById(id.per_chrg1);
         ArrayAdapter adapter11 = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, languages);
         per_chrg1.setAdapter(adapter11);
         per_chrg1.setThreshold(1);
@@ -350,7 +347,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
         // For per chrg 2 Help
 
-        per_chrg2 = (AutoCompleteTextView) v.findViewById(id.per_chrg2);
+        per_chrg2 = v.findViewById(id.per_chrg2);
         ArrayAdapter adapter12 = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, languages);
         per_chrg2.setAdapter(adapter12);
         per_chrg2.setThreshold(1);
@@ -358,7 +355,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
         // For per chrg 3 Help
 
-        per_chrg3 = (AutoCompleteTextView) v.findViewById(id.per_chrg3);
+        per_chrg3 = v.findViewById(id.per_chrg3);
         ArrayAdapter adapter13 = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, languages);
         per_chrg3.setAdapter(adapter13);
         per_chrg3.setThreshold(1);
@@ -366,7 +363,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
         // For per chrg 4 Help
 
-        per_chrg4 = (AutoCompleteTextView) v.findViewById(id.per_chrg4);
+        per_chrg4 = v.findViewById(id.per_chrg4);
         ArrayAdapter adapter14 = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, languages);
         per_chrg4.setAdapter(adapter14);
         per_chrg4.setThreshold(1);
