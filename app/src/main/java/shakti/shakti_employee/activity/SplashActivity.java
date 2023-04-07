@@ -88,13 +88,7 @@ public class SplashActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 */
-                if (Float.parseFloat(newVersion) > Float.parseFloat(versionName)) {
 
-                    SplashActivity.this.finish();
-                    Intent i = new Intent(SplashActivity.this, UpdateActivity.class);
-                    startActivity(i);
-
-                } else {
 
                     Log.d("newVersion", newVersion + "--" + versionName);
                     if (Utility.isDateTimeAutoUpdate(mContext)) {
@@ -116,7 +110,6 @@ public class SplashActivity extends AppCompatActivity {
                         mContext.startActivity(intent);
                         finish();
                     }
-                }
             }
         }, 1000);
 
