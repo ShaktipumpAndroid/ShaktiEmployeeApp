@@ -7,23 +7,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.StrictMode;
 import android.provider.Settings;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import com.google.android.material.navigation.NavigationView;
 import android.util.Log;
-import android.view.animation.Animation;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -32,10 +23,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import shakti.shakti_employee.BuildConfig;
 import shakti.shakti_employee.R;
-import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.other.CustomUtility;
-import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.rest.ApiClient;
 import shakti.shakti_employee.rest.ApiInterface;
 import shakti.shakti_employee.retrofit_response.VersionResponse;
@@ -58,7 +47,7 @@ public class SplashActivity extends AppCompatActivity {
         mContext = this;
 
 
-        imageView = (ImageView) findViewById(R.id.imageSplash);
+        imageView = findViewById(R.id.imageSplash);
 
         versionName = BuildConfig.VERSION_NAME;
 
@@ -99,13 +88,7 @@ public class SplashActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
 */
-                if (Float.parseFloat(newVersion) > Float.parseFloat(versionName)) {
 
-                    SplashActivity.this.finish();
-                    Intent i = new Intent(SplashActivity.this, UpdateActivity.class);
-                    startActivity(i);
-
-                } else {
 
                     Log.d("newVersion", newVersion + "--" + versionName);
                     if (Utility.isDateTimeAutoUpdate(mContext)) {
@@ -127,7 +110,6 @@ public class SplashActivity extends AppCompatActivity {
                         mContext.startActivity(intent);
                         finish();
                     }
-                }
             }
         }, 1000);
 
