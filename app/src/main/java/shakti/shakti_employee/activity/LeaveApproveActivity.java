@@ -4,18 +4,20 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+
 import com.google.android.material.navigation.NavigationView;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.database.DatabaseHelper;
@@ -48,7 +50,7 @@ public class LeaveApproveActivity extends AppCompatActivity {
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
     // flag to load home fragment when user presses back key
-    private boolean shouldLoadHomeFragOnBackPress = true;
+    private final boolean shouldLoadHomeFragOnBackPress = true;
     private Handler mHandler;
     private LoggedInUser userModel;
     private Context mContext;
@@ -57,14 +59,14 @@ public class LeaveApproveActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_bar_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
         mHandler = new Handler();
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        drawer = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
 
 
         mContext = this;
@@ -72,8 +74,8 @@ public class LeaveApproveActivity extends AppCompatActivity {
 
         // Navigation view header
         navHeader = navigationView.getHeaderView(0);
-        /*txtName = (TextView) navHeader.findViewById(R.id.name);*/
-        txtName = (TextView) navHeader.findViewById(R.id.name);
+
+        txtName = navHeader.findViewById(R.id.name);
 
         activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
 
@@ -205,11 +207,7 @@ public class LeaveApproveActivity extends AppCompatActivity {
                 }
 
                 //Checking if the item is in checked state or not, if not make it in checked state
-                if (menuItem.isChecked()) {
-                    menuItem.setChecked(false);
-                } else {
-                    menuItem.setChecked(true);
-                }
+                menuItem.setChecked(!menuItem.isChecked());
                 menuItem.setChecked(true);
 
 //                loadHomeFragment();

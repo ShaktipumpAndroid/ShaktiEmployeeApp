@@ -99,6 +99,8 @@
     <string name="result_code">"Update canceled by user! Result Code: "</string>
     <string name="update_success">Update success!</string>
     <string name="update_failed">"Update Failed! Result Code: "</string>
+    <string name="all_permission">Please allow all the permission</string>
+    <string name="storage_permission">Allow permission for storage access!</string>
 
 
     <!-- For MRC Type Spinner -->

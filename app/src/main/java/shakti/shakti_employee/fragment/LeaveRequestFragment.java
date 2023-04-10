@@ -270,9 +270,10 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
             @Override
             public void onClick(View view) {
-                /*Toast.makeText(dashboardActivity.this, "You request for reset password", Toast.LENGTH_LONG).show();*/
+
                 if (CustomUtility.isInternetOn(mContext)) {
-                    submitForm();   // Send Request to SAP
+                    submitForm();// Send Request to SAP
+                    /*dataHelper.insertLeaveCreate();//save in database*/
                 } else {
                     Toast.makeText(getActivity().getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
                 }
@@ -283,6 +284,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
         // Spinner for Leave type
         /*String [] values = { "Earned", "Casual", "Medical", "Paternity", "Maternity", "Without Pay",};*/
+
         Spinner spinner = v.findViewById(id.leave_type);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this.getActivity(), layout.spinner_item, leavebalance);
         adapter.setDropDownViewResource(layout.spinner_item);
@@ -552,16 +554,7 @@ public class LeaveRequestFragment extends Fragment implements View.OnClickListen
 
     }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
+
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);

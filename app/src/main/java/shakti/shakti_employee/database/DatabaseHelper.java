@@ -23,7 +23,6 @@ import shakti.shakti_employee.bean.AttendanceBean;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
 import shakti.shakti_employee.bean.EmployeeGPSActivityBean;
 import shakti.shakti_employee.bean.LocalConvenienceBean;
-
 import shakti.shakti_employee.bean.LocalConvenienceBean1;
 import shakti.shakti_employee.bean.LoginBean;
 import shakti.shakti_employee.bean.TravelEntryDomDocBean;
@@ -35,7 +34,6 @@ import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.Country;
 import shakti.shakti_employee.other.Currency;
-import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.District;
 import shakti.shakti_employee.other.Expenses;
 import shakti.shakti_employee.other.Gatepass;
@@ -81,6 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String TABLE_TRAVEL_DOM_EXPENSES1 = "tbl_travel_dom_exp1";
     public static final String TABLE_TRAVEL_EXP_EXPENSES = "tbl_travel_exp_exp";
     public static final String TABLE_TRAVEL_EXP_EXPENSES1 = "tbl_travel_exp_exp1";
+
     public static final String KEY_PERNR = "pernr";
     public static final String KEY_ENAME = "ename";
     public static final String KEY_PASSWORD = "password";
@@ -487,6 +486,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + LEV_KEY_APPHOD + " TEXT,"
             + LEV_KEY_DELE + " TEXT,"
             + LEV_KEY_REASON + " TEXT)";
+
+
     private static final String CREATE_TABLE_OD = "CREATE TABLE IF NOT EXISTS "
             + TABLE_OD + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT," + R_OD_PERNR + " TEXT,"
             + R_OD_NO + " TEXT,"
@@ -1080,7 +1081,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(KEY_LEAVETYPE, leavetype);
-  /*      values.put(KEY_ENAME, beanproduct.getEname());
+       /* values.put(KEY_ENAME, beanproduct.getEname());
         values.put(KEY_BTEXT, beanproduct.getBtext());*/
 
         // insert row
@@ -1096,6 +1097,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
     }
+
 
     public void insertLocalconvenienceData(LocalConvenienceBean localconvenienceBean) {
         // Open the database for writing
@@ -1213,6 +1215,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
 
     }*/
+   @SuppressLint("Range")
    public ArrayList<LocalConvenienceBean1> getLocalConvience(Context context, String pernr) {
        String userid = LoginBean.getUseid();
        ArrayList<LocalConvenienceBean1> list_employeeGPSActivity = new ArrayList<>();
@@ -2292,6 +2295,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     //Active employee data
+    @SuppressLint("Range")
     public ArrayList<String> getDiscription() {
 
 
@@ -2326,6 +2330,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Leave Balance data from database table and put into array
 
+    @SuppressLint("Range")
     public ArrayList<String> getLeaveBalance() {
 
 
@@ -2402,6 +2407,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Select Pending Leave Direct Reporting data from database table and put into array
 
+    @SuppressLint("Range")
     public ArrayList<States> getPendingLeaveDirect() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2435,6 +2441,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public ArrayList<Country> getCountry() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2463,6 +2470,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return countryArrayList;
     }
 
+    @SuppressLint("Range")
     public ArrayList<Region> getRegion(String land1) {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2494,6 +2502,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public ArrayList<District> getDistrict(String land1, String regio) {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2526,6 +2535,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public ArrayList<Tehsil> getTehsil(String cityc) {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2558,6 +2568,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public ArrayList<Taxcode> getTaxcode() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2617,6 +2628,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return expensesArrayList;
     }
 
+    @SuppressLint("Range")
     public ArrayList<Currency> getCurrency() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2647,6 +2659,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public ArrayList<Gatepass> getPendingGatepassDirect() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2681,6 +2694,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public ArrayList<Gatepass> getPendingGatepassInDirect() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -4482,7 +4496,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = "SELECT  * FROM " + TABLE_PENDING_GATEPASS ;
-//        String selectQuery =  "SELECT  * FROM " + TABLE_PENDING_LEAVE;
+
 
         Cursor d = db.rawQuery(selectQuery, null);
 
@@ -4493,16 +4507,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    public Integer getPendinOdCount() {
+    public Integer getPendingOdCount() {
 
         SQLiteDatabase db = this.getReadableDatabase();
 
 //        String selectQuery =  "SELECT  * FROM " + TABLE_PENDING_OD;
-        String selectQuery = "SELECT  * FROM " + TABLE_PENDING_OD ;
+        String selectQuery = "SELECT  * FROM " + TABLE_PENDING_OD;
 
         Cursor d = db.rawQuery(selectQuery, null);
 
-        // Log.d("pending_od_count", " " + d.getCount());
+        Log.d("pending_od_count", " " + d.getCount());
 
         return d.getCount();
 
@@ -4630,7 +4644,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public ArrayList<EmployeeGPSActivityBean> getEmployeeGpsActivity(Context context) {
         LoginBean lb = new LoginBean();
-        String userid = lb.getUseid();
+        String userid = LoginBean.getUseid();
         ArrayList<EmployeeGPSActivityBean> list_employeeGPSActivity = new ArrayList<>();
         list_employeeGPSActivity.clear();
 
@@ -4696,7 +4710,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public void insertLeaveCreate() {
 
+
+    }
 }
 
 

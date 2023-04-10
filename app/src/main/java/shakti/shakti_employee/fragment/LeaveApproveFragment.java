@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +17,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -66,9 +64,7 @@ public class LeaveApproveFragment extends Fragment {
     String DIRECT_INDIRECT;
     String pressed_direct_indirect;
     String leave_app_return_msg = null;
-    String userid, dsr_comment, dsr_activity_type, help_name, save_data;
-    EditText editText_comment;
-    ProgressDialog progressBar;
+
     ArrayList<States> stateList;
     Timer timer;
     Context context;
@@ -84,8 +80,8 @@ public class LeaveApproveFragment extends Fragment {
     private ProgressDialog progressDialog;
     private LoggedInUser userModel;
     private Context mContext;
-    private int progressBarStatus = 0;
-    private Handler progressBarHandler = new Handler();
+    private final int progressBarStatus = 0;
+    private final Handler progressBarHandler = new Handler();
 
 
     public LeaveApproveFragment() {
@@ -100,8 +96,6 @@ public class LeaveApproveFragment extends Fragment {
     }
 
 
-    //
-
     public void setDashBoard(DashboardActivity dashBoard) {
         this.dashboardActivity = dashBoard;
     }
@@ -113,104 +107,8 @@ public class LeaveApproveFragment extends Fragment {
 
         mContext = getActivity();
         userModel = new LoggedInUser(mContext);
-        dataHelper = new DatabaseHelper(getActivity());
 
-
-//        if (checkInternetConenction()) {
-//
-//            dataHelper.deletePendingLeave();
-//
-//            progressBar = new ProgressDialog(getActivity());
-//            progressBar.setCancelable(true);
-//            // progressBar.setCancelable(true);
-//            progressBar.setMessage("Downloading Data...");
-//            progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//            progressBar.setProgress(0);
-//            progressBar.setMax(100);
-//            progressBar.show();
-//            //reset progress bar and filesize status
-//            progressBarStatus = 0;
-//
-//            new Thread(new Runnable() {
-//                public void run() {
-//
-//                    final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-//                    param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-//
-//                    try {
-//
-//                        String obj = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-//
-//                        Log.d("att_emp_obj", obj);
-//
-//                        if (obj != null) {
-//
-//
-//                            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-//
-//                            obj_pending_leave = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-//
-//                            Log.d("pending_leave", "" + obj_pending_leave);
-//
-//                            JSONArray ja_mat = new JSONArray(obj_pending_leave);
-//
-//
-//                            for (int i = 0; i < ja_mat.length(); i++) {
-//
-//                                JSONObject jo_matnr = ja_mat.getJSONObject(i);
-//
-//
-//                                KEY_LEV_NO = jo_matnr.getString("leavNo");
-//                                HORO = jo_matnr.getString("horo");
-//                                ENAME = jo_matnr.getString("name");
-//                                LEV_TYP = jo_matnr.getString("dedQuta1");
-//                                LEV_FRM = jo_matnr.getString("levFr");
-//                                LEV_TO = jo_matnr.getString("levT");
-//                                REASON = jo_matnr.getString("reason");
-//                                CHRG_NAME1 = jo_matnr.getString("nameperl");
-//                                CHRG_NAME2 = jo_matnr.getString("nameperl2");
-//                                CHRG_NAME3 = jo_matnr.getString("nameperl3");
-//                                CHRG_NAME4 = jo_matnr.getString("nameperl4");
-//                                DIRECT_INDIRECT = jo_matnr.getString("directIndirect");
-//
-//                                dataHelper.createPendingLeave(KEY_LEV_NO, HORO, ENAME, LEV_TYP, LEV_FRM, LEV_TO,
-//                                        REASON, CHRG_NAME1, CHRG_NAME2, CHRG_NAME3, CHRG_NAME4, DIRECT_INDIRECT);
-//
-//                            }
-//
-//
-//                        }
-//
-//                        progressBarStatus = 100;
-//
-//                        // Updating the progress bar
-//                        progressBarHandler.post(new Runnable() {
-//                            public void run() {
-//
-//                                progressBar.setProgress(progressBarStatus);
-//                            }
-//                        });
-//
-//
-//                        progressBar.cancel();
-//                        progressBar.dismiss();
-//
-//
-//                        Thread.sleep(5000);
-//                    } catch (Exception e) {
-//
-//                    }
-//
-//
-//                }
-//            }).start();
-//
-//        } else {
-//            Toast.makeText(getActivity().getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-//        }
-
-
-        stateList = new ArrayList<States>();
+        stateList = new ArrayList<>();
         stateList = dataHelper.getPendingLeaveDirect();
 
         if (stateList.size() > 0) {
@@ -227,49 +125,40 @@ public class LeaveApproveFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_leave_approve, container, false);
 
-        final ListView listView = (ListView) v.findViewById(R.id.listView1);
+        final ListView listView = v.findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
 
-//        insert_pending_leave();      // Commented
-
         pressed_direct_indirect = "D";
-//        ArrayList<States> stateList = new ArrayList<States>();
-//        stateList = dataHelper.getPendingLeaveDirect();
-
-        bt_direct = (TextView) v.findViewById(R.id.bt_direct);
-        bt_inline = (TextView) v.findViewById(R.id.bt_inline);
 
 
-        bt_direct.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    bt_direct.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded_disabled));
-                    bt_inline.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded));
-                }
+        bt_direct = v.findViewById(R.id.bt_direct);
+        bt_inline = v.findViewById(R.id.bt_inline);
 
-                pressed_direct_indirect = "D";
-                fetch_direct();
+
+        bt_direct.setOnClickListener(view -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                bt_direct.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded_disabled));
+                bt_inline.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded));
             }
+
+            pressed_direct_indirect = "D";
+            fetch_direct();
         });
 
 
-        bt_inline.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                    bt_direct.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded));
-                    bt_inline.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded_disabled));
-                }
-                pressed_direct_indirect = "I";
-                fetch_indirect();
+        bt_inline.setOnClickListener(view -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                bt_direct.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded));
+                bt_inline.setBackground(mContext.getResources().getDrawable(R.drawable.all_corners_rounded_disabled));
             }
+            pressed_direct_indirect = "I";
+            fetch_indirect();
         });
 
 
         if (pressed_direct_indirect == "D") {
-            ArrayList<States> stateList = new ArrayList<States>();
+            ArrayList<States> stateList;
             stateList = dataHelper.getPendingLeaveDirect();
 
 
@@ -299,7 +188,7 @@ public class LeaveApproveFragment extends Fragment {
 
         }
         if (pressed_direct_indirect == "I") {
-            ArrayList<States> stateList = new ArrayList<States>();
+            ArrayList<States> stateList;
             stateList = dataHelper.getPendingLeaveInDirect();
 
             //create an ArrayAdaptar from the String Array
@@ -323,206 +212,7 @@ public class LeaveApproveFragment extends Fragment {
 
         }
 
-
-
-        /*leavebalance = dataHelper.getLeaveBalance();*/
-
-
-        //Array list of countries
-
-
-/*        States _states = new States("651","1","Rohit Patidar","Earned","01.01.2017","01.01.2017","New Year",false);
-        stateList.add(_states);
-        _states = new States("651","1","Rohit Patidar","Earned","01.01.2017","01.01.2017","New Year",false);
-        stateList.add(_states);
-        _states = new States("651","1","Rohit Patidar","Earned","01.01.2017","01.01.2017","New Year",false);
-        stateList.add(_states);
-        _states = new States("651","1","Rohit Patidar","Earned","01.01.2017","01.01.2017","New Year",false);
-        stateList.add(_states);
-            */
-
-
-//        //create an ArrayAdaptar from the String Array
-//        dataAdapter = new MyCustomAdapter(this.getActivity(),R.layout.state_info, stateList);
-//        ListView listView = (ListView) v.findViewById(R.id.listView1);
-//        // Assign adapter to ListView
-//        listView.setAdapter(dataAdapter);
-//
-//        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-//        {
-//
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-//            {
-//                // When clicked, show a toast with the TextView text
-//                States state = (States) parent.getItemAtPosition(position);
-//
-//                show_dailog(state.getLeaveNo());
-//
-//                /*Toast.makeText(getContext(),"Clicked on Row: " + state.getName(),Toast.LENGTH_LONG).show();*/
-//
-//            }
-//        });
-
-
-        /////////////
-
-        /*
-        TextView myButton = (TextView) v.findViewById(R.id.leave_approve);
-
-        myButton.setOnClickListener(new View.OnClickListener()
-        {
-
-            @Override
-            public void onClick(View v)
-            {
-
-                StringBuffer responseText = new StringBuffer();
-                responseText.append("The following were selected...\n");
-
-                ArrayList<States> stateList = dataAdapter.stateList;
-
-                for(int i=0;i<stateList.size();i++)
-                {
-                    States state = stateList.get(i);
-
-                    if(state.isSelected())
-                    {
-
-                        *//*responseText.append("\n" + state.getName());*//*
-
-                        // Approve Selected Leaves
-                           send_leave_approval_sap(state.getLeaveNo());
-
-
-                    }
-                }
-
-                Toast.makeText(getContext(), responseText, Toast.LENGTH_LONG).show();
-            }
-        });*/
-
-
         return v;
-    }
-
-    private void displayListView() {
-
-/*        //Array list of countries
-        ArrayList<States> stateList = new ArrayList<States>();
-
-        States _states = new States("AP","Andhra Pradesh",false);
-        stateList.add(_states);
-        _states = new States("DL","Delhi",true);
-        stateList.add(_states);
-        _states = new States("GA","Goa",false);
-        stateList.add(_states);
-        _states = new States("JK","Jammu & Kashmir",true);
-        stateList.add(_states);
-        _states = new States("KA","Karnataka",true);
-        stateList.add(_states);
-        _states = new States("KL","Kerala",false);
-        stateList.add(_states);
-        _states = new States("RJ","Rajasthan",false);
-        stateList.add(_states);
-        _states = new States("WB","West Bengal",false);
-        stateList.add(_states);
-
-        //create an ArrayAdaptar from the String Array
-        dataAdapter = new MyCustomAdapter(getActivity().R.layout.state_info, stateList);
-        ListView listView = (ListView) v.findViewById(R.id.listView1);
-        // Assign adapter to ListView
-        listView.setAdapter(dataAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener()
-        {
-
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-            {
-                // When clicked, show a toast with the TextView text
-                States state = (States) parent.getItemAtPosition(position);
-                Toast.makeText(getContext(),"Clicked on Row: " + state.getName(),
-                        Toast.LENGTH_LONG).show();
-            }
-        });*/
-    }
-
-    public void insert_pending_leave() {
-
-        progressDialog = ProgressDialog.show(getActivity(), "", "Please wait.. searching pending leave(s)!  ");
-
-        Toast.makeText(getActivity(), "Pending leave list", Toast.LENGTH_SHORT).show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String obj = calculate_pending_leave();
-                Log.d("res_obj", "" + obj);
-                if (obj != null) {
-                    progressDialog.dismiss();
-                }
-            }
-
-        }).start();
-
-    }
-
-
-    private String calculate_pending_leave() {
-
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-
-        dataHelper = new DatabaseHelper(getActivity());
-
-        // Delete Pending leave from DB
-        dataHelper.deletependingleave();
-
-
-        /*Log.d("use_per",""+userModel.uid);*/
-
-        try {
-
-
-            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-
-            obj_pending_leave = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-
-            Log.d("pending_leave", "" + obj_pending_leave);
-
-            JSONArray ja_mat = new JSONArray(obj_pending_leave);
-
-            /*Log.d("json55", "" + ja_mat);*/
-
-
-            for (int i = 0; i < ja_mat.length(); i++) {
-
-                JSONObject jo_matnr = ja_mat.getJSONObject(i);
-
-
-                KEY_LEV_NO = jo_matnr.getString("leavNo");
-                HORO = jo_matnr.getString("horo");
-                ENAME = jo_matnr.getString("name");
-                LEV_TYP = jo_matnr.getString("dedQuta1");
-                LEV_FRM = jo_matnr.getString("levFr");
-                LEV_TO = jo_matnr.getString("levT");
-                REASON = jo_matnr.getString("reason");
-                CHRG_NAME1 = jo_matnr.getString("nameperl");
-                CHRG_NAME2 = jo_matnr.getString("nameperl2");
-                CHRG_NAME3 = jo_matnr.getString("nameperl3");
-                CHRG_NAME4 = jo_matnr.getString("nameperl4");
-                DIRECT_INDIRECT = jo_matnr.getString("directIndirect");
-
-                dataHelper.createPendingLeave(KEY_LEV_NO, HORO, ENAME, LEV_TYP, LEV_FRM, LEV_TO,
-                        REASON, CHRG_NAME1, CHRG_NAME2, CHRG_NAME3, CHRG_NAME4, DIRECT_INDIRECT);
-
-            }
-            return obj_pending_leave;
-        } catch (Exception e) {
-            /* progressBarStatus = 40 ;*/
-            Log.d("msg", "" + e);
-        }
-
-        return obj_pending_leave;
-
     }
 
 
@@ -556,8 +246,8 @@ public class LeaveApproveFragment extends Fragment {
                     for (int i = 0; i < 1; i++) {
                         JSONObject jo = ja.getJSONObject(i);
                         leave_app_return_msg = jo.getString("msg");
-                        Log.d("leave_app_return_msg", leave_app_return_msg.toString());
-                        if (leave_app_return_msg.toString().equalsIgnoreCase("k")) {
+                        Log.d("leave_app_return_msg", leave_app_return_msg);
+                        if (leave_app_return_msg.equalsIgnoreCase("k")) {
                             leave_app_return_msg = "Leave Application Approved Successfully";
                         }
 
@@ -603,10 +293,7 @@ public class LeaveApproveFragment extends Fragment {
         alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) {
 
-//                new TimeServiceDownloadData().stopSelf();
-//                new TimeServiceDownloadData().onDestroy();
 
-                // Approve Selected Leaves
                 send_leave_approval_sap(leave_no);
 
             }
@@ -637,7 +324,7 @@ public class LeaveApproveFragment extends Fragment {
 
         //create an ArrayAdaptar from the String Array
         dataAdapter = new MyCustomAdapter(this.getActivity(), R.layout.state_info, stateList);
-        ListView listView = (ListView) getView().findViewById(R.id.listView1);
+        ListView listView = getView().findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
 
@@ -666,25 +353,22 @@ public class LeaveApproveFragment extends Fragment {
 
         //create an ArrayAdaptar from the String Array
         dataAdapter = new MyCustomAdapter(this.getActivity(), R.layout.state_info, stateList);
-        ListView listView = (ListView) getView().findViewById(R.id.listView1);
+        ListView listView = getView().findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
 
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                // When clicked, show a toast with the TextView text
-                States state = (States) parent.getItemAtPosition(position);
+        listView.setOnItemClickListener((parent, view, position, id) -> {
+            // When clicked, show a toast with the TextView text
+            States state = (States) parent.getItemAtPosition(position);
 
 
-                pressed_direct_indirect = "D";
-                show_dailog(pressed_direct_indirect,state.getLeaveNo());
+            pressed_direct_indirect = "D";
+            show_dailog(pressed_direct_indirect, state.getLeaveNo());
 
-                dataAdapter.remove(dataAdapter.getItem(position));
-                dataAdapter.notifyDataSetChanged();
-                /*Toast.makeText(getContext(),"Clicked on Row: " + state.getName(),Toast.LENGTH_LONG).show();*/
+            dataAdapter.remove(dataAdapter.getItem(position));
+            dataAdapter.notifyDataSetChanged();
+            /*Toast.makeText(getContext(),"Clicked on Row: " + state.getName(),Toast.LENGTH_LONG).show();*/
 
-            }
         });
 
     }
@@ -706,7 +390,7 @@ public class LeaveApproveFragment extends Fragment {
 
     private class MyCustomAdapter extends ArrayAdapter<States> {
 
-        private ArrayList<States> stateList;
+        private final ArrayList<States> stateList;
 
         public MyCustomAdapter(Context context, int textViewResourceId,
 
@@ -728,14 +412,14 @@ public class LeaveApproveFragment extends Fragment {
 
 
                 holder = new ViewHolder();
-                holder.leave_no = (TextView) convertView.findViewById(R.id.code);
-                holder.name = (TextView) convertView.findViewById(R.id.name);
-                holder.horo = (TextView) convertView.findViewById(R.id.leave_duration);
-                holder.leave_type = (TextView) convertView.findViewById(R.id.leave_type);
-                holder.leave_from = (TextView) convertView.findViewById(R.id.leave_from);
-                holder.leave_to = (TextView) convertView.findViewById(R.id.leave_to);
-                holder.leave_reason = (TextView) convertView.findViewById(R.id.leave_reason);
-                holder.checkBox1 = (CheckBox) convertView.findViewById(R.id.checkBox1);
+                holder.leave_no = convertView.findViewById(R.id.code);
+                holder.name = convertView.findViewById(R.id.name);
+                holder.horo = convertView.findViewById(R.id.leave_duration);
+                holder.leave_type = convertView.findViewById(R.id.leave_type);
+                holder.leave_from = convertView.findViewById(R.id.leave_from);
+                holder.leave_to = convertView.findViewById(R.id.leave_to);
+                holder.leave_reason = convertView.findViewById(R.id.leave_reason);
+                holder.checkBox1 = convertView.findViewById(R.id.checkBox1);
 
                 convertView.setTag(holder);
 

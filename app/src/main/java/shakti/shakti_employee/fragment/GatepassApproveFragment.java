@@ -1,6 +1,7 @@
 package shakti.shakti_employee.fragment;
 
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -102,7 +103,7 @@ public class GatepassApproveFragment extends Fragment {
         }
     };
     private int progressBarStatus = 0;
-    private Handler progressBarHandler = new Handler();
+    private final Handler progressBarHandler = new Handler();
 
     public GatepassApproveFragment() {
         // Required empty public constructor
@@ -212,112 +213,26 @@ public class GatepassApproveFragment extends Fragment {
         }
 
 
-        // stateList = new ArrayList<Gatepass>();
-        //stateList=dataHelper.getPendingGatepassDirect();
-
-//        if (stateList.size()>0) {
-//            dataAdapter = new MyCustomAdapter(getActivity(), R.layout.state_info, stateList);
-//        }else {
-//            Toast.makeText(getActivity().getApplicationContext(),"No Records Found",Toast.LENGTH_SHORT).show();
-//        }
 
 
     }
-//
-//    public void insert_pending_leave() {
-//
-//        progressDialog = ProgressDialog.show(getActivity(), "", "Please wait.. searching pending leave(s)!  ");
-//
-//        Toast.makeText(getActivity(), "Pending leave list", Toast.LENGTH_SHORT).show();
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                String obj = calculate_pending_leave();
-//                Log.d("res_obj", "" + obj);
-//                if (obj != null) {
-//                   progressDialog.dismiss();
-//                }
-//            }
-//
-//        }).start();
-//
-//    }
 
 
-//
-//    private String calculate_pending_leave() {
-//
-//        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-//
-//        DatabaseHelper dataHelper = new DatabaseHelper(getActivity());
-//
-//        // Delete Pending leave from DB
-//        dataHelper.deletependingleave();
-//
-//        try {
-//
-//
-//            param.add(new BasicNameValuePair("app_pernr",userModel.uid));
-//
-//            obj_pending_gp = CustomHttpClient.executeHttpPost1(SapUrl.pending_Gatepass, param);
-//
-//            Log.d("pending_leave",""+obj_pending_gp);
-//
-//            JSONArray ja_mat = new JSONArray(obj_pending_gp);
-//
-//            /*Log.d("json55", "" + ja_mat);*/
-//
-//
-//            for (int i = 0; i < ja_mat.length(); i++) {
-//
-//                JSONObject jo_matnr = ja_mat.getJSONObject(i);
-//
-//
-//                KEY_LEV_NO = jo_matnr.getString("leavNo");
-//                HORO = jo_matnr.getString("horo");
-//                ENAME = jo_matnr.getString("name");
-//                LEV_TYP = jo_matnr.getString("dedQuta1");
-//                LEV_FRM = jo_matnr.getString("levFr");
-//                LEV_TO = jo_matnr.getString("levT");
-//                REASON = jo_matnr.getString("reason");
-//                CHRG_NAME1= jo_matnr.getString("nameperl");
-//                CHRG_NAME2= jo_matnr.getString("nameperl2");
-//                CHRG_NAME3= jo_matnr.getString("nameperl3");
-//                CHRG_NAME4= jo_matnr.getString("nameperl4");
-//                DIRECT_INDIRECT= jo_matnr.getString("directIndirect");
-//
-//                dataHelper.createPendingLeave(  KEY_LEV_NO ,HORO, ENAME, LEV_TYP,LEV_FRM, LEV_TO,
-//                        REASON, CHRG_NAME1, CHRG_NAME2 ,CHRG_NAME3,CHRG_NAME4,DIRECT_INDIRECT);
-//
-//            }
-//            return obj_pending_gp ;
-//        }
-//
-//        catch (Exception e)
-//        {
-//           /* progressBarStatus = 40 ;*/
-//            Log.d("msg", "" + e);
-//        }
-//
-//        return obj_pending_gp ;
-//
-//    }
-
+    @SuppressLint("MissingInflatedId")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_gatepass_approve, container, false);
 
-        approv = (TextView) v.findViewById(R.id.approv);
-        listView = (ListView) v.findViewById(R.id.listView1);
+        approv = v.findViewById(R.id.approv);
+        listView = v.findViewById(R.id.listView1);
         // Assign adapter to ListView
         listView.setAdapter(dataAdapter);
 
 
-        bt_direct = (TextView) v.findViewById(R.id.bt_direct);
-        bt_inline = (TextView) v.findViewById(R.id.bt_inline);
+        bt_direct = v.findViewById(R.id.bt_direct);
+        bt_inline = v.findViewById(R.id.bt_inline);
 
 
         bt_direct.setOnClickListener(new View.OnClickListener() {
@@ -433,8 +348,8 @@ public class GatepassApproveFragment extends Fragment {
                     for (int i = 0; i < 1; i++) {
                         JSONObject jo = ja.getJSONObject(i);
                         leave_app_return_msg = jo.getString("msg");
-                        Log.d("leave_app_return_msg", leave_app_return_msg.toString());
-                        if (leave_app_return_msg.toString().equalsIgnoreCase("k")) {
+                        Log.d("leave_app_return_msg", leave_app_return_msg);
+                        if (leave_app_return_msg.equalsIgnoreCase("k")) {
                             leave_app_return_msg = "Leave Application Approved Successfully";
                         }
 
@@ -509,7 +424,7 @@ public class GatepassApproveFragment extends Fragment {
         if (stateList.size() > 0) {
             //create an ArrayAdaptar from the String Array
             dataAdapter = new MyCustomAdapter(this.getActivity(), R.layout.state_info, stateList);
-            ListView listView = (ListView) getView().findViewById(R.id.listView1);
+            ListView listView = getView().findViewById(R.id.listView1);
             // Assign adapter to ListView
             listView.setAdapter(dataAdapter);
 
@@ -675,7 +590,7 @@ public class GatepassApproveFragment extends Fragment {
 
     private class MyCustomAdapter extends ArrayAdapter<Gatepass> {
 
-        private ArrayList<Gatepass> stateList;
+        private final ArrayList<Gatepass> stateList;
 
         private MyCustomAdapter(Context context, int textViewResourceId,
 
@@ -698,14 +613,14 @@ public class GatepassApproveFragment extends Fragment {
 
 
                 holder = new ViewHolder();
-                holder.leave_no = (TextView) convertView.findViewById(R.id.gatePassNo);
-                holder.pernr = (TextView) convertView.findViewById(R.id.pernr);
-                holder.ename = (TextView) convertView.findViewById(R.id.name);
-                holder.date = (TextView) convertView.findViewById(R.id.gpDate);
-                holder.time = (TextView) convertView.findViewById(R.id.gpTime);
-                holder.req_type = (TextView) convertView.findViewById(R.id.gpReqTypq);
-                holder.gp_type = (TextView) convertView.findViewById(R.id.gpType);
-                holder.approve = (TextView) convertView.findViewById(R.id.approv);
+                holder.leave_no = convertView.findViewById(R.id.gatePassNo);
+                holder.pernr = convertView.findViewById(R.id.pernr);
+                holder.ename = convertView.findViewById(R.id.name);
+                holder.date = convertView.findViewById(R.id.gpDate);
+                holder.time = convertView.findViewById(R.id.gpTime);
+                holder.req_type = convertView.findViewById(R.id.gpReqTypq);
+                holder.gp_type = convertView.findViewById(R.id.gpType);
+                holder.approve = convertView.findViewById(R.id.approv);
 
                 convertView.setTag(holder);
 

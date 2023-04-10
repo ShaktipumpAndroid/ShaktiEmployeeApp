@@ -44,6 +44,7 @@
             layout="@layout/activity_dashboard"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            style="@style/ShaktiEmployee"
             android:layout_marginTop="?actionBarSize" />
 
         <com.google.android.material.navigation.NavigationView
@@ -53,8 +54,9 @@
             android:layout_gravity="start"
             android:layout_marginTop="?actionBarSize"
             android:fitsSystemWindows="true"
+            app:menu="@menu/activity_main_drawer"
             app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/activity_main_drawer" />
+            app:popupTheme="@style/ShaktiEmployee.Base" />
 
     </androidx.drawerlayout.widget.DrawerLayout>
 
