@@ -5,11 +5,11 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 android {
     compileSdkVersion 33
-   // buildToolsVersion "30.0.2"
+
 
     defaultConfig {
         applicationId "shakti.shakti_employee"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 33
         versionCode 43
         versionName '5.8'
