@@ -30,14 +30,12 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_lat"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Latitude"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt2"
-        >
+        app:layout_constraintTop_toBottomOf="@+id/txt2">
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_lat"
             android:layout_width="match_parent"
@@ -49,8 +47,7 @@
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_lng"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="0dp"
+         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Longitude"
         app:layout_constraintEnd_toEndOf="parent"
@@ -70,7 +67,6 @@
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_add"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Address"

@@ -294,7 +294,6 @@ public class CustomHttpClient {
 
             result = sb.toString();
 
-            //JSONObject job=new JSONObject(result);
             return result;
 
         } finally {

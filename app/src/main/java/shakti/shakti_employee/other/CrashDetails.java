@@ -16,11 +16,16 @@ import shakti.shakti_employee.R;
 
 public class CrashDetails extends MultiDexApplication {
 
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        MultiDex.install(this);
+    }
 
     @Override
     protected void attachBaseContext(Context base) {
         super.attachBaseContext(base);
-        MultiDex.install(this);
+
 
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 

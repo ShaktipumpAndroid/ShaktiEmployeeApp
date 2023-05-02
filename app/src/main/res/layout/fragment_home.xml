@@ -6,7 +6,7 @@
 
     <!-- TODO: Update blank fragment layout -->
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:id="@+id/bg_gradient_ll"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -355,6 +355,7 @@
                     android:background="@color/grey" />
 
                 <TextView
+                    android:visibility="gone"
                     android:id="@+id/txtchINoutID"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -370,6 +371,7 @@
                     android:textStyle="bold" />
 
                 <LinearLayout
+                    android:visibility="gone"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
@@ -410,7 +412,8 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:background="@drawable/bottom_left_rounded"
-                        android:gravity="center_horizontal">
+                        android:gravity="center_horizontal"
+                       >
 
                         <TextView
                             android:id="@+id/txtCheckOutID"

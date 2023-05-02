@@ -1,9 +1,12 @@
 package shakti.shakti_employee.fragment;
 
+import static android.content.Context.LOCATION_SERVICE;
+import static androidx.core.content.PermissionChecker.checkSelfPermission;
+import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.ActivityManager;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
@@ -13,11 +16,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Address;
@@ -34,9 +33,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.StrictMode;
-import android.preference.PreferenceManager;
 import android.provider.MediaStore;
-
 import android.provider.Settings;
 import android.text.Html;
 import android.util.Base64;
@@ -45,12 +42,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -71,14 +64,12 @@ import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
@@ -91,25 +82,15 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
-import models.DistanceResponse;
-import models.Element;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.activity.AttendanceActivity;
 import shakti.shakti_employee.activity.CheckInvkActivity;
@@ -131,7 +112,6 @@ import shakti.shakti_employee.activity.webViewActivity;
 import shakti.shakti_employee.bean.AttendanceBean;
 import shakti.shakti_employee.bean.LocalConvenienceBean;
 import shakti.shakti_employee.bean.LocalConvenienceBean1;
-import shakti.shakti_employee.bean.LoginBean;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.model.LoggedInUser;
@@ -140,14 +120,6 @@ import shakti.shakti_employee.other.GPSTracker;
 import shakti.shakti_employee.other.SAPWebService;
 import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.other.SyncDataService;
-import shakti.shakti_employee.other.TimeService;
-import shakti.shakti_employee.utility.DistanceApiClient;
-import shakti.shakti_employee.utility.RestUtil;
-import shakti.shakti_employee.utility.Utility;
-
-import static android.content.Context.LOCATION_SERVICE;
-import static androidx.core.content.PermissionChecker.checkSelfPermission;
-import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -165,13 +137,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-    /*private DashboardActivity dashboardActivity;*/
+
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    DashboardActivity dashboardActivity = new DashboardActivity();
-    TextView leave_req;
-    TextView leave_app;
-    TextView od_req;
-    TextView od_app;
+
+
     TextView act_leave_req;
     TextView act_leave_app;
     TextView act_od_req;
@@ -187,6 +156,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     TextView tv_exp_travel, markAttendanceBar;
     TextView leave_notification, od_notification, pending_task_notification;
     Context context;
+    private static HomeFragment instance;
     // For Leave Balance
     DatabaseHelper dataHelper;
     String leavetype;
@@ -250,9 +220,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     private LoggedInUser userModel;
     //private Context mContext;
     private Uri fileUri; // file url to store image
-    private int progressBarStatus = 0;
-    TextView start_travel, end_travel,convey_offline_data;
-    private Handler progressBarHandler = new Handler();
+    private final int progressBarStatus = 0;
+    private final Handler progressBarHandler = new Handler();
+    private final ArrayList<String> permissionsRejected = new ArrayList<>();
 
     LocalConvenienceBean localConvenienceBean;
     LocationManager locationManager;
@@ -269,8 +239,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     private static final long UPDATE_INTERVAL = 1000, FASTEST_INTERVAL = 1000; // = 5 seconds
     // lists for permissions
     private ArrayList<String> permissionsToRequest;
-    private ArrayList<String> permissionsRejected = new ArrayList<>();
-    private ArrayList<String> permissions = new ArrayList<>();
+    private final ArrayList<String> permissions = new ArrayList<>();
+    TextView start_travel, end_travel, convey_offline_data;
     // integer for permissions results request
     private static final int ALL_PERMISSIONS_RESULT = 1011;
     FusedLocationProviderClient fusedLocationClient;
@@ -366,6 +336,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         return mediaFile;
     }
 
+    public static HomeFragment GetInstance() {
+        return instance;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -410,195 +384,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
         StrictMode.setVmPolicy(builder.build());
 
-        if(checkPlayServices()) {
-
+        if (!checkPlayServices()) {
+            Toast.makeText(getActivity(), "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
         }
-        else{
-            Toast.makeText(dashboardActivity, "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
-        }
-
-
-
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-
-        View v = inflater.inflate(R.layout.fragment_home, container, false);
-
-        view1 = (View) v.findViewById(R.id.view1);
-        tv_travel_txt = (TextView) v.findViewById(R.id.tv_travel_txt);
-        travel = (LinearLayout) v.findViewById(R.id.travel);
-
-        fusedLocationProviderClient = getFusedLocationProviderClient(context);
-
-
-
-        if (mTravel.equalsIgnoreCase("Y")) {
-            view1.setVisibility(View.GONE);
-            tv_travel_txt.setVisibility(View.GONE);
-            travel.setVisibility(View.GONE);
-
-        } else {
-            view1.setVisibility(View.GONE);
-            tv_travel_txt.setVisibility(View.GONE);
-            travel.setVisibility(View.GONE);
-        }
-
-
-        act_leave_req = (TextView) v.findViewById(R.id.act_leave_req);
-        act_leave_req.setOnClickListener(this);
-
-        act_leave_app = (TextView) v.findViewById(R.id.act_leave_app);
-        act_leave_app.setOnClickListener(this);
-
-        act_od_req = (TextView) v.findViewById(R.id.act_od_req);
-        act_od_req.setOnClickListener(this);
-
-        act_od_app = (TextView) v.findViewById(R.id.act_od_app);
-        act_od_app.setOnClickListener(this);
-
-        act_gp_req = (TextView) v.findViewById(R.id.act_gp_req);
-        act_gp_req.setOnClickListener(this);
-
-        txtCheckINID = (TextView) v.findViewById(R.id.txtCheckINID);
-        txtCheckINID.setOnClickListener(this);
-
-        txtCheckOutID = (TextView) v.findViewById(R.id.txtCheckOutID);
-        txtCheckOutID.setOnClickListener(this);
-
-        act_gp_app = (TextView) v.findViewById(R.id.act_gp_app);
-        act_gp_app.setOnClickListener(this);
-
-        tv_create_task = (TextView) v.findViewById(R.id.tv_create_task);
-        tv_create_task.setOnClickListener(this);
-
-        tv_complete_task = (TextView) v.findViewById(R.id.tv_complete_task);
-        tv_complete_task.setOnClickListener(this);
-
-        tv_web_view = (TextView) v.findViewById(R.id.tv_web_view);
-        tv_web_view.setOnClickListener(this);
-
-        tv_dom_travel = (TextView) v.findViewById(R.id.tv_dom_travel);
-        tv_exp_travel = (TextView) v.findViewById(R.id.tv_exp_travel);
-        tv_dom_rep = (TextView) v.findViewById(R.id.tv_dom_rep);
-        tv_exp_rep = (TextView) v.findViewById(R.id.tv_exp_rep);
-
-        start_travel = (TextView) v.findViewById(R.id.start_travel);
-        end_travel = (TextView) v.findViewById(R.id.end_travel);
-        convey_offline_data = (TextView) v.findViewById(R.id.convey_offline_data);
-
-        tv_dom_travel.setOnClickListener(this);
-        tv_exp_travel.setOnClickListener(this);
-        tv_exp_rep.setOnClickListener(this);
-        tv_dom_rep.setOnClickListener(this);
-
-        start_travel.setOnClickListener(this);
-        end_travel.setOnClickListener(this);
-        convey_offline_data.setOnClickListener(this);
-
-
-
-        if(CustomUtility.getSharedPreferences(context,"localconvenience").equalsIgnoreCase("0"))
-        {
-            changeButtonVisibility(false, 0.5f, end_travel);
-            changeButtonVisibility(true, 1f, start_travel);
-        }
-        else{
-            changeButtonVisibility(false, 0.5f, start_travel);
-            changeButtonVisibility(true, 1f, end_travel);
-        }
-
-        if (userModel.mob_atnd.equalsIgnoreCase("N")) {
-
-            tv_create_attendance = (TextView) v.findViewById(R.id.tv_create_attendance);
-//            in_attendance.setOnClickListener(this);
-            tv_create_attendance.setVisibility(View.GONE);
-
-//            out_attendance = (TextView) v.findViewById(R.id.out_attendance);
-////            out_attendance.setOnClickListener(this);
-//            out_attendance.setVisibility(View.GONE);
-
-
-            markAttendanceBar = (TextView) v.findViewById(R.id.markAttendanceBar);
-            markAttendanceBar.setVisibility(View.GONE);
-
-            view = (View) v.findViewById(R.id.view);
-            view.setVisibility(View.GONE);
-
-
-        } else {
-
-            tv_create_attendance = (TextView) v.findViewById(R.id.tv_create_attendance);
-            tv_create_attendance.setOnClickListener(this);
-
-//            in_attendance = (TextView) v.findViewById(R.id.in_attendance);
-//            in_attendance.setOnClickListener(this);
-//
-//            out_attendance = (TextView) v.findViewById(R.id.out_attendance);
-//            out_attendance.setOnClickListener(this);
-
-        }
-
-
-        customutility = new CustomUtility();
-//        attendanceBean = db.getMarkAttendanceByDate(customutility.getCurrentDate());
-
-//        tv_intime = (TextView) v.findViewById(R.id.tv_intime);
-//        tv_outtime = (TextView) v.findViewById(R.id.tv_outtime);
-
-
-//        tv_intime.setText(attendanceBean.SERVER_DATE_IN + "  " + attendanceBean.IN_TIME);
-//        tv_outtime.setText(attendanceBean.SERVER_DATE_OUT + "  " + attendanceBean.OUT_TIME);
-
-
-        leave_notification = (TextView) v.findViewById(R.id.leave_notification);
-
-        od_notification = (TextView) v.findViewById(R.id.od_notification);
-
-        pending_task_notification = (TextView) v.findViewById(R.id.pending_task_notification);
-
-        act_gp_app = (TextView) v.findViewById(R.id.act_gp_app);
-
-        gp_notification = (TextView) v.findViewById(R.id.gp_notification);
-
-
-        localConvenienceBean = new LocalConvenienceBean();
-        localConvenienceBean = dataHelper.getLocalConvinienceData();
-
-        // if (TextUtils.isEmpty(localConvenienceBean.getFrom_lat()) || localConvenienceBean.getFrom_lat().equals("0.0") || localConvenienceBean.getFrom_lat().equals("null")) {
-
-       /* } else {
-
-            android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
-            // Setting Dialog Title
-            alertDialog.setTitle("Confirmation");
-            // Setting Dialog Message
-            alertDialog.setMessage("Latitude, Longitude already saved, Do you want to change it?");
-            // On pressing Settings button
-            alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
-                public void onClick(DialogInterface dialog, int which) {
-                    getGpsLocation();
-                }
-            });
-            // on pressing cancel button
-            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) {
-                    dialog.cancel();
-                }
-            });
-
-            // Showing Alert Message
-            alertDialog.show();
-        }*/
-
-
-
-
-        return v;
-
 
     }
 
@@ -688,10 +476,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     @Override
     public void onStart() {
         super.onStart();
-       /* PreferenceManager.getDefaultSharedPreferences(context)
-                .registerOnSharedPreferenceChangeListener(this);*/
-
-
         // Restore the state of the buttons when the activity (re)launches.
         //setButtonsState(Utils.requestingLocationUpdates(context));
 
@@ -699,7 +483,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         // that since this activity is in the foreground, the service can exit foreground mode.
         context.bindService(new Intent(context, LocationUpdatesService.class), mServiceConnection,
                 Context.BIND_AUTO_CREATE);
-
 
     }
 
@@ -1164,120 +947,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                                     "");
                             dataHelper.updateLocalconvenienceData(localConvenienceBean, userModel.uid, date,time);
                             new JSONAsyncTask().execute();
-                            /* }
-                           else{
-
-                                if (progressDialog != null)
-                                    if (progressDialog.isShowing()) {
-                                        progressDialog.dismiss();
-                                        progressDialog = null;
-                                    }
-
-                                ArrayList<LocalConvenienceBean1> localConvenienceBean1 = new ArrayList<LocalConvenienceBean1>();
-                                localConvenienceBean1 = dataHelper.getLocalConvience(context, userModel.uid, new CustomUtility().getCurrentDate());
-
-
-                                for (int i = 0; i < localConvenienceBean1.size(); i++) {
-                                    strtlatlng = localConvenienceBean1.get(i).getFrom_lng();
-
-                                    date = localConvenienceBean1.get(i).getBegda();
-                                    time = localConvenienceBean1.get(i).getFrom_time();
-                                    latlng = localConvenienceBean1.get(i).getFrom_lat();
-                                    distance = localConvenienceBean1.get(i).getDistance();
-
-                                }
-
-
-
-                                final Dialog dialog = new Dialog(context);
-                                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                                dialog.setCancelable(false);
-                                dialog.setContentView(R.layout.custom_dialog2);
-                                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                                lp.copyFrom(dialog.getWindow().getAttributes());
-                                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                                dialog.getWindow().setAttributes(lp);
-
-                                final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
-                                final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
-                                final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
-                                final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
-                                final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
-                                final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
-                                final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
-                                final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
-                                final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
-                                final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
-                                final TextView ettxt1 = dialog.findViewById(R.id.txt1);
-                                final TextView ettxt2 = dialog.findViewById(R.id.txt2);
-                                ettrvlmod.requestFocus();
-
-                                date = CustomUtility.formateDate(date);
-                                time = CustomUtility.formateTime(time);
-
-                                etstrdt.setText(date + " " + time);
-                                etstrlatlng.setText(strtlatlng);
-                                etenddt.setText(current_end_date + " " + current_end_time);
-                                etendlatlng.setText(to_lat+","+to_lng);
-
-                                etstrlocadd.setText(fullAddress);
-                                etendlocadd.setText(fullAddress1);
-
-                                ettotdis.setText(distance);
-
-
-                                ettxt1.setText("Local Conveyance Details");
-                                ettxt2.setText("Press Confirm will end your Journey");
-
-                                etcncl.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        dialog.dismiss();
-                                    }
-                                });
-
-                                etconfm.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-
-                                        final String travel_mode = ettrvlmod.getText().toString();
-
-
-                                        if (CustomUtility.isInternetOn(context)) {
-                                            if (!TextUtils.isEmpty(travel_mode) && !travel_mode.equals("")) {
-
-                                                progressDialog = ProgressDialog.show(context, "", "Sending Data to server..please wait !");
-
-                                                new Thread(new Runnable() {
-                                                    public void run() {
-                                                        getActivity().runOnUiThread(new Runnable() {
-                                                            @Override
-                                                            public void run() {
-
-
-                                                                //mService.removeLocationUpdates();
-                                                                SyncLocalConveneinceDataToSap(travel_mode,fullAddress,fullAddress1,date,time,userModel.uid);
-                                                            }
-                                                        });
-                                                    };
-                                                }).start();
-
-                                                dialog.dismiss();
-
-                                            } else {
-                                                Toast.makeText(context, "Please Enter Travel Mode.", Toast.LENGTH_SHORT).show();
-                                            }
-                                        } else {
-                                            Toast.makeText(context, "Please Connect to Internet...", Toast.LENGTH_SHORT).show();
-                                        }
-
-                                    }
-                                });
-
-                                dialog.show();
-
-                            }*/
 
                         }
                     }, 2000);
@@ -1326,7 +995,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     }
 
 
-
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
         if (mListener != null) {
@@ -1335,20 +1003,446 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     }
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+
+        View v = inflater.inflate(R.layout.fragment_home, container, false);
+        instance = HomeFragment.this;
+
+        view1 = v.findViewById(R.id.view1);
+        tv_travel_txt = v.findViewById(R.id.tv_travel_txt);
+        travel = v.findViewById(R.id.travel);
+
+        fusedLocationProviderClient = getFusedLocationProviderClient(context);
+
+        if (mTravel.equalsIgnoreCase("Y")) {
+            view1.setVisibility(View.GONE);
+            tv_travel_txt.setVisibility(View.GONE);
+            travel.setVisibility(View.GONE);
+
         } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+            view1.setVisibility(View.GONE);
+            tv_travel_txt.setVisibility(View.GONE);
+            travel.setVisibility(View.GONE);
         }
+
+
+        act_leave_req = v.findViewById(R.id.act_leave_req);
+        act_leave_req.setOnClickListener(this);
+
+        act_leave_app = v.findViewById(R.id.act_leave_app);
+        act_leave_app.setOnClickListener(this);
+
+        act_od_req = v.findViewById(R.id.act_od_req);
+        act_od_req.setOnClickListener(this);
+
+        act_od_app = v.findViewById(R.id.act_od_app);
+        act_od_app.setOnClickListener(this);
+
+        act_gp_req = v.findViewById(R.id.act_gp_req);
+        act_gp_req.setOnClickListener(this);
+
+        txtCheckINID = v.findViewById(R.id.txtCheckINID);
+        txtCheckINID.setOnClickListener(this);
+
+        txtCheckOutID = v.findViewById(R.id.txtCheckOutID);
+        txtCheckOutID.setOnClickListener(this);
+
+        act_gp_app = v.findViewById(R.id.act_gp_app);
+        act_gp_app.setOnClickListener(this);
+
+        tv_create_task = v.findViewById(R.id.tv_create_task);
+        tv_create_task.setOnClickListener(this);
+
+        tv_complete_task = v.findViewById(R.id.tv_complete_task);
+        tv_complete_task.setOnClickListener(this);
+
+        tv_web_view = v.findViewById(R.id.tv_web_view);
+        tv_web_view.setOnClickListener(this);
+
+        tv_dom_travel = v.findViewById(R.id.tv_dom_travel);
+        tv_exp_travel = v.findViewById(R.id.tv_exp_travel);
+        tv_dom_rep = v.findViewById(R.id.tv_dom_rep);
+        tv_exp_rep = v.findViewById(R.id.tv_exp_rep);
+
+        start_travel = v.findViewById(R.id.start_travel);
+        end_travel = v.findViewById(R.id.end_travel);
+        convey_offline_data = v.findViewById(R.id.convey_offline_data);
+
+        tv_dom_travel.setOnClickListener(this);
+        tv_exp_travel.setOnClickListener(this);
+        tv_exp_rep.setOnClickListener(this);
+        tv_dom_rep.setOnClickListener(this);
+
+        start_travel.setOnClickListener(this);
+        end_travel.setOnClickListener(this);
+        convey_offline_data.setOnClickListener(this);
+
+
+        if (CustomUtility.getSharedPreferences(context, "localconvenience").equalsIgnoreCase("0")) {
+            changeButtonVisibility(false, 0.5f, end_travel);
+            changeButtonVisibility(true, 1f, start_travel);
+        } else {
+            changeButtonVisibility(false, 0.5f, start_travel);
+            changeButtonVisibility(true, 1f, end_travel);
+        }
+
+        if (userModel.mob_atnd.equalsIgnoreCase("N")) {
+
+            tv_create_attendance = v.findViewById(R.id.tv_create_attendance);
+//            in_attendance.setOnClickListener(this);
+            tv_create_attendance.setVisibility(View.GONE);
+
+//            out_attendance = (TextView) v.findViewById(R.id.out_attendance);
+////            out_attendance.setOnClickListener(this);
+//            out_attendance.setVisibility(View.GONE);
+
+
+            markAttendanceBar = v.findViewById(R.id.markAttendanceBar);
+            markAttendanceBar.setVisibility(View.GONE);
+
+            view = v.findViewById(R.id.view);
+            view.setVisibility(View.GONE);
+
+
+        } else {
+
+            tv_create_attendance = v.findViewById(R.id.tv_create_attendance);
+            tv_create_attendance.setOnClickListener(this);
+
+        }
+
+
+        customutility = new CustomUtility();
+
+        leave_notification = v.findViewById(R.id.leave_notification);
+
+        od_notification = v.findViewById(R.id.od_notification);
+
+        pending_task_notification = v.findViewById(R.id.pending_task_notification);
+
+        act_gp_app = v.findViewById(R.id.act_gp_app);
+
+        gp_notification = v.findViewById(R.id.gp_notification);
+
+        leave_notification.setText(Integer.toString(dataHelper.getPendinLeaveCount()));
+        od_notification.setText(Integer.toString(dataHelper.getPendingOdCount()));
+        pending_task_notification.setText(Integer.toString(dataHelper.getPendinTaskCount()));
+        gp_notification.setText(Integer.toString(dataHelper.getPendinGatePassCount()));
+
+        localConvenienceBean = new LocalConvenienceBean();
+        localConvenienceBean = dataHelper.getLocalConvinienceData();
+
+
+        return v;
+
+
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnFragmentInteractionListener) {
+            mListener = (OnFragmentInteractionListener) context;
+        } else {
+            throw new RuntimeException(context
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    public boolean isValidate() {
+        if (CustomUtility.isDateTimeAutoUpdate(context)) {
+
+        } else {
+            CustomUtility.showSettingsAlert(context);
+            return false;
+        }
+        return true;
+    }
+
+
+    private void buildAlertMessageNoGps() {
+
+        if (CustomUtility.isInternetOn(context)) {
+
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage("Please turn on the GPRS and keep it on while traveling on tour/trip.")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
+                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                           /* android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
+                            // Setting Dialog Title
+                            alertDialog.setTitle("Confirmation");
+                            // Setting Dialog Message
+                            alertDialog.setMessage("Press Confirm will start your Journey");
+                            // On pressing Settings button
+                            alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int which) {*/
+
+                            //getGpsLocation();
+                            startLocationUpdates();
+
+                            /*    }
+                            });
+                            // on pressing cancel button
+                            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                            // Showing Alert Message
+                            alertDialog.show();*/
+                            dialog.dismiss();
+
+
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            alert.show();
+        } else {
+            Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void buildAlertMessageNoGps1() {
+
+        if (CustomUtility.isInternetOn(context)) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setMessage("Please turn on the GPRS and keep it on while traveling on tour/trip.")
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+
+
+                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                           /* android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
+                            // Setting Dialog Title
+                            alertDialog.setTitle("Confirmation");
+                            // Setting Dialog Message
+                            alertDialog.setMessage("Press Confirm will start your Journey");
+                            // On pressing Settings button
+                            alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+
+                                public void onClick(DialogInterface dialog, int which) {
+*/
+                            //getGpsLocation();
+                            //startLocationUpdates1();
+/*
+
+                                }
+                            });
+                            // on pressing cancel button
+                            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.cancel();
+                                }
+                            });
+
+                            // Showing Alert Message
+                            alertDialog.show();
+
+*/
+                            dialog.dismiss();
+
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                            dialog.cancel();
+                        }
+                    });
+            final AlertDialog alert = builder.create();
+            alert.show();
+        } else {
+            Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void openCamera() {
+
+        gps = new GPSTracker(context);
+        double latitude = gps.getLatitude();
+        double longitude = gps.getLongitude();
+
+        latLong = "" + latitude + "," + longitude;
+
+
+        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+
+        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
+
+
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
+
+        // start the image capture Intent
+        startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
+
+
+    }
+
+    public Uri getOutputMediaFileUri(int type) {
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
+
+
+//    @Override
+//    public void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//
+//        // save file url in bundle as it will be null on screen orientation
+//        // changes
+//        outState.putParcelable("file_uri", fileUri);
+//    }
+//
+//    @Override
+//    public void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//
+//        // get the file url
+//        fileUri = savedInstanceState.getParcelable("file_uri");
+//    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        // if the result is capturing Image
+        if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
+            if (resultCode == getActivity().RESULT_OK) {
+
+
+                Date dt = new Date();
+                int hours = dt.getHours();
+                int minutes = dt.getMinutes();
+                int seconds = dt.getSeconds();
+
+                String time = "" + hours + minutes + seconds;
+
+                String fDate = new SimpleDateFormat("yyyyMMdd").format(dt);
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 8;
+
+
+                final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(), options);
+
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                if (Attendance_Mark.equals("IN")) {
+                    attendanceBean.IN_IMAGE = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+                    saveLocally();
+
+
+                    File file = new File(fileUri.getPath());
+                    if (file.exists()) {
+                        file.delete();
+                    }
+
+                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
+
+                }
+
+                if (Attendance_Mark.equals("OUT")) {
+                    attendanceBean.OUT_IMAGE = Base64.encodeToString(byteArray, Base64.DEFAULT);
+
+
+                    updateLocally();
+
+                    File file = new File(fileUri.getPath());
+                    if (file.exists()) {
+                        file.delete();
+                    }
+
+                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
+                    startActivity(intent);
+                    getActivity().finish();
+                }
+
+
+//
+//                    if  (validatePhoto() )
+//                    {
+
+//
+//                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+//                    alertDialog.setTitle("Data Save alert !");
+//                    alertDialog.setMessage("Do you want to save data ?");
+//
+//                    // On pressing Settings button
+//                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//
+//
+//
+//                        }
+//                    });
+//
+//
+//                    // on pressing cancel button
+//
+//                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.cancel();
+//                        }
+//                    });
+//
+//                    // Showing Alert Message
+//                    alertDialog.show();
+
+                //   }
+
+// delete file from memory card
+//                File file = new File( fileUri.getPath() );
+//                if ( file.exists())
+//                {
+//                    file.delete();
+//                }
+
+
+            }
+
+        }
+    }
+
+
+/*    private void setToolbarTitle() {
+        getSupportActionBar().setTitle("Leave Request");
+    }*/
+
+    public void insertLeaveBalance() {
+
+        progressDialog = ProgressDialog.show(getActivity(), "", "Please wait.. Calculating available leave quotas!");
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String obj = calculate_leave_balance();
+
+                if (obj != null) {
+                    progressDialog.dismiss();
+                }
+            }
+
+        }).start();
     }
 
     @Override
@@ -1400,120 +1494,20 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
             case R.id.act_leave_app:
 
+                if (dataHelper.getPendinLeaveCount() > 0) {
 
-                if (CustomUtility.isInternetOn(context)) {
-
-                    progressBar = new ProgressDialog(context);
-                    progressBar.setCancelable(true);
-                    // progressBar.setCancelable(true);
-                    progressBar.setMessage("Downloading Data...");
-                    progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    progressBar.setProgress(0);
-                    progressBar.setMax(100);
-                    progressBar.show();
-                    //reset progress bar and filesize status
-                    progressBarStatus = 0;
-
-                    dataHelper.deletePendingLeave();
-                    new Thread(new Runnable() {
-                        public void run() {
-
-                            final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-                            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-
-                            try {
-
-                                String obj = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-
-
-                                if (obj != null) {
-
-
-                                    param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-
-                                    obj_pending_leave = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-
-
-                                    JSONArray ja_mat = new JSONArray(obj_pending_leave);
-
-
-                                    for (int i = 0; i < ja_mat.length(); i++) {
-
-                                        JSONObject jo_matnr = ja_mat.getJSONObject(i);
-
-
-                                        KEY_LEV_NO = jo_matnr.getString("leavNo");
-                                        HORO = jo_matnr.getString("horo");
-                                        ENAME = jo_matnr.getString("name");
-                                        LEV_TYP = jo_matnr.getString("dedQuta1");
-                                        LEV_FRM = jo_matnr.getString("levFr");
-                                        LEV_TO = jo_matnr.getString("levT");
-                                        REASON = jo_matnr.getString("reason");
-                                        CHRG_NAME1 = jo_matnr.getString("nameperl");
-                                        CHRG_NAME2 = jo_matnr.getString("nameperl2");
-                                        CHRG_NAME3 = jo_matnr.getString("nameperl3");
-                                        CHRG_NAME4 = jo_matnr.getString("nameperl4");
-                                        DIRECT_INDIRECT = jo_matnr.getString("directIndirect");
-
-                                        dataHelper.createPendingLeave(KEY_LEV_NO, HORO, ENAME, LEV_TYP, LEV_FRM, LEV_TO,
-                                                REASON, CHRG_NAME1, CHRG_NAME2, CHRG_NAME3, CHRG_NAME4, DIRECT_INDIRECT);
-
-                                    }
-
-
-                                }
-
-                                progressBarStatus = 100;
-
-                                // Updating the progress bar
-                                progressBarHandler.post(new Runnable() {
-                                    public void run() {
-
-                                        progressBar.setProgress(progressBarStatus);
-                                    }
-                                });
-
-                                progressBar.cancel();
-                                progressBar.dismiss();
-
-                                if (dataHelper.getPendinLeaveCount() > 0)
-                                {
-
-                                    Intent intent2 = new Intent(context, LeaveApproveActivity.class);
-                                    startActivity(intent2);
-
-                                }
-                                else
-                                {
-
-                                    Message msg = new Message();
-                                    msg.obj = "You have nothing Pending Leave";
-                                    mHandler.sendMessage(msg);
-                                }
-
-
-
-                                Thread.sleep(5000);
-                            } catch (Exception e) {
-
-                                e.printStackTrace();
-                                progressBar.cancel();
-                                progressBar.dismiss();
-                                Message msg = new Message();
-                                msg.obj = "You have nothing Pending Leave";
-                                mHandler.sendMessage(msg);
-
-                            }
-
-
-                        }
-                    }).start();
-
+                    Intent intent2 = new Intent(context, LeaveApproveActivity.class);
+                    startActivity(intent2);
 
                 } else {
 
-                    Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
+                    Message msg = new Message();
+                    msg.obj = "You have nothing Pending Leave";
+                    mHandler.sendMessage(msg);
                 }
+
+
+
 
                 break;
 
@@ -1531,107 +1525,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
             case R.id.act_od_app:
 
-                if (CustomUtility.isInternetOn(context)) {
+                if (dataHelper.getPendingOdCount() > 0) {
 
+                    Intent intent4 = new Intent(context, OdApproveActivity.class);
+                    startActivity(intent4);
 
-                    progressBar = new ProgressDialog(context);
-                    progressBar.setCancelable(true);
-                    // progressBar.setCancelable(true);
-                    progressBar.setMessage("Downloading Data...");
-                    progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                    progressBar.setProgress(0);
-                    progressBar.setMax(100);
-                    progressBar.show();
-                    //reset progress bar and filesize status
-                    progressBarStatus = 0;
-
-                    dataHelper.deletePendingOd();
-                    new Thread(new Runnable() {
-                        public void run() {
-
-
-                            final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-                            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-
-                            try {
-
-                                String obj_pending_od = CustomHttpClient.executeHttpPost1(SapUrl.pending_od, param);
-
-                                if (obj_pending_od != null) {
-
-                                    JSONArray ja_mat = new JSONArray(obj_pending_od);
-
-                                    for (int i = 0; i < ja_mat.length(); i++) {
-
-                                        JSONObject jo_matnr = ja_mat.getJSONObject(i);
-
-                                        key_od_no = jo_matnr.getString("odno");
-                                        od_horo = jo_matnr.getString("horo");
-                                        od_ename = jo_matnr.getString("ename");
-                                        od_frm = jo_matnr.getString("odstdateC");
-                                        od_to = jo_matnr.getString("odedateC");
-                                        od_work_status = jo_matnr.getString("atnStatus");
-                                        visit_place = jo_matnr.getString("vplace");
-                                        purpose1 = jo_matnr.getString("purpose1");
-                                        purpose2 = jo_matnr.getString("purpose2");
-                                        purpose3 = jo_matnr.getString("purpose3");
-                                        remark = jo_matnr.getString("remark");
-                                        od_direct_indirect = jo_matnr.getString("directIndirect");
-
-                                        dataHelper.createPendingOD(key_od_no, od_horo, od_ename, od_frm, od_to, od_work_status,
-                                                visit_place, purpose1, purpose2, purpose3, remark, od_direct_indirect);
-
-                                    }
-                                    Thread.sleep(5000);
-
-
-                                }
-
-                                progressBarStatus = 100;
-
-                                // Updating the progress bar
-                                progressBarHandler.post(new Runnable() {
-                                    public void run() {
-
-                                        progressBar.setProgress(progressBarStatus);
-                                    }
-                                });
-
-
-                                progressBar.cancel();
-                                progressBar.dismiss();
-                                if (dataHelper.getPendinOdCount() > 0)
-                                {
-
-                                    Intent intent4 = new Intent(context, OdApproveActivity.class);
-                                    startActivity(intent4);
-
-                                }
-                                else
-                                {
-
-                                    Message msg = new Message();
-                                    msg.obj = "You have nothing Pending OD";
-                                    mHandler.sendMessage(msg);
-                                }
-
-                                Thread.sleep(5000);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                                progressBar.cancel();
-                                progressBar.dismiss();
-                                Message msg = new Message();
-                                msg.obj = "You have nothing Pending OD";
-                                mHandler.sendMessage(msg);
-                            }
-
-                        }
-                    }).start();
-
-                } else {
-                    Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
                 }
-
                 break;
 
 
@@ -1673,97 +1572,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 /*  if(db.getPendinGatePassCount() > 0) {*/
 
                 if (CustomUtility.isInternetOn(context)) {
-
-//                    dataHelper.deletePendingLeave();
-//
-//                    progressBar = new ProgressDialog(mContext);
-//                    progressBar.setCancelable(true);
-//                    // progressBar.setCancelable(true);
-//                    progressBar.setMessage("Downloading Data...");
-//                    progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//                    progressBar.setProgress(0);
-//                    progressBar.setMax(100);
-//                    progressBar.show();
-//                    //reset progress bar and filesize status
-//                    progressBarStatus = 0;
-//
-//                    new Thread(new Runnable() {
-//                        public void run() {
-//
-//                            final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-//                            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-//
-//                            try {
-//
-//                                String obj = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-//
-//                                Log.d("att_emp_obj", obj);
-//
-//                                if (obj != null) {
-//
-//
-//                                    param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-//
-//                                    obj_pending_leave = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-//
-//                                    Log.d("pending_leave", "" + obj_pending_leave);
-//
-//                                    JSONArray ja_mat = new JSONArray(obj_pending_leave);
-//
-//
-//                                    for (int i = 0; i < ja_mat.length(); i++) {
-//
-//                                        JSONObject jo_matnr = ja_mat.getJSONObject(i);
-//
-//
-//                                        KEY_LEV_NO = jo_matnr.getString("leavNo");
-//                                        HORO = jo_matnr.getString("horo");
-//                                        ENAME = jo_matnr.getString("name");
-//                                        LEV_TYP = jo_matnr.getString("dedQuta1");
-//                                        LEV_FRM = jo_matnr.getString("levFr");
-//                                        LEV_TO = jo_matnr.getString("levT");
-//                                        REASON = jo_matnr.getString("reason");
-//                                        CHRG_NAME1 = jo_matnr.getString("nameperl");
-//                                        CHRG_NAME2 = jo_matnr.getString("nameperl2");
-//                                        CHRG_NAME3 = jo_matnr.getString("nameperl3");
-//                                        CHRG_NAME4 = jo_matnr.getString("nameperl4");
-//                                        DIRECT_INDIRECT = jo_matnr.getString("directIndirect");
-//
-//                                        dataHelper.createPendingLeave(KEY_LEV_NO, HORO, ENAME, LEV_TYP, LEV_FRM, LEV_TO,
-//                                                REASON, CHRG_NAME1, CHRG_NAME2, CHRG_NAME3, CHRG_NAME4, DIRECT_INDIRECT);
-//
-//                                    }
-//
-//
-//                                }
-//
-//                                progressBarStatus = 100;
-//
-//                                // Updating the progress bar
-//                                progressBarHandler.post(new Runnable() {
-//                                    public void run() {
-//
-//                                        progressBar.setProgress(progressBarStatus);
-//                                    }
-//                                });
-//
-//
-//                                progressBar.cancel();
-//                                progressBar.dismiss();
-//
-//                                Intent intent2 = new Intent(context, GatepassApproveActivity.class);
-//                                startActivity(intent2);
-//
-//
-//                                Thread.sleep(5000);
-//                            } catch (Exception e) {
-//
-//                            }
-//
-//
-//                        }
-//                    }).start();
-
 
                     Intent intent_gp_app = new Intent(context, GatepassApproveActivity.class);
                     startActivity(intent_gp_app);
@@ -2019,303 +1827,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         }
     }
 
-    public boolean isValidate() {
-        if (CustomUtility.isDateTimeAutoUpdate(context)) {
-
-        } else {
-            CustomUtility.showSettingsAlert(context);
-            return false;
-        }
-        return true;
-    }
-
-
-    private void buildAlertMessageNoGps() {
-
-        if(CustomUtility.isInternetOn(context))
-        {
-
-            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("Please turn on the GPRS and keep it on while traveling on tour/trip.")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-
-                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                           /* android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
-                            // Setting Dialog Title
-                            alertDialog.setTitle("Confirmation");
-                            // Setting Dialog Message
-                            alertDialog.setMessage("Press Confirm will start your Journey");
-                            // On pressing Settings button
-                            alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int which) {*/
-
-                            //getGpsLocation();
-                            startLocationUpdates();
-
-                            /*    }
-                            });
-                            // on pressing cancel button
-                            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
-                            // Showing Alert Message
-                            alertDialog.show();*/
-                            dialog.dismiss();
-
-
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                            dialog.cancel();
-                        }
-                    });
-            final AlertDialog alert = builder.create();
-            alert.show();
-        } else {
-            Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void buildAlertMessageNoGps1() {
-
-        if(CustomUtility.isInternetOn(context))
-        {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(context);
-            builder.setMessage("Please turn on the GPRS and keep it on while traveling on tour/trip.")
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-
-
-
-                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                           /* android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
-                            // Setting Dialog Title
-                            alertDialog.setTitle("Confirmation");
-                            // Setting Dialog Message
-                            alertDialog.setMessage("Press Confirm will start your Journey");
-                            // On pressing Settings button
-                            alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int which) {
-*/
-                            //getGpsLocation();
-                            //startLocationUpdates1();
-/*
-
-                                }
-                            });
-                            // on pressing cancel button
-                            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
-                            // Showing Alert Message
-                            alertDialog.show();
-
-*/
-                            dialog.dismiss();
-
-                        }
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                            dialog.cancel();
-                        }
-                    });
-            final AlertDialog alert = builder.create();
-            alert.show();
-        } else {
-            Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void openCamera() {
-
-        gps = new GPSTracker(context);
-        double latitude = gps.getLatitude();
-        double longitude = gps.getLongitude();
-
-        latLong = "" + latitude + "," + longitude;
-
-
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-
-        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-
-
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
-        // start the image capture Intent
-        startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-
-
-    }
-
-    public Uri getOutputMediaFileUri(int type) {
-        return Uri.fromFile(getOutputMediaFile(type));
-    }
-
-
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        // save file url in bundle as it will be null on screen orientation
-//        // changes
-//        outState.putParcelable("file_uri", fileUri);
-//    }
-//
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//
-//        // get the file url
-//        fileUri = savedInstanceState.getParcelable("file_uri");
-//    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // if the result is capturing Image
-        if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
-            if (resultCode == getActivity().RESULT_OK) {
-
-
-                Date dt = new Date();
-                int hours = dt.getHours();
-                int minutes = dt.getMinutes();
-                int seconds = dt.getSeconds();
-
-                String time = "" + hours + minutes + seconds;
-
-                String fDate = new SimpleDateFormat("yyyyMMdd").format(dt);
-
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 8;
-
-
-                final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(), options);
-
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
-                byte[] byteArray = stream.toByteArray();
-
-                if (Attendance_Mark.equals("IN")) {
-                    attendanceBean.IN_IMAGE = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-                    saveLocally();
-
-
-                    File file = new File(fileUri.getPath());
-                    if (file.exists()) {
-                        file.delete();
-                    }
-
-                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
-                    startActivity(intent);
-                    getActivity().finish();
-
-                }
-
-                if (Attendance_Mark.equals("OUT")) {
-                    attendanceBean.OUT_IMAGE = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-
-                    updateLocally();
-
-                    File file = new File(fileUri.getPath());
-                    if (file.exists()) {
-                        file.delete();
-                    }
-
-                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
-                    startActivity(intent);
-                    getActivity().finish();
-                }
-
-
-//
-//                    if  (validatePhoto() )
-//                    {
-
-//
-//                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-//                    alertDialog.setTitle("Data Save alert !");
-//                    alertDialog.setMessage("Do you want to save data ?");
-//
-//                    // On pressing Settings button
-//                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//
-//
-//
-//                        }
-//                    });
-//
-//
-//                    // on pressing cancel button
-//
-//                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.cancel();
-//                        }
-//                    });
-//
-//                    // Showing Alert Message
-//                    alertDialog.show();
-
-                //   }
-
-// delete file from memory card
-//                File file = new File( fileUri.getPath() );
-//                if ( file.exists())
-//                {
-//                    file.delete();
-//                }
-
-
-            }
-
-        }
-    }
-
-
-/*    private void setToolbarTitle() {
-        getSupportActionBar().setTitle("Leave Request");
-    }*/
-
-    public void insertLeaveBalance() {
-
-        progressDialog = ProgressDialog.show(getActivity(), "", "Please wait.. Calculating available leave quotas!");
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String obj = calculate_leave_balance();
-
-                if (obj != null) {
-                    progressDialog.dismiss();
-                }
-            }
-
-        }).start();
-    }
-
     @Override
     public void onResume() {
         super.onResume();
+
         leave_notification.setText(Integer.toString(dataHelper.getPendinLeaveCount()));
-        od_notification.setText(Integer.toString(dataHelper.getPendinOdCount()));
+        od_notification.setText(Integer.toString(dataHelper.getPendingOdCount()));
         pending_task_notification.setText(Integer.toString(dataHelper.getPendinTaskCount()));
         gp_notification.setText(Integer.toString(dataHelper.getPendinGatePassCount()));
 
@@ -2323,8 +1840,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
 
         if (!checkPlayServices()) {
-            Toast.makeText(dashboardActivity, "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    public void testing() {
+        //  Toast.makeText(getActivity(), "Test", Toast.LENGTH_SHORT).show();
+        Log.e("MethodCalled======>", "true");
     }
 
     private String calculate_leave_balance() {
@@ -2457,47 +1979,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
     }
 
-    void saveLocally() {
+    public void setNotification() {
 
-        //  MainActivity.mainActivity.mydb.insertAttendance(attendanceBean);
-        dataHelper = new DatabaseHelper(context);
+        Log.e("Notification=====>", "" + "true");
 
-
-        attendanceBean.PERNR = userModel.uid;
-        attendanceBean.BEGDA = customutility.getCurrentDate1();
-        attendanceBean.SERVER_DATE_IN = customutility.getCurrentDate1();
-        attendanceBean.SERVER_TIME_IN = customutility.getCurrentTime1();
-        String latlong[] = latLong.split(",");
-        attendanceBean.IN_ADDRESS = getCompleteAddressString(Double.parseDouble(latlong[0]), Double.parseDouble(latlong[1]));
-        attendanceBean.IN_TIME = customutility.getCurrentTime1();
-        attendanceBean.SERVER_DATE_OUT = "";
-        attendanceBean.SERVER_TIME_OUT = "";
-        attendanceBean.OUT_ADDRESS = "";
-        attendanceBean.OUT_TIME = "";
-        attendanceBean.WORKING_HOURS = "";
-        attendanceBean.IMAGE_DATA = "";
-        attendanceBean.CURRENT_MILLIS = System.currentTimeMillis();
-        attendanceBean.IN_LAT_LONG = latLong;
-//        attendanceBean.IN_FILE_NAME = mFile.getName();
-//        attendanceBean.IN_FILE_VALUE = mFile.getPath();
-        attendanceBean.OUT_LAT_LONG = "";
-        attendanceBean.OUT_FILE_NAME = "";
-        attendanceBean.OUT_FILE_LENGTH = "";
-        attendanceBean.OUT_FILE_VALUE = "";
-
-
-        dataHelper.insertMarkAttendance(attendanceBean);
-
-
-        // Sync Data
-//        new Capture_employee_gps_location(this, "2","");
-
-
-        Toast.makeText(context, "In Attendance Marked", Toast.LENGTH_LONG).show();
-
-
-//        SyncAttendanceInBackground();
-
+        leave_notification.setText(Integer.toString(dataHelper.getPendinLeaveCount()));
+        od_notification.setText(Integer.toString(dataHelper.getPendingOdCount()));
+        pending_task_notification.setText(Integer.toString(dataHelper.getPendinTaskCount()));
+        gp_notification.setText(Integer.toString(dataHelper.getPendinGatePassCount()));
 
     }
 
@@ -2547,6 +2036,50 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
     }
 
+    void saveLocally() {
+
+        //  MainActivity.mainActivity.mydb.insertAttendance(attendanceBean);
+        dataHelper = new DatabaseHelper(context);
+
+
+        attendanceBean.PERNR = userModel.uid;
+        attendanceBean.BEGDA = customutility.getCurrentDate1();
+        attendanceBean.SERVER_DATE_IN = customutility.getCurrentDate1();
+        attendanceBean.SERVER_TIME_IN = customutility.getCurrentTime1();
+        String[] latlong = latLong.split(",");
+        attendanceBean.IN_ADDRESS = getCompleteAddressString(Double.parseDouble(latlong[0]), Double.parseDouble(latlong[1]));
+        attendanceBean.IN_TIME = customutility.getCurrentTime1();
+        attendanceBean.SERVER_DATE_OUT = "";
+        attendanceBean.SERVER_TIME_OUT = "";
+        attendanceBean.OUT_ADDRESS = "";
+        attendanceBean.OUT_TIME = "";
+        attendanceBean.WORKING_HOURS = "";
+        attendanceBean.IMAGE_DATA = "";
+        attendanceBean.CURRENT_MILLIS = System.currentTimeMillis();
+        attendanceBean.IN_LAT_LONG = latLong;
+//        attendanceBean.IN_FILE_NAME = mFile.getName();
+//        attendanceBean.IN_FILE_VALUE = mFile.getPath();
+        attendanceBean.OUT_LAT_LONG = "";
+        attendanceBean.OUT_FILE_NAME = "";
+        attendanceBean.OUT_FILE_LENGTH = "";
+        attendanceBean.OUT_FILE_VALUE = "";
+
+
+        dataHelper.insertMarkAttendance(attendanceBean);
+
+
+        // Sync Data
+//        new Capture_employee_gps_location(this, "2","");
+
+
+        Toast.makeText(context, "In Attendance Marked", Toast.LENGTH_LONG).show();
+
+
+//        SyncAttendanceInBackground();
+
+
+    }
+
     void updateLocally() {
 
         dataHelper = new DatabaseHelper(context);
@@ -2554,7 +2087,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         attendanceBean.PERNR = userModel.uid;
         attendanceBean.SERVER_DATE_OUT = customutility.getCurrentDate1();
         attendanceBean.SERVER_TIME_OUT = customutility.getCurrentTime1();
-        String latlong[] = latLong.split(",");
+        String[] latlong = latLong.split(",");
         attendanceBean.OUT_ADDRESS = getCompleteAddressString(Double.parseDouble(latlong[0]), Double.parseDouble(latlong[1]));
         attendanceBean.OUT_TIME = customutility.getCurrentTime1();
         long attendanceDifference = System.currentTimeMillis() - attendanceBean.CURRENT_MILLIS;
@@ -2579,30 +2112,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
 
 //        SyncAttendanceInBackground();
-    }
-
-    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
-        String strAdd = "";
-        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
-            if (addresses != null) {
-                Address returnedAddress = addresses.get(0);
-                StringBuilder strReturnedAddress = new StringBuilder("");
-
-                for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
-                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
-                }
-                strAdd = strReturnedAddress.toString();
-                //   Log.w("My Current loction address", "" + strReturnedAddress.toString());
-            } else {
-                //     Log.w("My Current loction address", "No Address returned!");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            //    Log.w("My Current loction address", "Canont get Address!");
-        }
-        return strAdd;
     }
 
     private boolean checkAndRequestPermissions() {
@@ -2747,8 +2256,145 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         txtSubmiteOrderID.setAlpha(alphaRate);
     }
 
+    private String getCompleteAddressString(double LATITUDE, double LONGITUDE) {
+        String strAdd = "";
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(LATITUDE, LONGITUDE, 1);
+            if (addresses != null) {
+                Address returnedAddress = addresses.get(0);
+                StringBuilder strReturnedAddress = new StringBuilder();
+
+                for (int i = 0; i < returnedAddress.getMaxAddressLineIndex(); i++) {
+                    strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
+                }
+                strAdd = strReturnedAddress.toString();
+                //   Log.w("My Current loction address", "" + strReturnedAddress.toString());
+            } else {
+                //     Log.w("My Current loction address", "No Address returned!");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            //    Log.w("My Current loction address", "Canont get Address!");
+        }
+        return strAdd;
+    }
 
 
+    public void SyncLocalConveneinceDataToSap(String mode, String add, String add1, String date, String time, String pernr) {
+
+
+        String docno_sap = null;
+        String invc_done = null;
+
+
+        DatabaseHelper db = new DatabaseHelper(this.context);
+
+        LocalConvenienceBean param_invc = new LocalConvenienceBean();
+
+        date = CustomUtility.formateDate1(date);
+        time = CustomUtility.formateTime1(time);
+
+        param_invc = db.getLocalConvinienceData(date, pernr, time);
+
+
+        JSONArray ja_invc_data = new JSONArray();
+
+        JSONObject jsonObj = new JSONObject();
+
+        String[] sep = param_invc.getFrom_lng().split(",");
+        String[] sep1 = param_invc.getTo_lng().split(",");
+
+
+        try {
+
+
+            jsonObj.put("pernr", param_invc.getPernr());
+            jsonObj.put("begda", param_invc.getBegda());
+            jsonObj.put("endda", param_invc.getEndda());
+
+            jsonObj.put("start_time", param_invc.getFrom_time());
+            jsonObj.put("end_time", param_invc.getTo_time());
+
+            jsonObj.put("start_lat", sep[0]);
+            jsonObj.put("end_lat", sep1[0]);
+            jsonObj.put("start_long", sep[1]);
+            jsonObj.put("end_long", sep1[1]);
+            jsonObj.put("start_location", add);
+            jsonObj.put("end_location", add1);
+            jsonObj.put("distance", param_invc.getDistance());
+            jsonObj.put("TRAVEL_MODE", mode);
+
+            ja_invc_data.put(jsonObj);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        final ArrayList<NameValuePair> param1_invc = new ArrayList<NameValuePair>();
+        param1_invc.add(new BasicNameValuePair("travel_distance", String.valueOf(ja_invc_data)));
+
+
+        //System.out.println(param1_invc.toString());
+
+        try {
+
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+            StrictMode.setThreadPolicy(policy);
+
+            String obj2 = CustomHttpClient.executeHttpPost1(SapUrl.LOCAL_CONVENIENVCE, param1_invc);
+
+            if (obj2 != "") {
+
+                JSONArray ja = new JSONArray(obj2);
+
+                for (int i = 0; i < ja.length(); i++) {
+
+                    JSONObject jo = ja.getJSONObject(i);
+
+
+                    invc_done = jo.getString("msgtyp");
+                    docno_sap = jo.getString("msg");
+                    if (invc_done.equalsIgnoreCase("S")) {
+
+                        progressDialog.dismiss();
+                        Message msg = new Message();
+                        msg.obj = docno_sap;
+                        mHandler.sendMessage(msg);
+                        db.deleteLocalconvenienceDetail(pernr, date, time);
+                        CustomUtility.setSharedPreference(context, "localconvenience", "0");
+                        changeButtonVisibility(false, 0.5f, end_travel);
+                        changeButtonVisibility(true, 1f, start_travel);
+
+                    } else if (invc_done.equalsIgnoreCase("E")) {
+                        progressDialog.dismiss();
+                        Message msg = new Message();
+                        msg.obj = docno_sap;
+                        mHandler.sendMessage(msg);
+
+                    }
+
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            progressDialog.dismiss();
+        }
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (progressBar != null) {
+            progressBar.cancel();
+        }
+        if (progressDialog != null) {
+            progressDialog.cancel();
+        }
+    }
 
     class JSONAsyncTask extends AsyncTask<String, String, JSONObject> {
 
@@ -2933,7 +2579,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                                                 SyncLocalConveneinceDataToSap(travel_mode,fullAddress,fullAddress1,date,time, userModel.uid);
                                             }
                                         });
-                                    };
+                                    }
                                 }).start();
 
                                 dialog.dismiss();
@@ -2953,388 +2599,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
             } catch (Exception e) {
                 Log.d("onResponse", "There is an error");
                 e.printStackTrace();
-                if(progressDialog!=null)
+                if (progressDialog != null)
                     if (progressDialog.isShowing()) {
                         progressDialog.dismiss();
                         progressDialog = null;
-                    };
-            }
-        }
-
-        }
-
-
-    /*private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2) {
-        // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
-
-        Map<String, String> mapQuery = new HashMap<>();
-
-        mapQuery.put("origins", lat1+","+lon1);
-        mapQuery.put("destinations", lat2+","+lon2);
-        mapQuery.put("units", "metric");
-        mapQuery.put("mode", "driving");
-        mapQuery.put("key", "AIzaSyAohhwZ11LRwoxsS8lJ0VHGkA4L-cwjWmw");
-
-        DistanceApiClient client = RestUtil.getInstance().getRetrofit().create(DistanceApiClient.class);
-
-        Call<DistanceResponse> call = client.getDistanceInfo(mapQuery);
-        call.enqueue(new Callback<DistanceResponse>() {
-            @Override
-            public void onResponse(Call<DistanceResponse> call, Response<DistanceResponse> response) {
-                if (response.body() != null &&
-                        response.body().getRows() != null &&
-                        response.body().getRows().size() > 0 &&
-                        response.body().getRows().get(0) != null &&
-                        response.body().getRows().get(0).getElements() != null &&
-                        response.body().getRows().get(0).getElements().size() > 0 &&
-                        response.body().getRows().get(0).getElements().get(0) != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDistance() != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDuration() != null) {
-
-                    try {
-
-                        if (progressDialog != null)
-                            if (progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                                progressDialog = null;
-                            }
-                        ;
-
-                        Element element = response.body().getRows().get(0).getElements().get(0);
-                        fullAddress = response.body().getOriginAddresses().get(0);
-                        fullAddress1 = response.body().getDestinationAddresses().get(0);
-                        distance1 = element.getDistance().getText();
-
-                        final Dialog dialog = new Dialog(context);
-                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        dialog.setCancelable(false);
-                        dialog.setContentView(R.layout.custom_dialog2);
-                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                        lp.copyFrom(dialog.getWindow().getAttributes());
-                        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                        dialog.getWindow().setAttributes(lp);
-
-                        final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
-                        final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
-                        final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
-                        final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
-                        final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
-                        final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
-                        final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
-                        final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
-                        final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
-                        final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
-                        final TextView ettxt1 = dialog.findViewById(R.id.txt1);
-                        final TextView ettxt2 = dialog.findViewById(R.id.txt2);
-                        ettrvlmod.requestFocus();
-
-                        etstrdt.setText(current_start_date + " " + current_start_time);
-                        etstrlatlng.setText(from_lat + "," + from_lng);
-                        etenddt.setText(current_end_date + " " + current_end_time);
-                        etendlatlng.setText(to_lat + "," + to_lng);
-
-                        etstrlocadd.setText(fullAddress);
-                        etendlocadd.setText(fullAddress1);
-
-                        ettotdis.setText(distance1);
-
-
-                        ettxt1.setText("Local Conveyance Details");
-                        ettxt2.setText("Press Confirm will end your Journey");
-
-                        etcncl.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                        etconfm.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-                                final String travel_mode = ettrvlmod.getText().toString();
-
-                                if (CustomUtility.isInternetOn(context)) {
-                                    if (!TextUtils.isEmpty(travel_mode) && !travel_mode.equals("")) {
-
-                                        progressDialog = ProgressDialog.show(context, "", "Sending Data to server..please wait !");
-
-                                        new Thread(new Runnable() {
-                                            public void run() {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(LoginBean.getUseid(), current_start_date,
-                                                                current_end_date,
-                                                                current_start_time,
-                                                                current_end_time,
-                                                                from_lat,
-                                                                to_lat,
-                                                                from_lng,
-                                                                to_lng,
-                                                                fullAddress,
-                                                                fullAddress1,
-                                                                distance1);
-
-                                                        dataHelper.insertLocalconvenienceData(localConvenienceBean);
-
-                                                        SyncLocalConveneinceDataToSap(travel_mode, current_end_date, current_end_time);
-                                                    }
-                                                });
-                                            };
-                                        }).start();
-
-                                        dialog.dismiss();
-
-                                    } else {
-                                        Toast.makeText(context, "Please Enter Travel Mode.", Toast.LENGTH_SHORT).show();
-                                    }
-                                } else {
-                                    Toast.makeText(context, "Please Connect to Internet...", Toast.LENGTH_SHORT).show();
-                                }
-
-                            }
-                        });
-
-                        dialog.show();
-
-                    } catch (Exception e) {
-                        Log.d("onResponse", "There is an error");
-                        e.printStackTrace();
-                        if(progressDialog!=null)
-                            if (progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                                progressDialog = null;
-                            };
                     }
-                }
             }
-
-            @Override
-            public void onFailure(Call<DistanceResponse> call, Throwable t) {
-
-                Log.e("Failed", "&&&", t);
-
-                if(progressDialog!=null)
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                        progressDialog = null;
-                    };
-
-            }
-        });
-    }*/
-
-
-    public void  SyncLocalConveneinceDataToSap(String mode,String add,String add1,String date,String time, String pernr) {
-
-
-        String docno_sap = null;
-        String invc_done = null;
-
-
-        DatabaseHelper db = new DatabaseHelper(this.context);
-
-        LocalConvenienceBean param_invc = new LocalConvenienceBean();
-
-        date = CustomUtility.formateDate1(date);
-        time = CustomUtility.formateTime1(time);
-
-        param_invc = db.getLocalConvinienceData(date,pernr,time);
-
-
-        JSONArray ja_invc_data = new JSONArray();
-
-        JSONObject jsonObj = new JSONObject();
-
-        String[] sep = param_invc.getFrom_lng().split(",");
-        String[] sep1 = param_invc.getTo_lng().split(",");
-
-
-        try {
-
-
-            jsonObj.put("pernr", param_invc.getPernr());
-            jsonObj.put("begda",  param_invc.getBegda());
-            jsonObj.put("endda",  param_invc.getEndda());
-
-            jsonObj.put("start_time",  param_invc.getFrom_time());
-            jsonObj.put("end_time",  param_invc.getTo_time());
-
-            jsonObj.put("start_lat", sep[0]);
-            jsonObj.put("end_lat", sep1[0]);
-            jsonObj.put("start_long", sep[1]);
-            jsonObj.put("end_long", sep1[1]);
-            jsonObj.put("start_location", add);
-            jsonObj.put("end_location", add1);
-            jsonObj.put("distance",  param_invc.getDistance());
-            jsonObj.put("TRAVEL_MODE",  mode);
-
-            ja_invc_data.put(jsonObj);
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
-
-        final ArrayList<NameValuePair> param1_invc = new ArrayList<NameValuePair>();
-        param1_invc.add(new BasicNameValuePair("travel_distance", String.valueOf(ja_invc_data)));
-
-
-        //System.out.println(param1_invc.toString());
-
-        try {
-
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
-            StrictMode.setThreadPolicy(policy);
-
-            String obj2 = CustomHttpClient.executeHttpPost1(SapUrl.LOCAL_CONVENIENVCE, param1_invc);
-
-            if (obj2 != "") {
-
-                JSONArray ja = new JSONArray(obj2);
-
-                for (int i = 0; i < ja.length(); i++) {
-
-                    JSONObject jo = ja.getJSONObject(i);
-
-
-                    invc_done = jo.getString("msgtyp");
-                    docno_sap = jo.getString("msg");
-                    if (invc_done.equalsIgnoreCase("S")) {
-
-                        progressDialog.dismiss();
-                        Message msg = new Message();
-                        msg.obj = docno_sap;
-                        mHandler.sendMessage(msg);
-                        db.deleteLocalconvenienceDetail(pernr,date,time);
-                        CustomUtility.setSharedPreference(context,"localconvenience","0");
-                        changeButtonVisibility(false, 0.5f, end_travel);
-                        changeButtonVisibility(true, 1f, start_travel);
-
-                    } else if (invc_done.equalsIgnoreCase("E")) {
-                        progressDialog.dismiss();
-                        Message msg = new Message();
-                        msg.obj = docno_sap;
-                        mHandler.sendMessage(msg);
-
-                    }
-
-                }
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            progressDialog.dismiss();
         }
-    }
-
-    public void downloadDataFromSap() {
-        // creating progress bar dialog
-        progressBar = new ProgressDialog(context);
-        progressBar.setCancelable(false);
-        // progressBar.setCancelable(true);
-        progressBar.setMessage("Downloading Data...");
-        progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressBar.setProgress(0);
-        progressBar.setMax(100);
-        progressBar.show();
-        //reset progress bar and filesize status
-        progressBarStatus = 0;
-
-        new Thread(new Runnable() {
-            public void run() {
-
-//                while (progressBarStatus < 100) {
-                // performing operation
-
-                try {
-
-                    //Get All Data
-                    progressBarStatus = con.getAllData(context, userModel.uid);
-                    //progressBarStatus = 10 ;
-
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-
-                    progressBarStatus = 30;
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-                    progressBarStatus = 50;
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-                    progressBarStatus = 100;
-
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
-
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
-
-
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
-
-//                }
-                //                  performing operation if file is downloaded,
-                if (progressBarStatus >= 100) {
-                    // sleeping for 1 second after operation completed
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // close the progress bar dialog
-                    progressBar.dismiss();
-
-                }
-            }
-        }).start();
-
-    }
-
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (progressBar!=null) {
-            progressBar.cancel();
-        }
-        if (progressDialog!=null) {
-            progressDialog.cancel();
-        }
-    }
-
-
-
-
 
 }

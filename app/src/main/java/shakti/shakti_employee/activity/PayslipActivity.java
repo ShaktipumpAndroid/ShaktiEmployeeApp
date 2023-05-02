@@ -3,8 +3,6 @@ package shakti.shakti_employee.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -16,10 +14,12 @@ import android.webkit.WebViewClient;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -30,7 +30,7 @@ import shakti.shakti_employee.other.SapUrl;
 
 public class PayslipActivity extends AppCompatActivity {
 
-    ImageView my_image;
+    private Toolbar mToolbar;
     //  PhotoViewAttacher mAttacher;
     WebView browser;
     int index;
@@ -46,7 +46,7 @@ public class PayslipActivity extends AppCompatActivity {
         userModel = new LoggedInUser(this);
 
         setTitle("Home");
-        TextView payslip_download = (TextView) findViewById(R.id.payslip_download);
+        TextView payslip_download = findViewById(R.id.payslip_download);
         payslip_download.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -59,6 +59,14 @@ public class PayslipActivity extends AppCompatActivity {
         });
 
 
+        mToolbar = findViewById(R.id.toolbar);
+
+        setSupportActionBar(mToolbar);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Payslip Download");
+
+
         // Spinner for Payslip Year
 //        String [] year = { "Select Year", "2018", "2017", "2016", "2015", "2014"};
 
@@ -68,11 +76,11 @@ public class PayslipActivity extends AppCompatActivity {
             year.add(Integer.toString(i));
         }
 
-        Spinner spinner = (Spinner) findViewById(R.id.payslip_year);
+        Spinner spinner = findViewById(R.id.payslip_year);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(PayslipActivity.this, R.layout.spinner_item, year);
         adapter.setDropDownViewResource(R.layout.spinner_item);
         spinner.setAdapter(adapter);
-        spinner = (Spinner) findViewById(R.id.payslip_year);
+        spinner = findViewById(R.id.payslip_year);
 
 
         // Spinner selection item for leave type
@@ -96,11 +104,11 @@ public class PayslipActivity extends AppCompatActivity {
         String[] month = {"Select Month", "Jan", "Feb", "Mar", "Apr",
                 "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
-        Spinner spinner1 = (Spinner) findViewById(R.id.payslip_month);
+        Spinner spinner1 = findViewById(R.id.payslip_month);
         ArrayAdapter<String> adapter1 = new ArrayAdapter<String>(PayslipActivity.this, R.layout.spinner_item, month);
         adapter1.setDropDownViewResource(R.layout.spinner_item);
         spinner1.setAdapter(adapter1);
-        spinner1 = (Spinner) findViewById(R.id.payslip_month);
+        spinner1 = findViewById(R.id.payslip_month);
 
 
         // Spinner selection item for leave type
@@ -124,7 +132,7 @@ public class PayslipActivity extends AppCompatActivity {
 
     public void callWebPage() {
 
-        browser = (WebView) findViewById(R.id.webView1);
+        browser = findViewById(R.id.webView1);
         browser.getSettings().setJavaScriptEnabled(true);
         browser.getSettings().setGeolocationEnabled(true);
         browser.getSettings().setJavaScriptCanOpenWindowsAutomatically(true);
@@ -251,4 +259,5 @@ public class PayslipActivity extends AppCompatActivity {
         }
 
     }
+
 }

@@ -1,32 +1,16 @@
 package shakti.shakti_employee.activity;
 
-import android.Manifest;
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.StrictMode;
-import androidx.appcompat.app.ActionBarDrawerToggle;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
-import com.google.android.material.navigation.NavigationView;
-
-import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -35,19 +19,18 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import com.google.android.material.navigation.NavigationView;
 
 import shakti.shakti_employee.BuildConfig;
 import shakti.shakti_employee.R;
-import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.fragment.AttendanceFragment;
 import shakti.shakti_employee.fragment.HomeFragment;
@@ -59,7 +42,6 @@ import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.AndroidService;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SAPWebService;
-import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.other.SyncDataService;
 import shakti.shakti_employee.other.TimeService;
 
@@ -94,26 +76,28 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
     private TextView txtName;
     private TextView app_version;
     private Toolbar toolbar;
-    private Handler progressBarHandler = new Handler();
+    private final Handler progressBarHandler = new Handler();
     private int progressBarStatus = 0;
     private long fileSize = 0;
     // toolbar titles respected to selected nav menu item
     private String[] activityTitles;
     // flag to load home fragment when user presses back key
-    private boolean shouldLoadHomeFragOnBackPress = true;
+    private final boolean shouldLoadHomeFragOnBackPress = true;
     private Handler mHandler;
     private LoggedInUser userModel;
     private Context mContext;
     private LeaveRequestFragment mBaseFragment;
-    private boolean mBound = false;
-    private LocationUpdatesService mService = null;
+    private final boolean mBound = false;
+    private final LocationUpdatesService mService = null;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.app_bar_main);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
+
+        mContext = this;
+        toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
 
@@ -132,75 +116,68 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
         // Check for Permissions For Android GE 6.0
 
-        if (checkAndRequestPermissions()) {
+        //     if (checkAndRequestPermissions()) {
 
-            pref = CartSharedPreferences.createObject(DashboardActivity.this);
+        pref = CartSharedPreferences.createObject(DashboardActivity.this);
 
-            SharedPreferences.Editor editor = pref.edit();
-            editor.putString("pernr", getIntent().getStringExtra("pernr"));
-            editor.commit();
-
-
-            mHandler = new Handler();
-
-            drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-            navigationView = (NavigationView) findViewById(R.id.nav_view);
-            /*fab = (FloatingActionButton) findViewById(R.id.fab);*/
-
-            mContext = this;
-            userModel = new LoggedInUser(mContext);
-
-            // Navigation view header
-            navHeader = navigationView.getHeaderView(0);
-            /*txtName = (TextView) navHeader.findViewById(R.id.name);*/
-            txtName = (TextView) navHeader.findViewById(R.id.name);
-            app_version = (TextView) navHeader.findViewById(R.id.app_version);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putString("pernr", getIntent().getStringExtra("pernr"));
+        editor.commit();
 
 
-            con = new SAPWebService();
+        mHandler = new Handler();
 
-            databaseHelper = new DatabaseHelper(DashboardActivity.this);
+        drawer = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+        /*fab =  findViewById(R.id.fab);*/
 
+        mContext = this;
+        userModel = new LoggedInUser(mContext);
 
-            //checkAppVersion();
-
-            if (databaseHelper.getemp()) {
-
-                if (userModel.mob_atnd.equalsIgnoreCase("Y")) {
-                    // After successful data syncing Enable GPS Tracking .
-                    tracking_enabled();
-
-                }
-
-                if (!isTrackingServiceRunning()) {
-                    Log.d("tracking_service", "Tracking Service Started");
-                    startService(new Intent(DashboardActivity.this, TimeService.class));
-                }
+        // Navigation view header
+        navHeader = navigationView.getHeaderView(0);
+        /*txtName = ) navHeader.findViewById(R.id.name);*/
+        txtName = navHeader.findViewById(R.id.name);
+        app_version = navHeader.findViewById(R.id.app_version);
 
 
-            } else {
-                downloadDataFromSap();
-            }
+        con = new SAPWebService();
 
+        // load toolbar titles from string resources
+        activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
 
-            // load toolbar titles from string resources
-            activityTitles = getResources().getStringArray(R.array.nav_item_activity_titles);
+        // load nav menu header data
+        loadNavHeader();
 
-            // load nav menu header data
-            loadNavHeader();
+        // initializing navigation menu
+        setUpNavigationView();
 
-            // initializing navigation menu
-            setUpNavigationView();
-
-            if (savedInstanceState == null) {
-                navItemIndex = 0;
-                CURRENT_TAG = TAG_HOME;
-                loadHomeFragment();
-            }
-
-
+        if (savedInstanceState == null) {
+            navItemIndex = 0;
+            CURRENT_TAG = TAG_HOME;
+            loadHomeFragment();
 
         }
+
+        databaseHelper = new DatabaseHelper(DashboardActivity.this);
+
+        if (databaseHelper.getemp()) {
+
+            if (userModel.mob_atnd.equalsIgnoreCase("Y")) {
+                // After successful data syncing Enable GPS Tracking .
+                tracking_enabled();
+
+            }
+
+            if (!isTrackingServiceRunning()) {
+                Log.d("tracking_service", "Tracking Service Started");
+                startService(new Intent(DashboardActivity.this, TimeService.class));
+            }
+        } else {
+            downloadDataFromSap();
+        }
+        //    }
+        notificationload();
     }
 
     /***
@@ -208,21 +185,16 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
      * like background image, profile image
      * name, website, notifications action view (dot)
      */
+
     private void loadNavHeader() {
         // name, website
         /*txtName.setText("Rohit Patidar");*/
         txtName.setText("Welcome," + userModel.ename);
 
         app_version.setText("Version," + BuildConfig.VERSION_NAME);
-        /*txtWebsite.setText("www.shaktipumps.com");*/
-
-
     }
 
-    /***
-     * Returns respected fragment that user
-     * selected from navigation menu
-     */
+
     private void loadHomeFragment() {
         // selecting appropriate nav menu item
         selectNavMenu();
@@ -244,17 +216,15 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         // when switching between navigation menus
         // So using runnable, the fragment is loaded with cross fade effect
         // This effect can be seen in GMail app
-        Runnable mPendingRunnable = new Runnable() {
-            @Override
-            public void run() {
-                // update the main content by replacing fragments
-                Fragment fragment = getHomeFragment();
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
-                        android.R.anim.fade_out);
-                fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
-                fragmentTransaction.commitAllowingStateLoss();
-            }
+
+        Runnable mPendingRunnable = () -> {
+            // update the main content by replacing fragments
+            Fragment fragment = getHomeFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,
+                    android.R.anim.fade_out);
+            fragmentTransaction.replace(R.id.frame, fragment, CURRENT_TAG);
+            fragmentTransaction.commitAllowingStateLoss();
         };
 
         // If mPendingRunnable is not null, then add to the message queue
@@ -271,6 +241,17 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
         // refresh toolbar menu
         invalidateOptionsMenu();
+
+
+    }
+
+    private void notificationload() {
+
+        HomeFragment frag = HomeFragment.GetInstance();
+        if (frag != null) {
+            frag.testing();
+            frag.setNotification();
+        }
     }
 
     private Fragment getHomeFragment() {
@@ -345,114 +326,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                         navItemIndex = 4;
                         CURRENT_TAG = TAG_SETTINGS;
                         break;
-
-                    case R.id.nav_personal_info_edit:
-
-                        if (CustomUtility.isInternetOn(mContext)) {
-
-                            drawer.closeDrawers();
-
-                            progressBar = new ProgressDialog(DashboardActivity.this);
-                            progressBar.setCancelable(true);
-                            // progressBar.setCancelable(true);
-                            progressBar.setMessage("Downloading Data...");
-                            progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-                            progressBar.setProgress(0);
-                            progressBar.setMax(100);
-                            progressBar.show();
-                            //reset progress bar and filesize status
-                            progressBarStatus = 0;
-
-                            new Thread(new Runnable() {
-                                public void run() {
-
-                                    final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-                                    param.add(new BasicNameValuePair("pernr", userModel.uid));
-
-                                    try {
-
-                                        String obj = CustomHttpClient.executeHttpPost1(SapUrl.employee_info_edit, param);
-
-                                        Log.d("emp_obj", obj);
-
-                                        if (obj != null) {
-
-//                                            databaseHelper.deleteempinfo();
-
-                                            JSONObject jsonObj = new JSONObject(obj);
-                                            JSONArray ja = jsonObj.getJSONArray("emp_edit");
-//                                            databaseHelper.deleteempinfo();
-
-                                            for (int i = 0; i < ja.length(); i++) {
-
-                                                JSONObject jo = ja.getJSONObject(i);
-
-
-                                                if (i == 0) {
-
-                                                    usrid = jo.getString("usrid");
-                                                    Log.d("edit_email_check1", usrid);
-                                                }
-
-                                                if (i == 1) {
-
-                                                    house_no = jo.getString("hsnmr");
-                                                    line1 = jo.getString("stras");
-                                                    line2 = jo.getString("locat");
-                                                    city = jo.getString("ort01");
-                                                    district = jo.getString("ort02");
-                                                    postal_code = jo.getString("pstlz");
-
-                                                    Log.d("edit_email_check2", house_no + "---" + line1 + "---" + line2 + "---" + city + "----" +
-                                                            district + "---" + postal_code);
-
-                                                }
-//                                                databaseHelper.insertEmployeeInfo(userModel.uid,
-//                                                        jo.getString("btrtl_txt"),
-//                                                        jo.getString("persk_txt"),
-//                                                        jo.getString("telnr"),
-//                                                        jo.getString("email_shkt"),
-//                                                        jo.getString("hod_ename"),
-//                                                        jo.getString("address"),
-//                                                        jo.getString("birth1"),
-//                                                        jo.getString("bankn"),
-//                                                        jo.getString("bank_txt"));
-                                            }
-
-                                        }
-
-
-                                        progressBarStatus = 100;
-                                    } catch (Exception e) {
-                                        progressBarStatus = 100;
-                                    }
-
-
-                                    progressBar.cancel();
-                                    progressBar.dismiss();
-
-                                    Intent intent = new Intent(DashboardActivity.this, PersonalInfoEditActivity.class);
-                                    intent.putExtra("USRID", usrid);
-                                    intent.putExtra("HOUSE_NO", house_no);
-                                    intent.putExtra("LINE1", line1);
-                                    intent.putExtra("LINE2", line2);
-                                    intent.putExtra("CITY", city);
-                                    intent.putExtra("DISTRICT", district);
-                                    intent.putExtra("POSTAL_CODE", postal_code);
-
-                                    startActivity(intent);
-
-
-                                }
-                            }).start();
-
-                        } else {
-                            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_SHORT).show();
-                        }
-
-
-                        break;
-
                     case R.id.nav_personal_info:
                         // launch new intent instead of loading fragment
                         startActivity(new Intent(DashboardActivity.this, PersonalInfoActivity.class));
@@ -464,11 +337,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 }
 
                 //Checking if the item is in checked state or not, if not make it in checked state
-                if (menuItem.isChecked()) {
-                    menuItem.setChecked(false);
-                } else {
-                    menuItem.setChecked(true);
-                }
+                menuItem.setChecked(!menuItem.isChecked());
                 menuItem.setChecked(true);
 
                 loadHomeFragment();
@@ -549,7 +418,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
 
-            if (CustomUtility.isInternetOn(mContext)) {
+            if (CustomUtility.isInternetOn(getApplicationContext())) {
                 Toast.makeText(getApplicationContext(), "Logout user!", Toast.LENGTH_LONG).show();
 
                 // Delete Data from DB
@@ -607,6 +476,10 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 return true;
             }
         }
+        else {
+            Toast.makeText(getApplicationContext(), "Data already send to Server ", Toast.LENGTH_LONG).show();
+
+        }
 
         // user is in notifications fragment
         // and selected 'Mark all as Read'
@@ -628,114 +501,101 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
     }
 
-    public void switchFragment(int position) {
-        boolean addToBack = false;
-        lastFrPosition = position;
-        Log.d("pos", "" + position);
-        mBaseFragment = null;
-        switch (position) {
-            case 1:
-                break;
-
-            case 2:
-                break;
-
-        }
-    }
-
 
     public void downloadDataFromSap() {
         // creating progress bar dialog
         progressBar = new ProgressDialog(this);
         progressBar.setCancelable(false);
         // progressBar.setCancelable(true);
-        progressBar.setMessage("Downloading Data...");
+        progressBar.setMessage("Downloading Data from Server...");
         progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressBar.setProgress(0);
+        progressBar.setProgress(5);
         progressBar.setMax(100);
         progressBar.show();
-        //reset progress bar and filesize status
-        progressBarStatus = 0;
+        //reset progress bar and file size status
+        progressBarStatus = 5;
         fileSize = 0;
 
-        new Thread(new Runnable() {
-            public void run() {
+        new Thread(() -> {
 
-//                while (progressBarStatus < 100) {
-                // performing operation
+
+            while (progressBarStatus < 100)
+            {
+                progressBarHandler.post(() -> progressBar.setProgress(5));
 
                 try {
-
                     //Get All Data
-                    progressBarStatus = con.getAllData(DashboardActivity.this, userModel.uid);
-                    //progressBarStatus = 10 ;
+                    progressBarStatus = con.getActiveEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
+                    progressBarStatus = con.getLeaveBalance(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getAttendanceEmp(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getInfoEmp(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
+                   /* progressBarStatus = con.getPendingLeaveForApp(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));*/
 
-                    progressBarStatus = 30;
+                    progressBarStatus = con.getPendingLeave(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getPendingOD(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getLeaveEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    progressBarStatus = 50;
+                    progressBarStatus = con.getODEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getPendingTask(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getCountry(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    progressBarStatus = 100;
+                    progressBarStatus = con.getRegion(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    // Updating the progress bar
-                    progressBarHandler.post(new Runnable() {
-                        public void run() {
+                    progressBarStatus = con.getDistrict(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                            progressBar.setProgress(progressBarStatus);
-                        }
-                    });
+                    progressBarStatus = con.getTehsil(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
+                    progressBarStatus = con.getTaxcode(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getExpenses(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getCurrency(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    // progressBarStatus = con.getAllData(DashboardActivity.this, userModel.uid);
 
 
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-
-//                }
-                //                  performing operation if file is downloaded,
-                if (progressBarStatus >= 100) {
-                    // sleeping for 1 second after operation completed
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-                    // close the progress bar dialog
-                    progressBar.dismiss();
-
-                    if (!isTrackingServiceRunning()) {
-                        Log.d("tracking_service", "Tracking Service Started");
-                        startService(new Intent(DashboardActivity.this, TimeService.class));
-                    }
-
-                }
+            }try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+                // close the progress bar dialog
+                progressBar.dismiss();
+
+                if (!isTrackingServiceRunning()) {
+                    Log.d("tracking_service", "Tracking Service Started");
+                    startService(new Intent(DashboardActivity.this, TimeService.class));
+                }
+
+
         }).start();
 
     }
@@ -766,15 +626,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         }
     }
 
-    private boolean isDownloadServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("other.TimeServiceDownloadData".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
     private boolean isNotificationServiceRunning() {
@@ -795,62 +646,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
             }
         }
         return false;
-    }
-
-
-    private boolean checkAndRequestPermissions() {
-        int permissionNetworkState = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_NETWORK_STATE);
-        int permissionCamera = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.CAMERA);
-        int permissionInternet = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.INTERNET);
-        int permissionStorage = ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int locationPermission = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
-
-        List<String> listPermissionsNeeded = new ArrayList<>();
-        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        if (permissionNetworkState != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_NETWORK_STATE);
-        }
-        if (permissionCamera != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.CAMERA);
-        }
-        if (permissionInternet != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.INTERNET);
-        }
-        if (permissionStorage != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == REQUEST_ID_MULTIPLE_PERMISSIONS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission Granted
-
-
-            } else {
-                // Permission Denied
-
-                DashboardActivity.this.finish();
-                System.exit(0);
-
-            }
-        } else {
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
     }
 
     @Override
