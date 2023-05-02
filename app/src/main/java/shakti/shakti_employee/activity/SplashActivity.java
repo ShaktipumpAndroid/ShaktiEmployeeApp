@@ -3,6 +3,7 @@ package shakti.shakti_employee.activity;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.Manifest.permission_group.CAMERA;
 import static android.os.Build.VERSION.SDK_INT;
@@ -11,10 +12,8 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
@@ -26,19 +25,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-import org.apache.http.NameValuePair;
-
-import java.util.ArrayList;
-
 import shakti.shakti_employee.BuildConfig;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.utility.Utility;
 
 
-@SuppressWarnings("deprecation")
 public class SplashActivity extends AppCompatActivity {
-    final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
     ImageView imageView;
     DatabaseHelper databaseHelper;
     Intent i;
@@ -97,13 +90,14 @@ public class SplashActivity extends AppCompatActivity {
     private void requestPermission() {
         if (SDK_INT >= Build.VERSION_CODES.R) {
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.MANAGE_EXTERNAL_STORAGE,
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES,
                             Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_CODE_PERMISSION);
         } else {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.CAMERA,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_CODE_PERMISSION);
@@ -118,6 +112,9 @@ public class SplashActivity extends AppCompatActivity {
                 ContextCompat.checkSelfPermission(SplashActivity.this, WRITE_EXTERNAL_STORAGE);
         int ReadExternalStorage =
                 ContextCompat.checkSelfPermission(SplashActivity.this, READ_EXTERNAL_STORAGE);
+        int ReadMediaImages =
+                ContextCompat.checkSelfPermission(SplashActivity.this, READ_MEDIA_IMAGES);
+
         int AccessCoarseLocation =
                 ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_COARSE_LOCATION);
         int AccessFineLocation =
@@ -125,7 +122,7 @@ public class SplashActivity extends AppCompatActivity {
 
 
         if (SDK_INT >= Build.VERSION_CODES.R) {
-            return cameraPermission == PackageManager.PERMISSION_GRANTED
+            return cameraPermission == PackageManager.PERMISSION_GRANTED && ReadMediaImages == PackageManager.PERMISSION_GRANTED
                     && AccessCoarseLocation == PackageManager.PERMISSION_GRANTED && AccessFineLocation == PackageManager.PERMISSION_GRANTED;
         } else {
             return cameraPermission == PackageManager.PERMISSION_GRANTED && writeExternalStorage == PackageManager.PERMISSION_GRANTED
@@ -144,6 +141,7 @@ public class SplashActivity extends AppCompatActivity {
             if (grantResults.length > 0) {
                 if (SDK_INT >= Build.VERSION_CODES.R) {
                     boolean ACCESSCAMERA = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    //boolean ReadMediaImages = grantResults[1] == PackageManager.PERMISSION_GRANTED;
                     boolean AccessCoarseLocation = grantResults[2] == PackageManager.PERMISSION_GRANTED;
                     boolean AccessFineLocation = grantResults[3] == PackageManager.PERMISSION_GRANTED;
 
@@ -168,10 +166,8 @@ public class SplashActivity extends AppCompatActivity {
                         Toast.makeText(SplashActivity.this, R.string.all_permission, Toast.LENGTH_LONG).show();
                     }} else {
                     boolean ACCESSCAMERA = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeExternalStorage =
-                            grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    boolean ReadExternalStorage =
-                            grantResults[2] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeExternalStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean ReadExternalStorage = grantResults[2] == PackageManager.PERMISSION_GRANTED;
                     boolean AccessCoarseLocation = grantResults[3] == PackageManager.PERMISSION_GRANTED;
                     boolean AccessFineLocation = grantResults[4] == PackageManager.PERMISSION_GRANTED;
 
@@ -181,21 +177,6 @@ public class SplashActivity extends AppCompatActivity {
                         Toast.makeText(SplashActivity.this, R.string.all_permission, Toast.LENGTH_LONG).show();
                     }
 
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (requestCode == 2296) {
-            if (SDK_INT >= Build.VERSION_CODES.R) {
-                if (Environment.isExternalStorageManager()) {
-                    checkLoginStatus();
-                } else {
-                    Toast.makeText(this, R.string.storage_permission, Toast.LENGTH_SHORT).show();
                 }
             }
         }
