@@ -139,7 +139,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     private static final String ARG_PARAM2 = "param2";
 
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    DashboardActivity dashboardActivity = new DashboardActivity();
+
 
     TextView act_leave_req;
     TextView act_leave_app;
@@ -385,7 +385,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         StrictMode.setVmPolicy(builder.build());
 
         if (!checkPlayServices()) {
-            Toast.makeText(dashboardActivity, "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
         }
 
     }
@@ -1840,7 +1840,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 new IntentFilter(LocationUpdatesService.ACTION_BROADCAST));
 
         if (!checkPlayServices()) {
-            Toast.makeText(dashboardActivity, "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
         }
     }
 

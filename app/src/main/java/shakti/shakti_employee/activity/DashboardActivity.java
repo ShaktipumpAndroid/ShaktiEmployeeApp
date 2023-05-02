@@ -509,11 +509,11 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         // progressBar.setCancelable(true);
         progressBar.setMessage("Downloading Data from Server...");
         progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-        progressBar.setProgress(0);
+        progressBar.setProgress(5);
         progressBar.setMax(100);
         progressBar.show();
         //reset progress bar and file size status
-        progressBarStatus = 0;
+        progressBarStatus = 5;
         fileSize = 0;
 
         new Thread(() -> {
@@ -521,6 +521,8 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
             while (progressBarStatus < 100)
             {
+                progressBarHandler.post(() -> progressBar.setProgress(5));
+
                 try {
                     //Get All Data
                     progressBarStatus = con.getActiveEmployee(DashboardActivity.this,userModel.uid);
