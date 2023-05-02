@@ -4,14 +4,14 @@ apply plugin: 'com.google.firebase.crashlytics'
 
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
    // buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId "shakti.shakti_employee"
         minSdkVersion 19
-        targetSdkVersion 31
-        versionCode 40
+        targetSdkVersion 33
+        versionCode 43
         versionName '5.8'
         multiDexEnabled true
         resConfigs "en"
@@ -23,53 +23,36 @@ android {
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            jniDebuggable false
-            renderscriptDebuggable false
-            pseudoLocalesEnabled false
-            zipAlignEnabled true
+
         }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            jniDebuggable false
-            renderscriptDebuggable false
-            pseudoLocalesEnabled false
-            zipAlignEnabled true
+
 
         }
     }
-    android {
+    flavorDimensions 'server'
 
+    productFlavors {
+        quality {
+            dimension 'server'
+            buildConfigField 'String', 'baseUrl', '"https://spquasrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/"'
+            buildConfigField 'String', 'webbaseUrl', '"https://spquasrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_web/"'
 
-        flavorDimensions 'server'
+            versionNameSuffix "-dev"
+        }
 
-        productFlavors {
-            quality {
-                dimension 'server'
-                buildConfigField 'String', 'baseUrl', '"https://spquasrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/"'
-                buildConfigField 'String', 'webbaseUrl', '"https://spquasrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_web/"'
+        production {
+            dimension 'server'
 
-                versionNameSuffix "-dev"
-            }
+            buildConfigField 'String', 'baseUrl', '"https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/"'
+            buildConfigField 'String', 'webbaseUrl', '"https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_web/"'
 
-            production {
-                dimension 'server'
-
-                buildConfigField 'String', 'baseUrl', '"https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_1/"'
-                buildConfigField 'String', 'webbaseUrl', '"https://spprdsrvr1.shaktipumps.com:8423/sap/bc/bsp/sap/zhr_emp_app_web/"'
-
-                versionNameSuffix "-production"
-
-            }
+            versionNameSuffix "-production"
 
         }
 
-
-        buildTypes {
-            debug {
-                debuggable true
-            }
-        }
     }
     compileOptions {
 
@@ -90,54 +73,49 @@ android {
         exclude 'META-INF/LGPL2.1'
     }
 
-    lintOptions {
-        checkReleaseBuilds false
-        abortOnError false
-        ignoreWarnings true
-    }
+
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     implementation 'androidx.core:core-ktx:1.8.0'
     //implementation 'org.jetbrains:annotations-java5:15.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+
     implementation 'com.google.firebase:firebase-crashlytics-ktx:18.3.6'
     implementation 'com.google.firebase:firebase-analytics-ktx:21.2.1'
-    testImplementation 'junit:junit:4.13.1'
+    testImplementation 'junit:junit:4.13.2'
 
     implementation files('libs/httpclient-4.3.6.jar')
     implementation files('libs/httpcore-4.3.3.jar')
     implementation files('libs/apache-commons-net.jar')
     // Glide image library
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.8.5'
-    implementation 'com.fasterxml.jackson.core:jackson-core:2.8.5'
-    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.8.5'
-    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.14.2'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.14.2'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-jackson:2.2.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:3.6.0'
-    implementation 'com.android.volley:volley:1.1.0'
-    implementation 'androidx.multidex:multidex:2.0.0'
-    implementation 'com.google.code.gson:gson:2.8.6'
-    implementation 'com.squareup.retrofit2:retrofit:2.6.2'
-    implementation 'com.squareup.retrofit2:converter-gson:2.6.2'
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.11'
+    implementation 'com.android.volley:volley:1.2.1'
+    implementation 'androidx.multidex:multidex:2.0.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
     //noinspection GradleCompatible
     implementation 'androidx.cardview:cardview:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'androidx.appcompat:appcompat:1.0.0'
-    implementation 'com.google.android.material:material:1.0.0'
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'com.github.bumptech.glide:glide:4.9.0'
+    implementation 'com.github.bumptech.glide:glide:4.11.0'
 
     implementation 'com.weiwangcn.betterspinner:library-material:1.1.0'
-    implementation files('libs/jsoup-1.10.2.jar')
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.android.gms:play-services-location:17.0.0'
-    implementation 'com.intuit.ssp:ssp-android:1.0.5'
-    implementation 'com.intuit.sdp:sdp-android:1.0.5'
-    implementation 'com.google.android.play:core:1.6.4'
+    implementation 'com.google.android.gms:play-services-maps:18.1.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
+    implementation 'com.intuit.ssp:ssp-android:1.1.0'
+    implementation 'com.intuit.sdp:sdp-android:1.1.0'
+    implementation 'com.google.android.play:core:1.10.3'
 }
 
