@@ -58,11 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 6;
 
     public static final String KEY_PHOTO1 = "photo1";
-    public static final String KEY_PHOTO1_2 = "photo1_2";
-    public static final String KEY_PHOTO1_3 = "photo1_3";
-    public static final String KEY_PHOTO1_4 = "photo1_4";
-    public static final String KEY_PHOTO1_5 = "photo1_5";
-    // Table Names
+    public static final String KEY_PHOTO2 = "photo2";
     public static final String TABLE_LOGIN = "tbl_login";
     public static final String TABLE_ACTIVE_EMPLOYEE = "tbl_active_employee";
     public static final String TABLE_LEAVE_BALANCE = "tbl_leave_balance";
@@ -533,14 +529,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_MRC_TYPE + " TEXT,"
             + KEY_DEPARTMENT + " TEXT,"
             + KEY_TASK_DATE_TO + " TEXT)";
-    // Task Pending fields . Same As Task create Fields
-//    public static final String KEY_DESCRIPTION  = "description";
-//    public  static final String KEY_TASK_FOR     = "task_for";
-//    private static final String KEY_TASK_DATE_FROM   = "date_from";
-//    private static final String KEY_TASK_DATE_TO    = "date_to";
-//    private static final String KEY_SYNC    = "sync";
-//    private static final String KEY_MRC_TYPE    = "mrc_type";
-//    private static final String KEY_DEPARTMENT    = "department";
 
     // Local convenience table
     private static final String CREATE_TABLE_LOCAL_CONVENIENCE= "CREATE TABLE IF NOT EXISTS "
@@ -557,6 +545,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_START_LOC + " TEXT,"
             + KEY_END_LOC + " TEXT,"
             + KEY_DISTANCE+ " TEXT,"
+            + KEY_PHOTO1 + " BLOB,"
+            + KEY_PHOTO2 + " BLOB,"
             + KEY_TASK_DATE_TO + " TEXT)";
     //  task pending table
     private static final String CREATE_TABLE_TASK_PENDING = "CREATE TABLE IF NOT EXISTS "
@@ -745,9 +735,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_LOCAL_CONVENIENCE, null, null);
     }
 
-    public void deleteLocalconvenienceDetail(String pernr,String date,String time) {
+    public void deleteLocalconvenienceDetail1(String enddt,String endtm) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_PERNR + "='" + pernr + "'" + " AND " + KEY_BEGDA + " = '" + date + "'" + " AND " + KEY_FROM_TIME + " = '" + time + "'");
+        db.execSQL("DELETE FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_ENDDA + "='" + enddt + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'");
     }
 
     public void deleteTravelHeadData() {
@@ -1120,7 +1110,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_START_LOC, localconvenienceBean.getStart_loc());
             values.put(KEY_END_LOC, localconvenienceBean.getEnd_loc());
             values.put(KEY_DISTANCE, localconvenienceBean.getDistance());
-
+            values.put(KEY_PHOTO1, localconvenienceBean.getPhoto1());
+            values.put(KEY_PHOTO2, localconvenienceBean.getPhoto2());
 
             // Insert Row
             long i = db.insert(TABLE_LOCAL_CONVENIENCE, null, values);
@@ -1136,9 +1127,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
         }
 
+
     }
 
-    public void updateLocalconvenienceData(LocalConvenienceBean localconvenienceBean, String pernr, String date, String time) {
+    public void updateLocalconvenienceData(LocalConvenienceBean localconvenienceBean) {
 
         // Open the database for writing
         SQLiteDatabase db = this.getWritableDatabase();
@@ -1153,6 +1145,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             values.put(KEY_PERNR, localconvenienceBean.getPernr());
             values.put(KEY_BEGDA, localconvenienceBean.getBegda());
+
             values.put(KEY_ENDDA, localconvenienceBean.getEndda());
             values.put(KEY_FROM_TIME, localconvenienceBean.getFrom_time());
             values.put(KEY_TO_TIME, localconvenienceBean.getTo_time());
@@ -1163,8 +1156,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_START_LOC, localconvenienceBean.getStart_loc());
             values.put(KEY_END_LOC, localconvenienceBean.getEnd_loc());
             values.put(KEY_DISTANCE, localconvenienceBean.getDistance());
+            values.put(KEY_PHOTO1, localconvenienceBean.getPhoto1());
+            values.put(KEY_PHOTO2, localconvenienceBean.getPhoto2());
 
-            where  = KEY_PERNR +"='"+pernr+"'"+" AND "+ KEY_BEGDA +"='"+date+"'"+" AND "+ KEY_FROM_TIME +"='"+time+"'";
+            where = KEY_PERNR + "='" + localconvenienceBean.getPernr() + "'" + " AND " +
+                    KEY_BEGDA + "='" + localconvenienceBean.getBegda() + "'" + " AND " +
+                    KEY_FROM_TIME + "='" + localconvenienceBean.getFrom_time() + "'" + " AND " +
+                    KEY_FROM_LAT + "='" + localconvenienceBean.getFrom_lat() + "'" + " AND " +
+                    KEY_FROM_LNG + "='" + localconvenienceBean.getFrom_lng() + "'";
+
             // update Row
             long i = db.update(TABLE_LOCAL_CONVENIENCE, values, where, null);
             // Insert into database successfully.
@@ -1180,41 +1180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-   /* public void updateLocalconvenienceData(LocalConvenienceBean localconvenienceBean, String pernr) {
 
-        // Open the database for writing
-        SQLiteDatabase db = this.getWritableDatabase();
-        // Start the transaction.
-        db.beginTransactionNonExclusive();
-        String selectQuery = null;
-        ContentValues values;
-        String where = "";
-
-        try {
-            values = new ContentValues();
-
-            values.put(KEY_PERNR, localconvenienceBean.getPernr());
-            values.put(KEY_ENDDA, localconvenienceBean.getEndda());
-            values.put(KEY_TO_TIME, localconvenienceBean.getTo_time());
-            values.put(KEY_FROM_LAT, localconvenienceBean.getFrom_lat());
-            values.put(KEY_TO_LNG, localconvenienceBean.getTo_lng());
-
-
-            where  = KEY_PERNR +"='"+pernr+"'";
-            // update Row
-            long i = db.update(TABLE_LOCAL_CONVENIENCE, values, where, null);
-            // Insert into database successfully.
-            db.setTransactionSuccessful();
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        } finally {
-            // End the transaction.
-            db.endTransaction();
-            // Close database
-            db.close();
-        }
-
-    }*/
    @SuppressLint("Range")
    public ArrayList<LocalConvenienceBean1> getLocalConvience(Context context, String pernr) {
        String userid = LoginBean.getUseid();
@@ -3715,16 +3681,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-    public LocalConvenienceBean getLocalConvinienceData(String date ,String pernr,String time) {
+    public LocalConvenienceBean getLocalConvinienceData(String endat ,String endtm) {
 
         LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean();
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = null;
+        Cursor cursordom;
         db.beginTransactionNonExclusive();
         try {
 
-            selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_PERNR + " = '" + pernr + "'" + " AND " + KEY_BEGDA + " = '" + date + "'" + " AND " + KEY_FROM_TIME + " = '" + time + "'";
+            selectQuery = "SELECT * FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_ENDDA + " = '" + endat + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'";
 
             cursordom = db.rawQuery(selectQuery, null);
 
@@ -3747,6 +3714,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         localConvenienceBean.setStart_loc(cursordom.getString(cursordom.getColumnIndex(KEY_START_LOC)));
                         localConvenienceBean.setEnd_loc(cursordom.getString(cursordom.getColumnIndex(KEY_END_LOC)));
                         localConvenienceBean.setDistance(cursordom.getString(cursordom.getColumnIndex(KEY_DISTANCE)));
+                        localConvenienceBean.setPhoto1(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO1)));
+                        localConvenienceBean.setPhoto2(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO2)));
 
 
                         cursordom.moveToNext();
@@ -3776,10 +3745,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = null;
+        Cursor cursordom;
         db.beginTransactionNonExclusive();
         try {
 
-            selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE;
+            selectQuery = "SELECT * FROM " + TABLE_LOCAL_CONVENIENCE;
 
             cursordom = db.rawQuery(selectQuery, null);
 
@@ -3802,6 +3772,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         localConvenienceBean.setStart_loc(cursordom.getString(cursordom.getColumnIndex(KEY_START_LOC)));
                         localConvenienceBean.setEnd_loc(cursordom.getString(cursordom.getColumnIndex(KEY_END_LOC)));
                         localConvenienceBean.setDistance(cursordom.getString(cursordom.getColumnIndex(KEY_DISTANCE)));
+                        localConvenienceBean.setPhoto1(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO1)));
+                        localConvenienceBean.setPhoto2(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO2)));
 
 
                         cursordom.moveToNext();

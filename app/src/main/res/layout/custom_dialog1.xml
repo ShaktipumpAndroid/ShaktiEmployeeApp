@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:padding="15dp">
@@ -23,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp"
         android:textSize="14sp"
-        android:textColor="@color/grey"
+        android:textColor="@color/gray"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txt1" />
@@ -35,7 +36,8 @@
         android:hint="Latitude"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txt2">
+        app:layout_constraintTop_toBottomOf="@+id/txt2"
+        >
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/tiet_lat"
             android:layout_width="match_parent"
@@ -47,7 +49,7 @@
     </com.google.android.material.textfield.TextInputLayout>
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/til_lng"
-         android:layout_width="0dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Longitude"
         app:layout_constraintEnd_toEndOf="parent"
@@ -86,41 +88,57 @@
     </com.google.android.material.textfield.TextInputLayout>
 
 
+    <TextView
+        android:id="@+id/photo1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/space_xxlarge45"
+        android:background="@drawable/all_corners_rounded_white"
+        android:drawableEnd="@drawable/right_mark_icn_green"
+        android:layout_marginTop="@dimen/size_tinny10"
+        android:padding="@dimen/space_mid10"
+        android:singleLine="true"
+        android:text="@string/start_photo"
+        android:textColor="@color/black"
+        android:textSize="@dimen/size_xlarge20"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.859"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/til_add"/>
+
 
     <TextView
         android:id="@+id/btn_cncl"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="64dp"
         android:background="@layout/rounded_corner_blue"
         android:gravity="center"
         android:padding="@dimen/space_mid10"
-        android:text="Cancel"
+        android:text="@string/cancel"
         android:textColor="@color/white"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.900"
+        app:layout_constraintHorizontal_bias="0.859"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/til_add" />
+        app:layout_constraintTop_toBottomOf="@+id/photo1" />
 
     <TextView
         android:id="@+id/btn_cnfrm"
         android:layout_width="120dp"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="64dp"
         android:background="@layout/rounded_corner_blue"
         android:gravity="center"
         android:padding="@dimen/space_mid10"
-        android:text="Confirm"
+        android:text="@string/confirm_"
         android:textColor="@color/white"
         android:textSize="14sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.10"
+        app:layout_constraintHorizontal_bias="0.161"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/til_add" />
-
+        app:layout_constraintTop_toBottomOf="@+id/photo1" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -418,31 +418,9 @@ public class CheckInvkActivity extends AppCompatActivity {
 
     public void openCamera(String name) {
 
-        if (CameraUtils.checkPermissions(context)) {
 
-           /* Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-            String from = "INST/";
-
-            File file = CameraUtils.getOutputMediaFile(MEDIA_TYPE_IMAGE, enq_docno, name, from);
-
-            if (file != null) {
-                imageStoragePath = file.getAbsolutePath();
-                Log.e("PATH", "&&&" + imageStoragePath);
-            }
-
-            fileUri1 = CameraUtils.getOutputMediaFileUri(mContext, file);
-
-            Log.e("fileUri", "&&&" + fileUri1);
-
-            intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri1);
-
-            // start the image capture Intent
-            startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-*/
 
             file = new File(ImageManager.getMediaFilePath(type,name, Utility.CUSTOMERID_ID));
-
             imageStoragePath = file.getAbsolutePath();
             Log.e("PATH", "&&&" + imageStoragePath);
 
@@ -455,8 +433,6 @@ public class CheckInvkActivity extends AppCompatActivity {
             i.putExtra("name", name);
 
             startActivityForResult(i, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-        }
-
 
     }
 

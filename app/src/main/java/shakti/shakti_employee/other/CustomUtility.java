@@ -344,6 +344,19 @@ public class CustomUtility {
         return current_time.trim();
     }
 
-
+    public static boolean isOnline(Context mContext) {
+        ConnectivityManager connectivity =
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (NetworkInfo networkInfo : info)
+                    if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+            }
+        }
+        return false;
+    }
 
 }

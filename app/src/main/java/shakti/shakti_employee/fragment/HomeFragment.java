@@ -1,8 +1,22 @@
 package shakti.shakti_employee.fragment;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.CAMERA;
+import static android.Manifest.permission.READ_CONTACTS;
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.READ_MEDIA_AUDIO;
+import static android.Manifest.permission.READ_MEDIA_IMAGES;
+import static android.Manifest.permission.READ_PHONE_STATE;
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LOCATION_SERVICE;
+import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
+
+import static shakti.shakti_employee.activity.CheckInvkActivity.BITMAP_SAMPLE_SIZE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -11,6 +25,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -35,7 +50,6 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.text.Html;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -66,6 +80,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -82,15 +97,24 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
+import models.DistanceResponse;
+import models.Element;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.activity.AttendanceActivity;
 import shakti.shakti_employee.activity.CheckInvkActivity;
@@ -119,7 +143,10 @@ import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.GPSTracker;
 import shakti.shakti_employee.other.SAPWebService;
 import shakti.shakti_employee.other.SapUrl;
-import shakti.shakti_employee.other.SyncDataService;
+import shakti.shakti_employee.utility.CameraUtils;
+import shakti.shakti_employee.utility.DistanceApiClient;
+import shakti.shakti_employee.utility.RestUtil;
+import shakti.shakti_employee.utility.Utility;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -129,122 +156,50 @@ import shakti.shakti_employee.other.SyncDataService;
  * Use the {@link HomeFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class HomeFragment extends Fragment implements View.OnClickListener,GoogleApiClient.ConnectionCallbacks,
+public class HomeFragment extends Fragment implements View.OnClickListener, GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener, LocationListener {
     public static final int MEDIA_TYPE_IMAGE = 1;
-    public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
+    public static final int REQUEST_CODE_PERMISSION = 1;
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
-
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
+    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
+    private LocationRequest locationRequest;
 
-
-    TextView act_leave_req;
-    TextView act_leave_app;
-    TextView act_od_req;
-    TextView act_od_app;
-    TextView act_gp_req;
-    TextView txtCheckINID;
-    TextView txtCheckOutID;
-    TextView act_gp_app;
-    TextView gp_notification;
-    TextView tv_dom_travel;
-    TextView tv_dom_rep;
-    TextView tv_exp_rep;
-    TextView tv_exp_travel, markAttendanceBar;
-    TextView leave_notification, od_notification, pending_task_notification;
+    TextView act_leave_req, act_leave_app, act_od_req, act_od_app, act_gp_req, txtCheckINID, txtCheckOutID, act_gp_app,
+            gp_notification, tv_dom_travel, tv_dom_rep, tv_exp_rep, tv_exp_travel, markAttendanceBar, leave_notification, od_notification, pending_task_notification,
+            tv_travel_txt, tv_create_task, tv_complete_task, tv_web_view, tv_create_attendance, photo1, photo2, start_travel, end_travel, convey_offline_data;
     Context context;
     private static HomeFragment instance;
     // For Leave Balance
     DatabaseHelper dataHelper;
-    String leavetype;
-    String obj_leave_balance;
-    // For Leave pending for approval
-    String fullAddress = null;
-    String fullAddress1 = null;
-    /*String distance = null;*/
-    String distance = null;
-    String distance1 = null;
-    String latlng = null;
-    String obj_pending_leave;
-    String travel_create;
+    String fullAddress = null, fullAddress1 = null,distance1 = null, latlng = null,  from_lat, from_lng, to_lat, to_lng, start_photo_text, end_photo_text,
+            value, latLong, mParam1, mParam2, mTravel, mHod, current_start_date, current_end_date, current_start_time, current_end_time,
+            strtlatlng = null,  date = null, time = null, startphoto,allLatLong;
+
+  Bitmap bitmap;
     GPSTracker gps;
-    String KEY_LEV_NO;
-    String LEV_TYP;
-    String ENAME;
-    String HORO;
-    String LEV_FRM;
-    String LEV_TO;
-    String REASON;
-    String CHRG_NAME1;
-    String CHRG_NAME2;
-    String CHRG_NAME3;
-    String CHRG_NAME4;
-    String DIRECT_INDIRECT;
-    String key_od_no;
-    String od_horo;
-    String od_ename;
-    String od_work_status;
-    String od_frm;
-    String od_to;
-    String visit_place;
-    String purpose1;
-    String purpose2;
-    String purpose3;
-    String remark;
-    String od_direct_indirect;
-    String from_lat;
-    String from_lng;
-    String to_lat;
-    String to_lng;
-    String id;
     CustomUtility customutility = null;
     AttendanceBean attendanceBean;
-    String Attendance_Mark = null, latLong;
-    SAPWebService con = null;
     View view, view1;
     LinearLayout travel;
 
-    TextView tv_travel_txt;
-    TextView tv_create_task, tv_complete_task, tv_web_view, tv_create_attendance;
-    //    private ProgressDialog progressDialog;
     ProgressDialog progressBar;
+    private Handler progressBarHandler = new Handler();
+    SAPWebService con = null;
     // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private String mTravel, mHod;
     private OnFragmentInteractionListener mListener;
     private ProgressDialog progressDialog;
     private LoggedInUser userModel;
     //private Context mContext;
     private Uri fileUri; // file url to store image
-    private final int progressBarStatus = 0;
-    private final Handler progressBarHandler = new Handler();
-    private final ArrayList<String> permissionsRejected = new ArrayList<>();
-
+    private int progressBarStatus = 0;
     LocalConvenienceBean localConvenienceBean;
     LocationManager locationManager;
 
-
-    String current_start_date, current_end_date, current_start_time, current_end_time;
-
-
-    private Location location;
-    private TextView locationTv;
-    private GoogleApiClient googleApiClient;
-    private static final int PLAY_SERVICES_RESOLUTION_REQUEST = 9000;
-    private LocationRequest locationRequest;
-    private static final long UPDATE_INTERVAL = 1000, FASTEST_INTERVAL = 1000; // = 5 seconds
-    // lists for permissions
-    private ArrayList<String> permissionsToRequest;
-    private final ArrayList<String> permissions = new ArrayList<>();
-    TextView start_travel, end_travel, convey_offline_data;
-    // integer for permissions results request
-    private static final int ALL_PERMISSIONS_RESULT = 1011;
     FusedLocationProviderClient fusedLocationClient;
     private MyReceiver myReceiver;
+    boolean start_photo_flag = false, end_photo_flag = false;
     android.os.Handler mHandler = new android.os.Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -256,10 +211,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     private LocationUpdatesService mService = null;
     // Tracks the bound state of the service.
     private boolean mBound = false;
-    String strtlatlng = null;
-    String fromlatlng = null;
-    String date = null;
-    String time = null;
 
     FusedLocationProviderClient fusedLocationProviderClient;
 
@@ -304,19 +255,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
     private static File getOutputMediaFile(int type) {
 
-        // External sdcard location
         File mediaStorageDir = new File(
                 Environment
                         .getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
                 SapUrl.IMAGE_DIRECTORY_NAME);
 
-
-        // Create the storage directory if it does not exist
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-//                Log.d(TAG, "Oops! Failed create "
-//                        + Config.IMAGE_DIRECTORY_NAME + " directory");
-                return null;
+               return null;
             }
         }
 
@@ -367,27 +313,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         }
 
 
-        // we add permissions we need to request location of the users
-        permissions.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        permissions.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-
-        permissionsToRequest = permissionsToRequest(permissions);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (permissionsToRequest.size() > 0) {
-                requestPermissions(permissionsToRequest.
-                        toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
-            }
-        }
-
-
-        StrictMode.VmPolicy.Builder builder = new StrictMode.VmPolicy.Builder();
-        StrictMode.setVmPolicy(builder.build());
-
-        if (!checkPlayServices()) {
-            Toast.makeText(getActivity(), "You need to install Google Play Services to use the App properly", Toast.LENGTH_SHORT).show();
-        }
-
     }
 
     @Override
@@ -409,10 +334,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 .unregisterOnSharedPreferenceChangeListener(this);*/
         super.onStop();
 
-        if (progressBar!=null) {
+        if (progressBar != null) {
             progressBar.cancel();
         }
-        if (progressDialog!=null) {
+        if (progressDialog != null) {
             progressDialog.cancel();
         }
     }
@@ -466,7 +391,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     @SuppressLint("WrongConstant")
     private boolean hasPermission(String permission) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return checkSelfPermission(context,permission) == PackageManager.PERMISSION_GRANTED;
+            return checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED;
         }
 
         return true;
@@ -504,27 +429,19 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     }
 
 
-
     @SuppressLint("UseRequireInsteadOfGet")
     public void startLocationUpdates() {
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        start_photo_text = "";
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setMaxWaitTime(5000);
         locationRequest.setInterval(10 * 1000);
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
 
-        fusedLocationClient.getLastLocation().addOnSuccessListener(Objects.requireNonNull(getActivity()), new OnSuccessListener<Location>() {
+        fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(final Location location) {
                 final Double[] lat = new Double[1];
@@ -535,40 +452,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 to_lng = "";
                 fullAddress = "";
                 fullAddress1 = "";
-
-                try{
-
-                    current_start_date = customutility.getCurrentDate1();
-                    current_start_time = customutility.getCurrentTime1();
-
-                    if(location != null)
-                    {
-                        from_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLatitude())));
-                        from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLongitude())));
+                try {
+                    current_start_date = new CustomUtility().getCurrentDate();
+                    current_start_time = new CustomUtility().getCurrentTime();
+                    if (location != null) {
+                        from_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLatitude())));
+                        from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLongitude())));
                         lat[0] = location.getLatitude();
                         lng[0] = location.getLongitude();
-                    }
-                    else{
-                        LocationCallback mLocationCallback = new LocationCallback() {
-                            @Override
-                            public void onLocationResult(LocationResult locationResult) {
-                                if (locationResult == null) {
-                                    return;
-                                }
-                                for (Location location : locationResult.getLocations()) {
-                                    if (location != null) {
-                                        //TODO: UI updates.
-                                        from_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLatitude())));
-                                        from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLongitude())));
-                                        lat[0] = location.getLatitude();
-                                        lng[0] = location.getLongitude();
-
-                                    }
-                                }
-                            }
-                        };
-
-                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    ActivityCompat#requestPermissions
                             // here to request the missing permissions, and then overriding
@@ -578,26 +471,25 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                             // for ActivityCompat#requestPermissions for more details.
                             return;
                         }
-                        LocationServices.getFusedLocationProviderClient(context).requestLocationUpdates(locationRequest, mLocationCallback, null);
+                        Location location1 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        from_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLatitude())));
+                        from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLongitude())));
+                        lat[0] = location1.getLatitude();
+                        lng[0] = location1.getLongitude();
                     }
-
-
-
-                    progressDialog = ProgressDialog.show(getActivity(), "Loading...", "Please wait !");
+                    progressDialog = ProgressDialog.show(getActivity(), getResources().getString(R.string.loading), getResources().getString(R.string.please_wait_));
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {
                             //Do something here
-
-                            if(!TextUtils.isEmpty(from_lat) && !TextUtils.isEmpty(from_lng)) {
-
+                            if (!TextUtils.isEmpty(from_lat) && !TextUtils.isEmpty(from_lng)) {
                                 if (progressDialog != null)
                                     if (progressDialog.isShowing()) {
                                         progressDialog.dismiss();
                                         progressDialog = null;
                                     }
 
-                                final Dialog dialog = new Dialog(context);
+                                final Dialog dialog = new Dialog(getActivity());
                                 dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
                                 dialog.setCancelable(false);
                                 dialog.setContentView(R.layout.custom_dialog1);
@@ -607,39 +499,54 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                                 lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
                                 dialog.getWindow().setAttributes(lp);
 
-
                                 final TextInputEditText etlat = dialog.findViewById(R.id.tiet_lat);
                                 final TextInputEditText etlng = dialog.findViewById(R.id.tiet_lng);
                                 final TextInputEditText etadd = dialog.findViewById(R.id.tiet_add);
                                 final TextView ettxt1 = dialog.findViewById(R.id.txt1);
                                 final TextView ettxt2 = dialog.findViewById(R.id.txt2);
+                                photo1 = dialog.findViewById(R.id.photo1);
                                 final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
                                 final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
 
-
-                                Geocoder geo = new Geocoder(context.getApplicationContext(), Locale.getDefault());
-                                List<Address> addresses = null;
-                                if (location != null) {
-                                    try {
-                                        addresses = geo.getFromLocation(lat[0], lng[0], 1);
-                                    } catch (IOException e) {
-                                        e.printStackTrace();
+                                if (CustomUtility.isOnline(getActivity())) {
+                                    Geocoder geo = new Geocoder(getActivity().getApplicationContext(), Locale.getDefault());
+                                    List<Address> addresses = null;
+                                    if (location != null) {
+                                        try {
+                                            addresses = geo.getFromLocation(lat[0], lng[0], 1);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    if (addresses != null) {
+                                        if (addresses.isEmpty()) {
+                                            etadd.setText(getResources().getString(R.string.no_location_found));
+                                        } else {
+                                            etadd.setText(addresses.get(0).getAddressLine(0));
+                                        }
                                     }
                                 }
-                                if (addresses != null) {
-                                    if (addresses.isEmpty()) {
-                                        etadd.setText("Please try Again, Waiting for Location");
-                                    } else {
-                                        etadd.setText(addresses.get(0).getAddressLine(0));
-                                    }
-                                }
-
-
                                 etlat.setText(from_lat);
                                 etlng.setText(from_lng);
 
-                                ettxt1.setText("Current Location");
-                                ettxt2.setText(Html.fromHtml(getString(R.string.confirm)));
+                                ettxt1.setText(getResources().getString(R.string.Current_Location));
+                                ettxt2.setText(getResources().getString(R.string.confirm_));
+
+                                // Toast.makeText(getActivity(), "from_lat="+from_lat+"\nfrom_lng="+from_lng, Toast.LENGTH_SHORT).show();
+
+                                photo1.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View v) {
+                                        value = "1";
+                                        if (start_photo_text == null || start_photo_text.isEmpty()) {
+                                            if (checkPermission()) {
+                                                showConfirmationGallery(DatabaseHelper.KEY_PHOTO1, "PHOTO1");
+                                            } else {
+                                                requestPermission();
+                                            }
+                                        }
+                                    }
+                                });
 
                                 etcncl.setOnClickListener(new View.OnClickListener() {
                                     @Override
@@ -651,80 +558,46 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                                 etconfm.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View v) {
-
-                                        //dataHelper.deleteLocalconvenienceDetail();
-
-                                        if (CustomUtility.isInternetOn(context)) {
-
-                                            LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(userModel.uid,
-                                                    new CustomUtility().getCurrentDate(),
-                                                    "",
-                                                    new CustomUtility().getCurrentTime(),
-                                                    "",
-                                                    from_lng+","+from_lat+";",
-                                                    "",
-                                                    from_lat+","+from_lng,
-                                                    "",
-                                                    "",
-                                                    "",
-                                                    "");
-
-                                            dataHelper.insertLocalconvenienceData(localConvenienceBean);
-
-                                            CustomUtility.setSharedPreference(context, "localconvenience", "1");
-                                            changeButtonVisibility(false, 0.5f, start_travel);
-                                            changeButtonVisibility(true, 1f, end_travel);
-
-                                            Toast.makeText(getActivity(), "Your Journey will be Started...", Toast.LENGTH_LONG).show();
-                                            dialog.dismiss();
-                                        } else {
-                                            Toast.makeText(context, "Please Connect to Internet...", Toast.LENGTH_SHORT).show();
-                                            LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(userModel.uid,
-                                                    new CustomUtility().getCurrentDate(),
-                                                    "",
-                                                    new CustomUtility().getCurrentDate(),
-                                                    "",
-                                                    from_lng+","+from_lat+";",
-                                                    "",
-                                                    from_lat+","+from_lng,
-                                                    "",
-                                                    "",
-                                                    "",
-                                                    "");
-
-                                            dataHelper.insertLocalconvenienceData(localConvenienceBean);
-
-                                            CustomUtility.setSharedPreference(context, "localconvenience", "1");
-                                            changeButtonVisibility(false, 0.5f, start_travel);
-                                            changeButtonVisibility(true, 1f, end_travel);
-
-                                            Toast.makeText(getActivity(), "Your Journey will be Started...", Toast.LENGTH_LONG).show();
-                                            dialog.dismiss();
+                                        if (mService != null) { // add null checker
+                                            mService.requestLocationUpdates();
                                         }
-                                        mService.requestLocationUpdates();
-
+                                        LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid),
+                                                current_start_date,
+                                                "",
+                                                current_start_time,
+                                                "",
+                                                from_lat,
+                                                "",
+                                                from_lng,
+                                                "",
+                                                "",
+                                                "",
+                                                "",
+                                                start_photo_text,
+                                                ""
+                                        );
+                                        dataHelper.insertLocalconvenienceData(localConvenienceBean);
+                                        CustomUtility.setSharedPreference(getActivity(), "localconvenience", "1");
+                                        changeButtonVisibility(false, 0.5f, start_travel);
+                                        changeButtonVisibility(true, 1f, end_travel);
+                                        Toast.makeText(getActivity(), getResources().getString(R.string.YourJourney), Toast.LENGTH_LONG).show();
+                                        dialog.dismiss();
 
                                     }
                                 });
-
                                 dialog.show();
-                            }
-                            else{
-
+                            } else {
                                 if (progressDialog != null)
                                     if (progressDialog.isShowing()) {
                                         progressDialog.dismiss();
                                         progressDialog = null;
                                     }
-
-                                Toast.makeText(context, "Please wait for your current location.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), getResources().getString(R.string.Pleasewaitcurrentlocation), Toast.LENGTH_SHORT).show();
                             }
                         }
                     }, 2000);
 
-                }
-                catch(Exception e)
-                {
+                } catch (Exception e) {
                     e.printStackTrace();
                     if (progressDialog != null)
                         if (progressDialog.isShowing()) {
@@ -732,83 +605,47 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                             progressDialog = null;
                         }
                 }
-
             }
         });
-
     }
 
     @SuppressLint("UseRequireInsteadOfGet")
     public void startLocationUpdates1() {
-
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(context);
+        end_photo_text = "";
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
         locationRequest = LocationRequest.create();
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setMaxWaitTime(5000);
         locationRequest.setInterval(10 * 1000);
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        fusedLocationClient.getLastLocation().addOnSuccessListener(Objects.requireNonNull(getActivity()), new OnSuccessListener<Location>() {
+        fusedLocationClient.getLastLocation().addOnSuccessListener(requireActivity(), new OnSuccessListener<Location>() {
             @Override
             public void onSuccess(Location location) {
-
                 from_lat = " ";
                 from_lng = " ";
                 to_lat = " ";
                 to_lng = " ";
                 fullAddress = "";
                 fullAddress1 = "";
-
-                try
-                {
-
+                startphoto = "";
+                try {
                     localConvenienceBean = dataHelper.getLocalConvinienceData();
                     current_start_date = localConvenienceBean.getBegda();
                     current_start_time = localConvenienceBean.getFrom_time();
 
-                    current_end_date = customutility.getCurrentDate1();
-                    current_end_time = customutility.getCurrentTime1();
+                    current_end_date = customutility.getCurrentDate();
+                    current_end_time = customutility.getCurrentTime();
 
-                  /*  from_lat =  localConvenienceBean.getFrom_lat();
-                    from_lng = localConvenienceBean.getFrom_lng();*/
-
-                   /* to_lat = String.valueOf(location.getLatitude());
-                    to_lng = String.valueOf(location.getLongitude());*/
-
-
-
-                    if(location != null)
-                    {
-                        to_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLatitude())));
-                        to_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLongitude())));
-                    }
-                    else{
-                        LocationCallback mLocationCallback = new LocationCallback() {
-                            @Override
-                            public void onLocationResult(LocationResult locationResult) {
-                                if (locationResult == null) {
-                                    return;
-                                }
-                                for (Location location : locationResult.getLocations()) {
-                                    if (location != null) {
-                                        //TODO: UI updates.
-                                        to_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLatitude())));
-                                        to_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.######").format(location.getLongitude())));
-
-                                    }
-                                }
-                            }
-                        };
-
-                        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    from_lat = localConvenienceBean.getFrom_lat();
+                    from_lng = localConvenienceBean.getFrom_lng();
+                    startphoto = localConvenienceBean.getPhoto1();
+                    if (location != null) {
+                        to_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLatitude())));
+                        to_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLongitude())));
+                    } else {
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
                             //    ActivityCompat#requestPermissions
                             // here to request the missing permissions, and then overriding
@@ -818,179 +655,298 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                             // for ActivityCompat#requestPermissions for more details.
                             return;
                         }
-                        LocationServices.getFusedLocationProviderClient(context).requestLocationUpdates(locationRequest, mLocationCallback, null);
+                        Location location1 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+                        to_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLatitude())));
+                        to_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLongitude())));
+
+
                     }
-
-
-                }
-                catch(NumberFormatException e)
-                {
+                } catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
 
-
-
-
-
-                if(CustomUtility.isInternetOn(context)) {
-
-                    ArrayList<LocalConvenienceBean1> localConvenienceBean1 = new ArrayList<LocalConvenienceBean1>();
-                    localConvenienceBean1 = dataHelper.getLocalConvience(context, userModel.uid);
-
-
-                    for (int i = 0; i < localConvenienceBean1.size(); i++) {
-                        strtlatlng = localConvenienceBean1.get(i).getFrom_lng();
-
-                        date = localConvenienceBean1.get(i).getBegda();
-                        time = localConvenienceBean1.get(i).getFrom_time();
-                        latlng = localConvenienceBean1.get(i).getFrom_lat();
-                        distance = localConvenienceBean1.get(i).getDistance();
-
-
-                    }
-                    String[] separated= strtlatlng.split(",");
-                    Geocoder geo = new Geocoder(context.getApplicationContext(), Locale.getDefault());
-                    List<Address> addresses1 = null;
-                    List<Address> addresses2 = null;
-                    if (separated[0] != null && separated[1] != null) {
-                        try {
-                            addresses1 = geo.getFromLocation(Double.parseDouble(separated[0]), Double.parseDouble(separated[1]), 1);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (addresses1 != null) {
-                        if (addresses1.isEmpty()) {
-                            fullAddress = "Please try Again, Waiting for Location";
-                        } else {
-                            fullAddress = addresses1.get(0).getAddressLine(0);
-                        }
-                    }
-
-
-                    if (to_lat != null && to_lng != null) {
-                        try {
-                            addresses2 = geo.getFromLocation(Double.parseDouble(to_lat), Double.parseDouble(to_lng), 1);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (addresses2 != null) {
-                        if (addresses2.isEmpty()) {
-                            fullAddress1 = "Please try Again, Waiting for Location";
-                        } else {
-                            fullAddress1 = addresses2.get(0).getAddressLine(0);
-                        }
-                    }
-
-              /*  if(!TextUtils.isEmpty(distance)) {
-                     localConvenienceBean = new LocalConvenienceBean(userModel.uid, date,
-                            new CustomUtility().getCurrentDate(),
-                            time,
-                            new CustomUtility().getCurrentTime(),
-                            latlng + to_lng + "," + to_lat + "?",
-                            "",
-                            strtlatlng,
-                            to_lat + "," + to_lng,
-                            "",
-                            "",
-                            distance);
-                }
-                else{
-                     localConvenienceBean = new LocalConvenienceBean(userModel.uid, date,
-                            new CustomUtility().getCurrentDate(),
-                            time,
-                            new CustomUtility().getCurrentTime(),
-                            latlng + to_lng + "," + to_lat + "?",
-                            "",
-                            strtlatlng,
-                            to_lat + "," + to_lng,
-                            "",
-                            "",
-                            "");
-                }
-
-                    dataHelper.updateLocalconvenienceData(localConvenienceBean, userModel.uid, new CustomUtility().getCurrentDate());
-*/
-                    progressDialog = ProgressDialog.show(getActivity(), "Loading...", "Please wait !");
-
+                fullAddress = localConvenienceBean.getStart_loc();
+                if (CustomUtility.isOnline(getActivity())) {
+                    progressDialog = ProgressDialog.show(getActivity(), getResources().getString(R.string.loading), getResources().getString(R.string.please_wait_));
                     new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            //Do something here
-                            //getDistanceInfo(from_lat,from_lng, to_lat,to_lng);
-                           /* if(TextUtils.isEmpty(distance))
-                            {*/
-                            ArrayList<LocalConvenienceBean1> localConvenienceBean1 = new ArrayList<LocalConvenienceBean1>();
-                            localConvenienceBean1 = dataHelper.getLocalConvience(context, userModel.uid);
-
-
-                            for (int i = 0; i < localConvenienceBean1.size(); i++) {
-                                strtlatlng = localConvenienceBean1.get(i).getFrom_lng();
-
-                                date = localConvenienceBean1.get(i).getBegda();
-                                time = localConvenienceBean1.get(i).getFrom_time();
-                                latlng = localConvenienceBean1.get(i).getFrom_lat();
-
+                            if (!TextUtils.isEmpty(from_lat) && !TextUtils.isEmpty(from_lng) && !TextUtils.isEmpty(to_lat) && !TextUtils.isEmpty(to_lng)) {
+                                if (progressDialog != null)
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                        progressDialog = null;
+                                    }
+                                allLatLong = from_lat+","+from_lng +","+to_lat+","+to_lng;
+                                getDistanceInfo(from_lat, from_lng, to_lat, to_lng, allLatLong);
+                            } else {
+                                if (progressDialog != null)
+                                    if (progressDialog.isShowing()) {
+                                        progressDialog.dismiss();
+                                        progressDialog = null;
+                                    }
+                                Toast.makeText(getActivity(), getResources().getString(R.string.Pleasewaitcurrentlocation), Toast.LENGTH_SHORT).show();
                             }
-
-                            localConvenienceBean = new LocalConvenienceBean(userModel.uid, date,
-                                    new CustomUtility().getCurrentDate(),
-                                    time,
-                                    new CustomUtility().getCurrentTime(),
-                                    latlng + to_lng + "," + to_lat+";" ,
-                                    "",
-                                    strtlatlng,
-                                    to_lat + "," + to_lng,
-                                    "",
-                                    "",
-                                    "");
-                            dataHelper.updateLocalconvenienceData(localConvenienceBean, userModel.uid, date,time);
-                            new JSONAsyncTask().execute();
-
                         }
                     }, 2000);
-
-
-
-                }
-                else{
-                    Toast.makeText(context, "Please Connect to Internet...,Your Data is Saved to the Offline Mode.", Toast.LENGTH_SHORT).show();
-                    ArrayList<LocalConvenienceBean1> localConvenienceBean1 = new ArrayList<LocalConvenienceBean1>();
-                    localConvenienceBean1 = dataHelper.getLocalConvience(context, userModel.uid);
-
-
-                    for (int i = 0; i < localConvenienceBean1.size(); i++) {
-                        strtlatlng = localConvenienceBean1.get(i).getFrom_lng();
-                        date = localConvenienceBean1.get(i).getBegda();
-                        time = localConvenienceBean1.get(i).getFrom_time();
-                        latlng = localConvenienceBean1.get(i).getFrom_lat();
-                        distance = localConvenienceBean1.get(i).getDistance();
+                    if (mService != null) { // add null checker
+                        mService.removeLocationUpdates();
                     }
-
-                         localConvenienceBean = new LocalConvenienceBean(userModel.uid, date,
-                                new CustomUtility().getCurrentDate(),
-                                time,
-                                new CustomUtility().getCurrentTime(),
-                                latlng + to_lng + "," + to_lat+";",
-                                "",
-                                strtlatlng,
-                                to_lat + "," + to_lng,
-                                "",
-                                "",
-                                "");
-
-                    dataHelper.updateLocalconvenienceData(localConvenienceBean, userModel.uid, date,time);
-
-                    mService.removeLocationUpdates();
-                    CustomUtility.setSharedPreference(context,"localconvenience","0");
+                }
+                else {
+                    Toast.makeText(getActivity(), R.string.saved_travel_data, Toast.LENGTH_SHORT).show();
+                    LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid), current_start_date,
+                            current_end_date,
+                            current_start_time,
+                            current_end_time,
+                            from_lat,
+                            to_lat,
+                            from_lng,
+                            to_lng,
+                            fullAddress,
+                            fullAddress1,
+                            distance1,
+                            startphoto,
+                            end_photo_text
+                    );
+                    dataHelper.updateLocalconvenienceData(localConvenienceBean);
+                    CustomUtility.setSharedPreference(getActivity(), "localconvenience", "0");
                     changeButtonVisibility(false, 0.5f, end_travel);
                     changeButtonVisibility(true, 1f, start_travel);
-
                 }
+            }
+        });
+    }
+    private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2,  String allLatLong) {
+        // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
+
+
+        Map<String, String> mapQuery = new HashMap<>();
+
+        mapQuery.put("origins", lat1 + "," + lon1);
+        mapQuery.put("destinations", lat2 + "," + lon2);
+        mapQuery.put("units", "metric");
+        mapQuery.put("mode", "driving");
+        mapQuery.put("key", getResources().getString(R.string.google_API_KEY));
+
+        DistanceApiClient client = RestUtil.getInstance().getRetrofit().create(DistanceApiClient.class);
+
+        Call<DistanceResponse> call = client.getDistanceInfo(mapQuery);
+        call.enqueue(new Callback<DistanceResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
+                if (response.body() != null &&
+                        response.body().getRows() != null &&
+                        response.body().getRows().size() > 0 &&
+                        response.body().getRows().get(0) != null &&
+                        response.body().getRows().get(0).getElements() != null &&
+                        response.body().getRows().get(0).getElements().size() > 0 &&
+                        response.body().getRows().get(0).getElements().get(0) != null &&
+                        response.body().getRows().get(0).getElements().get(0).getDistance() != null &&
+                        response.body().getRows().get(0).getElements().get(0).getDuration() != null) {
+
+                    try {
+
+                        if (progressDialog != null)
+                            if (progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                                progressDialog = null;
+                            }
+                        ;
+
+                        Element element = response.body().getRows().get(0).getElements().get(0);
+                        fullAddress = response.body().getOriginAddresses().get(0);
+                        fullAddress1 = response.body().getDestinationAddresses().get(0);
+                        distance1 = element.getDistance().getText();
+
+                        Log.e("distance1=====>",distance1);
+
+                        final Dialog dialog = new Dialog(getActivity());
+                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                        dialog.setCancelable(false);
+                        dialog.setCanceledOnTouchOutside(false);
+                        dialog.setContentView(R.layout.custom_dialog2);
+                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                        lp.copyFrom(dialog.getWindow().getAttributes());
+                        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                        dialog.getWindow().setAttributes(lp);
+
+                        final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
+                        final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
+                        final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
+                        final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
+                        final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
+                        final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
+                        final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
+                        final TextInputLayout til_trvl_mod = dialog.findViewById(R.id.til_trvl_mod);
+                        final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
+
+
+                        final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
+                        final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
+                        final TextView ettxt1 = dialog.findViewById(R.id.txt1);
+                        final TextView ettxt2 = dialog.findViewById(R.id.txt2);
+                        photo2 = dialog.findViewById(R.id.photo2);
+                        til_trvl_mod.setVisibility(View.GONE);
+                        etcncl.setVisibility(View.GONE);
+
+                        etstrdt.setText(current_start_date + " " + current_start_time);
+                        etstrlatlng.setText(from_lat + "," + from_lng);
+                        etenddt.setText(current_end_date + " " + current_end_time);
+                        etendlatlng.setText(to_lat + "," + to_lng);
+                        etstrlocadd.setText(fullAddress);
+                        etendlocadd.setText(fullAddress1);
+                        ettotdis.setText(distance1);
+
+                        ettxt1.setText(getResources().getString(R.string.localconveniencedetails));
+                        ettxt2.setText(getResources().getString(R.string.endyourJourney));
+
+
+                        photo2.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (end_photo_text == null || end_photo_text.isEmpty()) {
+                                    if (checkPermission()) {
+                                        if (checkPermission()) {
+                                            openCamera();
+                                        } else {
+                                            requestPermission();
+                                        }
+                                    } else {
+                                        requestPermission();
+                                    }
+
+                                }
+                            }
+                        });
+
+                        etcncl.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        etconfm.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+
+
+                                if (CustomUtility.isOnline(getActivity())) {
+                                    if (!ettrvlmod.getText().toString().isEmpty()) {
+
+                                        progressDialog = ProgressDialog.show(getActivity(), "", getResources().getString(R.string.sending_please_wait));
+
+                                        new Thread(new Runnable() {
+                                            public void run() {
+                                                getActivity().runOnUiThread(new Runnable() {
+                                                    @Override
+                                                    public void run() {
+                                                        LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid), current_start_date,
+                                                                current_end_date,
+                                                                current_start_time,
+                                                                current_end_time,
+                                                                from_lat,
+                                                                to_lat,
+                                                                from_lng,
+                                                                to_lng,
+                                                                fullAddress,
+                                                                fullAddress1,
+                                                                distance1,
+                                                                startphoto,
+                                                                end_photo_text
+                                                        );
+
+                                                        dataHelper.updateLocalconvenienceData(localConvenienceBean);
+                                                        SyncLocalConveneinceDataToSap(ettrvlmod.getText().toString(), current_end_date, current_end_time, distance1, allLatLong);
+                                                    }
+                                                });
+                                            }
+
+                                            ;
+                                        }).start();
+
+                                        dialog.dismiss();
+
+                                    } else {
+                                        Toast.makeText(getActivity(), getResources().getString(R.string.Please_Enter_Travel_Mode), Toast.LENGTH_SHORT).show();
+                                    }
+                                } else {
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.ConnecttoInternet), Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
+
+                        dialog.show();
+
+                    } catch (Exception e) {
+                        Log.d("onResponse", "There is an error");
+                        e.printStackTrace();
+                        if (progressDialog != null)
+                            if (progressDialog.isShowing()) {
+                                progressDialog.dismiss();
+                                progressDialog = null;
+                            }
+                        ;
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<DistanceResponse> call, Throwable t) {
+
+                Log.e("Failed", "&&&", t);
+
+                if (progressDialog != null)
+                    if (progressDialog.isShowing()) {
+                        progressDialog.dismiss();
+                        progressDialog = null;
+                    }
+                ;
 
             }
         });
+    }
+
+
+    public void showConfirmationGallery(final String keyimage, final String name) {
+
+        final CharSequence[] items = {getResources().getString(R.string.take), getResources().getString(R.string.cancel)};
+
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity(), R.style.MyDialogTheme);
+        builder.setTitle(getResources().getString(R.string.AddPhoto));
+        builder.setItems(items, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int item) {
+
+                if (items[item].equals(getResources().getString(R.string.take))) {
+                    openCamera();
+                    setFlag(keyimage);
+
+
+                } else if (items[item].equals(getResources().getString(R.string.cancel))) {
+                    dialog.dismiss();
+                }
+            }
+        });
+        builder.show();
+    }
+
+    private void setFlag(String key) {
+        start_photo_flag = false;
+        end_photo_flag = false;
+
+        switch (key) {
+
+            case DatabaseHelper.KEY_PHOTO1:
+                start_photo_flag = true;
+                break;
+            case DatabaseHelper.KEY_PHOTO2:
+                end_photo_flag = true;
+                break;
+
+        }
 
     }
 
@@ -1274,23 +1230,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     }
 
     public void openCamera() {
-
-        gps = new GPSTracker(context);
-        double latitude = gps.getLatitude();
-        double longitude = gps.getLongitude();
-
-        latLong = "" + latitude + "," + longitude;
-
-
+        ContentValues values = new ContentValues();
+        fileUri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-
-        fileUri = getOutputMediaFileUri(MEDIA_TYPE_IMAGE);
-
-
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri);
-
-        // start the image capture Intent
         startActivityForResult(intent, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
 
 
@@ -1301,153 +1244,88 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
     }
 
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        // save file url in bundle as it will be null on screen orientation
-//        // changes
-//        outState.putParcelable("file_uri", fileUri);
-//    }
-//
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//
-//        // get the file url
-//        fileUri = savedInstanceState.getParcelable("file_uri");
-//    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // if the result is capturing Image
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
-            if (resultCode == getActivity().RESULT_OK) {
+            if (resultCode == RESULT_OK) {
 
+                try {
+                    Bitmap bitmap =
+                            MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), fileUri);
 
-                Date dt = new Date();
-                int hours = dt.getHours();
-                int minutes = dt.getMinutes();
-                int seconds = dt.getSeconds();
+                    Bitmap   UserBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),
+                            fileUri);
 
-                String time = "" + hours + minutes + seconds;
+                    String path = CameraUtils.getPath(context, fileUri); // From Gallery
 
-                String fDate = new SimpleDateFormat("yyyyMMdd").format(dt);
+                    if (path == null) {
+                        path = data.getData().getPath(); // From File Manager
+                    }
+                  String  filedata = path;
+                    Log.e("Activity", "PathHolder22= " + path);
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 8;
+                    String filename = path.substring(path.lastIndexOf("/") + 1);
+                    String file;
+                    if (filename.indexOf(".") > 0) {
+                        file = filename.substring(0, filename.lastIndexOf("."));
+                    } else {
+                        file = "";
+                    }
+                    if (android.text.TextUtils.isEmpty(file)) {
+                      CustomUtility.ShowToast("File not valid",getActivity());
+                    } else {
 
+                        if (start_photo_flag) {
+                            start_photo_text = path;
+                            setIcon(DatabaseHelper.KEY_PHOTO1);
+                        }
 
-                final Bitmap bitmap = BitmapFactory.decodeFile(fileUri.getPath(), options);
-
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 70, stream);
-                byte[] byteArray = stream.toByteArray();
-
-                if (Attendance_Mark.equals("IN")) {
-                    attendanceBean.IN_IMAGE = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-                    saveLocally();
-
-
-                    File file = new File(fileUri.getPath());
-                    if (file.exists()) {
-                        file.delete();
+                        if (end_photo_flag) {
+                            end_photo_text = path;
+                            setIcon(DatabaseHelper.KEY_PHOTO2);
+                        }
                     }
 
-                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
-                    startActivity(intent);
-                    getActivity().finish();
-
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
-
-                if (Attendance_Mark.equals("OUT")) {
-                    attendanceBean.OUT_IMAGE = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-
-                    updateLocally();
-
-                    File file = new File(fileUri.getPath());
-                    if (file.exists()) {
-                        file.delete();
-                    }
-
-                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
-                    startActivity(intent);
-                    getActivity().finish();
-                }
-
-
-//
-//                    if  (validatePhoto() )
-//                    {
-
-//
-//                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-//                    alertDialog.setTitle("Data Save alert !");
-//                    alertDialog.setMessage("Do you want to save data ?");
-//
-//                    // On pressing Settings button
-//                    alertDialog.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//
-//
-//
-//                        }
-//                    });
-//
-//
-//                    // on pressing cancel button
-//
-//                    alertDialog.setNegativeButton("No", new DialogInterface.OnClickListener() {
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.cancel();
-//                        }
-//                    });
-//
-//                    // Showing Alert Message
-//                    alertDialog.show();
-
-                //   }
-
-// delete file from memory card
-//                File file = new File( fileUri.getPath() );
-//                if ( file.exists())
-//                {
-//                    file.delete();
-//                }
-
 
             }
-
         }
     }
+    public void setIcon(String key) {
 
+        switch (key) {
 
-/*    private void setToolbarTitle() {
-        getSupportActionBar().setTitle("Leave Request");
-    }*/
-
-    public void insertLeaveBalance() {
-
-        progressDialog = ProgressDialog.show(getActivity(), "", "Please wait.. Calculating available leave quotas!");
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                String obj = calculate_leave_balance();
-
-                if (obj != null) {
-                    progressDialog.dismiss();
+            case DatabaseHelper.KEY_PHOTO1:
+                if (start_photo_text == null || start_photo_text.isEmpty()) {
+                    photo1.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.red_icn, 0);
+                } else {
+                    photo1.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.right_mark_icn_green, 0);
                 }
-            }
+                break;
 
-        }).start();
+
+            case DatabaseHelper.KEY_PHOTO2:
+                if (end_photo_text == null || end_photo_text.isEmpty()) {
+                    photo2.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.red_icn, 0);
+                } else {
+                    photo2.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.right_mark_icn_green, 0);
+                }
+                break;
+
+
+        }
+
     }
-
     @Override
     public void onClick(View v) {
-        boolean addToBack = false;
         int id = v.getId();
         switch (id) {
 
@@ -1507,8 +1385,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 }
 
 
-
-
                 break;
 
 
@@ -1545,7 +1421,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 }
                 break;
 
-                case R.id.txtCheckINID:
+            case R.id.txtCheckINID:
 
                 if (CustomUtility.isInternetOn(context)) {
 //                Toast.makeText(getActivity(),"OD Request Activity", Toast.LENGTH_SHORT).show();
@@ -1555,7 +1431,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                     Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
                 }
                 break;
-                case R.id.txtCheckOutID:
+            case R.id.txtCheckOutID:
 
                 if (CustomUtility.isInternetOn(context)) {
 //                Toast.makeText(getActivity(),"OD Request Activity", Toast.LENGTH_SHORT).show();
@@ -1569,8 +1445,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
             case R.id.act_gp_app:
 
-                /*  if(db.getPendinGatePassCount() > 0) {*/
-
                 if (CustomUtility.isInternetOn(context)) {
 
                     Intent intent_gp_app = new Intent(context, GatepassApproveActivity.class);
@@ -1580,17 +1454,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                 } else {
                     Toast.makeText(getActivity(), "No Internet Connection", Toast.LENGTH_SHORT).show();
                 }
-              /*  }
-                else{
-                    Toast.makeText(getActivity(), "You have no Request for GatePass", Toast.LENGTH_SHORT).show();
-                }*/
                 break;
 
 
             case R.id.tv_create_task:
 
                 if (CustomUtility.isInternetOn(context)) {
-//                Toast.makeText(getActivity(),"OD Request Activity", Toast.LENGTH_SHORT).show();
                     Intent intent_create_task = new Intent(context, CreateTaskActivity.class);
 
                     startActivity(intent_create_task);
@@ -1625,11 +1494,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
             case R.id.start_travel:
 
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                        ||locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 
                     startLocationUpdates();
 
-                }else{
+                } else {
                     buildAlertMessageNoGps();
                 }
 
@@ -1639,11 +1509,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
             case R.id.end_travel:
 
 
-                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+                        ||locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 
                     startLocationUpdates1();
 
-                }else{
+                } else {
                     buildAlertMessageNoGps1();
                 }
 
@@ -1666,164 +1537,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
                 startActivity(intent_web_view);
 
-
-//                if (isValidate() && CustomUtility.CheckGPS(mContext)     ) {
-//                attendanceBean =  db.getMarkAttendanceByDate(customutility.getCurrentDate());
-//
-//                    Log.d("server_date_in",attendanceBean.SERVER_DATE_IN);
-//
-//                    if (TextUtils.isEmpty(attendanceBean.SERVER_DATE_IN)) {
-//                        Attendance_Mark = "IN";
-//
-//                        // getCamera();
-//
-//                        if(checkAndRequestPermissions()) {
-//
-//                            openCamera();
-//                        }
-//                        //else {
-//                         //   Toast.makeText(getActivity().getApplicationContext(),"Permission Not Granted To Access Camera",Toast.LENGTH_SHORT).show();
-//                       // }
-//
-//
-//                    } else {
-//                        in_attendance.setEnabled(false);
-//                        CustomUtility.ShowToast("In Attendance Already Marked", mContext);
-//
-//                    }
-//                }
-
-
                 break;
-
-//            case R.id.tv_create_travel:
-//
-//                if (checkInternetConenction())
-//                {
-//
-//                    dataHelper.deleteTravelParameters();
-//
-//                    progressBar = new ProgressDialog(mContext);
-//                    progressBar.setCancelable(true);
-//                    // progressBar.setCancelable(true);
-//                    progressBar.setMessage("Downloading Data...");
-//                    progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-//                    progressBar.setProgress(0);
-//                    progressBar.setMax(100);
-//                    progressBar.show();
-//                    //reset progress bar and filesize status
-//                    progressBarStatus = 0;
-//
-//                    new Thread(new Runnable() {
-//                        public void run() {
-//
-//                            final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-//                            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-//
-//                            try {
-//
-//                                String obj = CustomHttpClient.executeHttpPost1(SapUrl.travel_create, param);
-//
-//                                Log.d("travel_create", obj);
-//
-//                                if (obj != null) {
-//
-//
-//                                    param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-//
-//                                    travel_create = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-//
-//                                    Log.d("pending_leave", "" + travel_create);
-//
-//                                    JSONArray ja_travel = new JSONArray(travel_create);
-//
-//
-//                                    for (int i = 0; i < ja_travel.length(); i++) {
-//
-//                                        JSONObject jo_travel = ja_travel.getJSONObject(i);
-//
-////
-////                                        KEY_LEV_NO = jo_matnr.getString("leavNo");
-////                                        HORO = jo_matnr.getString("horo");
-////                                        ENAME = jo_matnr.getString("name");
-////                                        LEV_TYP = jo_matnr.getString("dedQuta1");
-////                                        LEV_FRM = jo_matnr.getString("levFr");
-////                                        LEV_TO = jo_matnr.getString("levT");
-////                                        REASON = jo_matnr.getString("reason");
-////                                        CHRG_NAME1 = jo_matnr.getString("nameperl");
-////                                        CHRG_NAME2 = jo_matnr.getString("nameperl2");
-////                                        CHRG_NAME3 = jo_matnr.getString("nameperl3");
-////                                        CHRG_NAME4 = jo_matnr.getString("nameperl4");
-////                                        DIRECT_INDIRECT = jo_matnr.getString("directIndirect");
-////
-////                                        dataHelper.createPendingLeave(KEY_LEV_NO, HORO, ENAME, LEV_TYP, LEV_FRM, LEV_TO,
-////                                                REASON, CHRG_NAME1, CHRG_NAME2, CHRG_NAME3, CHRG_NAME4, DIRECT_INDIRECT);
-//
-//                                    }
-//
-//
-//                                }
-//
-//                                progressBarStatus = 100;
-//
-//                                // Updating the progress bar
-//                                progressBarHandler.post(new Runnable() {
-//                                    public void run() {
-//
-//                                        progressBar.setProgress(progressBarStatus);
-//                                    }
-//                                });
-//
-//
-//                                progressBar.cancel();
-//                                progressBar.dismiss();
-//
-//                                Intent intent2 = new Intent(context, LeaveApproveActivity.class);
-//                                startActivity(intent2);
-//
-//
-//                                Thread.sleep(5000);
-//                            } catch (Exception e) {
-//
-//                            }
-//
-//
-//                        }
-//                    }).start();
-//
-//
-//
-//                }
-//                else {
-//                    Toast.makeText(getActivity(),"No Internet Connection", Toast.LENGTH_SHORT).show();
-//                }
-//                break;
-
-
-//            case R.id.out_attendance:
-//                if (isValidate() && CustomUtility.CheckGPS(mContext) ) {
-//
-//                    if (TextUtils.isEmpty(attendanceBean.SERVER_DATE_IN)) {
-//                        CustomUtility.ShowToast("Please Mark In Attendance First.", mContext);
-//                    } else {
-//                        if (TextUtils.isEmpty(attendanceBean.SERVER_DATE_OUT)) {
-//                            out_attendance.setEnabled(true);
-//                            Attendance_Mark = "OUT";
-//
-//                            //    getCamera();   old code for camera
-//                            if(checkAndRequestPermissions()) {
-//                                openCamera();
-//                            }
-//
-//                        } else {
-//                            out_attendance.setEnabled(false);
-//                            in_attendance.setEnabled(false);
-//                            CustomUtility.ShowToast("Attendance Already Marked", mContext);
-//                        }
-//                    }
-//
-//                }
-//                break;
         }
     }
 
@@ -1849,135 +1563,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         Log.e("MethodCalled======>", "true");
     }
 
-    private String calculate_leave_balance() {
-
-
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-        dataHelper = new DatabaseHelper(getActivity());
-        dataHelper.deleteleaveBalance();
-
-        context = getActivity();
-        userModel = new LoggedInUser(context);
-        /*Log.d("use_per",""+userModel.uid);*/
-
-        try {
-
-
-            param.add(new BasicNameValuePair("pernr", userModel.uid));
-
-            String obj_leave_balance = CustomHttpClient.executeHttpPost1(SapUrl.leave_balance, param);
-
-
-
-            JSONArray ja_mat = new JSONArray(obj_leave_balance);
-
-            /*Log.d("json55", "" + ja_mat);*/
-
-
-            for (int i = 0; i < ja_mat.length(); i++) {
-
-                JSONObject jo_matnr = ja_mat.getJSONObject(i);
-
-
-                leavetype = jo_matnr.getString("leaveType");
-/*                ename = jo_matnr.getString("ename");
-                btext = jo_matnr.getString("btext");*/
-
-                dataHelper.createLeaveBalance(leavetype);
-
-            }
-            return obj_leave_balance;
-        } catch (Exception e) {
-            /* progressBarStatus = 40 ;*/
-            e.printStackTrace();
-
-        }
-
-        return obj_leave_balance;
-
-    }
-
-    public void insert_pending_leave() {
-
-        progressDialog = ProgressDialog.show(getActivity(), "", "Please wait.. searching pending leave(s)!  ");
-
-        Toast.makeText(getActivity(), "Pending leave list", Toast.LENGTH_SHORT).show();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                String obj = calculate_pending_leave();
-
-                if (obj != null) {
-                    progressDialog.dismiss();
-                }
-            }
-
-        }).start();
-
-    }
-
-
-    //  Leave Pending for Approval
-
-    private String calculate_pending_leave() {
-
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-
-        dataHelper = new DatabaseHelper(getActivity());
-
-        // Delete Pending leave from DB
-        dataHelper.deletependingleave();
-
-        context = getActivity();
-        userModel = new LoggedInUser(context);
-        /*Log.d("use_per",""+userModel.uid);*/
-
-        try {
-
-
-            param.add(new BasicNameValuePair("app_pernr", userModel.uid));
-
-            obj_pending_leave = CustomHttpClient.executeHttpPost1(SapUrl.pending_leave, param);
-
-
-
-            JSONArray ja_mat = new JSONArray(obj_pending_leave);
-
-            /*Log.d("json55", "" + ja_mat);*/
-
-
-            for (int i = 0; i < ja_mat.length(); i++) {
-
-                JSONObject jo_matnr = ja_mat.getJSONObject(i);
-
-
-                KEY_LEV_NO = jo_matnr.getString("leavNo");
-                HORO = jo_matnr.getString("horo");
-                ENAME = jo_matnr.getString("name");
-                LEV_TYP = jo_matnr.getString("dedQuta1");
-                LEV_FRM = jo_matnr.getString("levFr");
-                LEV_TO = jo_matnr.getString("levT");
-                REASON = jo_matnr.getString("reason");
-                CHRG_NAME1 = jo_matnr.getString("nameperl");
-                CHRG_NAME2 = jo_matnr.getString("nameperl2");
-                CHRG_NAME3 = jo_matnr.getString("nameperl3");
-                CHRG_NAME4 = jo_matnr.getString("nameperl4");
-                DIRECT_INDIRECT = jo_matnr.getString("directIndirect");
-
-                dataHelper.createPendingLeave(KEY_LEV_NO, HORO, ENAME, LEV_TYP, LEV_FRM, LEV_TO,
-                        REASON, CHRG_NAME1, CHRG_NAME2, CHRG_NAME3, CHRG_NAME4, DIRECT_INDIRECT);
-
-            }
-            return obj_pending_leave;
-        } catch (Exception e) {
-            /* progressBarStatus = 40 ;*/
-            e.printStackTrace();
-        }
-
-        return obj_pending_leave;
-
-    }
 
     public void setNotification() {
 
@@ -1990,55 +1575,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
     }
 
-/// attendance code
-
-    public void SyncAttendanceInBackground() {
-
-
-        Intent i = new Intent(getActivity(), SyncDataService.class);
-        getActivity().startService(i);
-
-
-//
-//        progressDialog = ProgressDialog.show(MarkAttendanceActivity.this, "", "Connecting to internet..");
-//
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                if (CustomUtility.isOnline(MarkAttendanceActivity.this))
-//                {
-//
-//                    Intent i = new Intent(MarkAttendanceActivity.this, SyncDataService.class);
-//                    i.putExtra("sync_data", "sync_mark_attendance");
-//                    startService(i);
-//
-//                    progressDialog.dismiss();
-//
-//                    Message msg = new Message();
-//                    msg.obj = "Attendance Sync Successfully";
-//                    mHandler.sendMessage(msg);
-//
-//
-//
-//
-//                } else {
-//                    progressDialog.dismiss();
-//                    Message msg = new Message();
-//                    msg.obj = "No internet Connection . Attendance saved in offline";
-//                    mHandler.sendMessage(msg);
-//
-//                }
-//
-//            }
-//        }).start();
-
-
-    }
-
     void saveLocally() {
 
-        //  MainActivity.mainActivity.mydb.insertAttendance(attendanceBean);
         dataHelper = new DatabaseHelper(context);
 
 
@@ -2057,26 +1595,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         attendanceBean.IMAGE_DATA = "";
         attendanceBean.CURRENT_MILLIS = System.currentTimeMillis();
         attendanceBean.IN_LAT_LONG = latLong;
-//        attendanceBean.IN_FILE_NAME = mFile.getName();
-//        attendanceBean.IN_FILE_VALUE = mFile.getPath();
         attendanceBean.OUT_LAT_LONG = "";
         attendanceBean.OUT_FILE_NAME = "";
         attendanceBean.OUT_FILE_LENGTH = "";
         attendanceBean.OUT_FILE_VALUE = "";
 
-
         dataHelper.insertMarkAttendance(attendanceBean);
 
-
-        // Sync Data
-//        new Capture_employee_gps_location(this, "2","");
-
-
         Toast.makeText(context, "In Attendance Marked", Toast.LENGTH_LONG).show();
-
-
-//        SyncAttendanceInBackground();
-
 
     }
 
@@ -2098,106 +1624,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         attendanceBean.WORKING_HOURS = time;
         attendanceBean.IMAGE_DATA = "";
         attendanceBean.OUT_LAT_LONG = latLong;
-        // attendanceBean.OUT_FILE_NAME = mFile.getName();
-        // attendanceBean.OUT_FILE_VALUE = mFile.getPath();
-
-
-//        dataHelper.updateMarkAttendance(attendanceBean);
-        //Out Attendance
-//        new Capture_employee_gps_location(this, "3","");
-
-        //   MainActivity.mainActivity.mydb.updateAttendance(attendanceBean);
 
         Toast.makeText(context, "Out Attendance Marked", Toast.LENGTH_LONG).show();
-
-
-//        SyncAttendanceInBackground();
     }
 
-    private boolean checkAndRequestPermissions() {
-
-        int permissionCamera = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                Manifest.permission.CAMERA);
-        int permissionStorage = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        int permissionLocation = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(),
-                Manifest.permission.ACCESS_FINE_LOCATION);
-        int locationPermission = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), Manifest.permission.ACCESS_FINE_LOCATION);
-
-        List<String> listPermissionsNeeded = new ArrayList<>();
-        if (locationPermission != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-        if (permissionCamera != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.CAMERA);
-        }
-        if (permissionStorage != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-        }
-        if (permissionLocation != PackageManager.PERMISSION_GRANTED) {
-            listPermissionsNeeded.add(Manifest.permission.ACCESS_FINE_LOCATION);
-        }
-
-        if (!listPermissionsNeeded.isEmpty()) {
-            ActivityCompat.requestPermissions(getActivity(), listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), REQUEST_ID_MULTIPLE_PERMISSIONS);
-            return false;
-        }
-        return true;
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_ID_MULTIPLE_PERMISSIONS:
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // Permission Granted
-
-
-                } else {
-                    // Permission Denied
-
-                    getActivity().finish();
-                    System.exit(0);
-
-                }
-                break;
-            case ALL_PERMISSIONS_RESULT:
-                for (String perm : permissionsToRequest) {
-                    if (!hasPermission(perm)) {
-                        permissionsRejected.add(perm);
-                    }
-                }
-
-                if (permissionsRejected.size() > 0) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
-                            new AlertDialog.Builder(context).
-                                    setMessage("These permissions are mandatory to get your location. You need to allow them.").
-                                    setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialogInterface, int i) {
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                                requestPermissions(permissionsRejected.
-                                                        toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
-                                            }
-                                        }
-                                    }).setNegativeButton("Cancel", null).create().show();
-
-                            return;
-                        }
-                    }
-                }/* else {
-                    if (googleApiClient != null) {
-                        googleApiClient.connect();
-                    }
-                }*/
-
-                break;
-            default:
-                super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
-    }
 
     @Override
     public void onLocationChanged(Location location) {
@@ -2209,19 +1639,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
         if (ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                &&  ActivityCompat.checkSelfPermission(context,
+                && ActivityCompat.checkSelfPermission(context,
                 Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-
-        // Permissions ok, we get last location
-        //location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-
-       /* if (location != null) {
-            Log.e("Latitude : ","Longitued" + location.getLatitude()+"  "+location.getLongitude());
-        }*/
-
-        //startLocationUpdates();
     }
 
     @Override
@@ -2269,61 +1690,50 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
                 }
                 strAdd = strReturnedAddress.toString();
-                //   Log.w("My Current loction address", "" + strReturnedAddress.toString());
-            } else {
-                //     Log.w("My Current loction address", "No Address returned!");
+
             }
         } catch (Exception e) {
             e.printStackTrace();
-            //    Log.w("My Current loction address", "Canont get Address!");
         }
         return strAdd;
     }
 
 
-    public void SyncLocalConveneinceDataToSap(String mode, String add, String add1, String date, String time, String pernr) {
-
+    public void SyncLocalConveneinceDataToSap(String mode, String endat, String endtm, String mFlotDistanceKM, String allLatLong) {
 
         String docno_sap = null;
         String invc_done = null;
 
-
-        DatabaseHelper db = new DatabaseHelper(this.context);
+        DatabaseHelper db = new DatabaseHelper(this.getActivity());
 
         LocalConvenienceBean param_invc = new LocalConvenienceBean();
 
-        date = CustomUtility.formateDate1(date);
-        time = CustomUtility.formateTime1(time);
-
-        param_invc = db.getLocalConvinienceData(date, pernr, time);
-
+        param_invc = db.getLocalConvinienceData(endat, endtm);
 
         JSONArray ja_invc_data = new JSONArray();
 
         JSONObject jsonObj = new JSONObject();
 
-        String[] sep = param_invc.getFrom_lng().split(",");
-        String[] sep1 = param_invc.getTo_lng().split(",");
-
-
         try {
 
-
             jsonObj.put("pernr", param_invc.getPernr());
-            jsonObj.put("begda", param_invc.getBegda());
-            jsonObj.put("endda", param_invc.getEndda());
+            jsonObj.put("begda", CustomUtility.formateDate(param_invc.getBegda()));
+            jsonObj.put("endda", CustomUtility.formateDate(param_invc.getEndda()));
 
-            jsonObj.put("start_time", param_invc.getFrom_time());
-            jsonObj.put("end_time", param_invc.getTo_time());
+            jsonObj.put("start_time", CustomUtility.formateTime(param_invc.getFrom_time()));
+            jsonObj.put("end_time", CustomUtility.formateTime(param_invc.getTo_time()));
 
-            jsonObj.put("start_lat", sep[0]);
-            jsonObj.put("end_lat", sep1[0]);
-            jsonObj.put("start_long", sep[1]);
-            jsonObj.put("end_long", sep1[1]);
-            jsonObj.put("start_location", add);
-            jsonObj.put("end_location", add1);
-            jsonObj.put("distance", param_invc.getDistance());
+            jsonObj.put("start_lat", param_invc.getFrom_lat());
+            jsonObj.put("end_lat", param_invc.getTo_lat());
+            jsonObj.put("start_long", param_invc.getFrom_lng());
+            jsonObj.put("end_long", param_invc.getTo_lng());
+            jsonObj.put("start_location", param_invc.getStart_loc());
+            jsonObj.put("end_location", param_invc.getEnd_loc());
+            jsonObj.put("distance", mFlotDistanceKM);
             jsonObj.put("TRAVEL_MODE", mode);
+            jsonObj.put("LAT_LONG", allLatLong);
+            jsonObj.put("PHOTO1", Utility.getBase64FromBitmap(getActivity(),param_invc.getPhoto1().toString()));
+            jsonObj.put("PHOTO2", Utility.getBase64FromBitmap(getActivity(),param_invc.getPhoto1().toString()));
 
             ja_invc_data.put(jsonObj);
 
@@ -2358,17 +1768,26 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
                     docno_sap = jo.getString("msg");
                     if (invc_done.equalsIgnoreCase("S")) {
 
-                        progressDialog.dismiss();
+                        if ((progressDialog != null) && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                        ;
                         Message msg = new Message();
                         msg.obj = docno_sap;
                         mHandler.sendMessage(msg);
-                        db.deleteLocalconvenienceDetail(pernr, date, time);
-                        CustomUtility.setSharedPreference(context, "localconvenience", "0");
+                        db.deleteLocalconvenienceDetail1(endat, endtm);
+                        CustomUtility.setSharedPreference(getActivity(), "localconvenience", "0");
                         changeButtonVisibility(false, 0.5f, end_travel);
                         changeButtonVisibility(true, 1f, start_travel);
 
                     } else if (invc_done.equalsIgnoreCase("E")) {
-                        progressDialog.dismiss();
+
+                        if ((progressDialog != null) && progressDialog.isShowing()) {
+                            progressDialog.dismiss();
+                            progressDialog = null;
+                        }
+                        ;
                         Message msg = new Message();
                         msg.obj = docno_sap;
                         mHandler.sendMessage(msg);
@@ -2380,7 +1799,106 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
 
         } catch (Exception e) {
             e.printStackTrace();
-            progressDialog.dismiss();
+            if ((progressDialog != null) && progressDialog.isShowing()) {
+                progressDialog.dismiss();
+                progressDialog = null;
+            }
+
+        }
+    }
+
+
+    private void requestPermission() {
+        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.READ_MEDIA_IMAGES},
+                    REQUEST_CODE_PERMISSION);
+        } else {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.CAMERA,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
+                          Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_CODE_PERMISSION);
+
+        }
+    }
+
+
+    private boolean checkPermission() {
+        int cameraPermission =
+                ContextCompat.checkSelfPermission(getActivity(), CAMERA);
+        int writeExternalStorage =
+                ContextCompat.checkSelfPermission(getActivity(), WRITE_EXTERNAL_STORAGE);
+        int ReadExternalStorage =
+                ContextCompat.checkSelfPermission(getActivity(), READ_EXTERNAL_STORAGE);
+
+        int AccessCoarseLocation =
+                ContextCompat.checkSelfPermission(getActivity(), ACCESS_COARSE_LOCATION);
+        int AccessFineLocation =
+                ContextCompat.checkSelfPermission(getActivity(), ACCESS_FINE_LOCATION);
+        int ReadMediaImage =
+                ContextCompat.checkSelfPermission(getActivity(), READ_MEDIA_IMAGES);
+
+
+
+        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return cameraPermission == PackageManager.PERMISSION_GRANTED
+                    && AccessCoarseLocation == PackageManager.PERMISSION_GRANTED && AccessFineLocation == PackageManager.PERMISSION_GRANTED && ReadMediaImage == PackageManager.PERMISSION_GRANTED;
+        } else {
+            return cameraPermission == PackageManager.PERMISSION_GRANTED && writeExternalStorage == PackageManager.PERMISSION_GRANTED
+                    && ReadExternalStorage == PackageManager.PERMISSION_GRANTED
+                    && AccessCoarseLocation == PackageManager.PERMISSION_GRANTED && AccessFineLocation == PackageManager.PERMISSION_GRANTED;
+
+        }
+
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_CODE_PERMISSION) {
+            if (grantResults.length > 0) {
+                if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    boolean ACCESSCAMERA = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean AccessCoarseLocation = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean AccessFineLocation = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+                    boolean ReadMediaImage = grantResults[3] == PackageManager.PERMISSION_GRANTED;
+
+
+                    if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage ) {
+                        if (value.equals("1")) {
+                            showConfirmationGallery(DatabaseHelper.KEY_PHOTO1, "PHOTO1");
+                        } else {
+                            showConfirmationGallery(DatabaseHelper.KEY_PHOTO2, "PHOTO2");
+                        }
+
+                    } else {
+                        Toast.makeText(getActivity(), R.string.all_permission, Toast.LENGTH_LONG).show();
+                    }
+                } else {
+                    boolean ACCESSCAMERA = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeExternalStorage =
+                            grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean ReadExternalStorage =
+                            grantResults[2] == PackageManager.PERMISSION_GRANTED;
+                    boolean AccessCoarseLocation = grantResults[3] == PackageManager.PERMISSION_GRANTED;
+                    boolean AccessFineLocation = grantResults[4] == PackageManager.PERMISSION_GRANTED;
+
+                    if (ACCESSCAMERA && writeExternalStorage && ReadExternalStorage && AccessCoarseLocation && AccessFineLocation) {
+                        if (value.equals("1")) {
+                            showConfirmationGallery(DatabaseHelper.KEY_PHOTO1, "PHOTO1");
+                        } else {
+                            showConfirmationGallery(DatabaseHelper.KEY_PHOTO2, "PHOTO2");
+                        }
+                    } else {
+                        Toast.makeText(getActivity(), R.string.all_permission, Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            }
         }
     }
 
@@ -2396,217 +1914,5 @@ public class HomeFragment extends Fragment implements View.OnClickListener,Googl
         }
     }
 
-    class JSONAsyncTask extends AsyncTask<String, String, JSONObject> {
-
-        JSONArray user = null;
-        JSONObject jsono = null;
-
-
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-
-        @Override
-        protected JSONObject doInBackground(String... urls) {
-
-            try {
-
-                ArrayList<LocalConvenienceBean1> localConvenienceBean1 = new ArrayList<LocalConvenienceBean1>();
-
-                localConvenienceBean1 = dataHelper.getLocalConvience(context, userModel.uid);
-
-
-                for (int i = 0; i < localConvenienceBean1.size(); i++) {
-                    strtlatlng = localConvenienceBean1.get(i).getFrom_lng();
-
-                    date = localConvenienceBean1.get(i).getBegda();
-                    time = localConvenienceBean1.get(i).getFrom_time();
-                    latlng = localConvenienceBean1.get(i).getFrom_lat();
-
-                }
-
-                String string = latlng;
-
-                StringBuilder sb= new StringBuilder(string);
-
-                sb.deleteCharAt(sb.length()-1);
-
-
-                //String URL = "https://apis.mapmyindia.com/advancedmaps/v1/xl9ch768pp7v2esbr1uueymolk9k6iaf/route_eta/driving/" + latlng + "?alternatives=true&rtype=0&geometries=polyline&overview=full&exclude=&steps=true&region=ind";
-                String URL = "https://apis.mapmyindia.com/advancedmaps/v1/3v3v2933alxcy2mq2swgrigo3p9k7icl/route_eta/driving/"+ sb + "?alternatives=true&rtype=0&geometries=polyline&overview=full&exclude=&steps=true&region=ind";
-
-                //------------------>>
-                HttpGet httppost = new HttpGet(URL);
-                HttpClient httpclient = new DefaultHttpClient();
-                HttpResponse response = httpclient.execute(httppost);
-
-                // StatusLine stat = response.getStatusLine();
-                int status = response.getStatusLine().getStatusCode();
-
-
-
-                if (status == 200) {
-                    HttpEntity entity = response.getEntity();
-                    String data = EntityUtils.toString(entity);
-                    jsono = new JSONObject(data);
-
-
-                }
-
-            } catch (IOException | JSONException e) {
-                e.printStackTrace();
-            }
-
-            return jsono;
-
-        }
-
-        protected void onPostExecute(JSONObject jsono) {
-
-            try {
-
-                if (progressDialog != null)
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                        progressDialog = null;
-                    }
-
-                try {
-                    // Getting JSON Array
-                    user = jsono.getJSONArray("routes");
-                    JSONObject c = user.getJSONObject(0);
-
-                    // Storing  JSON item in a Variable
-                    try {
-
-                        double distance = Double.parseDouble(c.getString("distance"));
-
-                        distance1 = String.valueOf((distance >= 1000 ? (distance) / 1000  : distance ));
-
-
-
-                        //distance1 = String.valueOf(Double.parseDouble(new DecimalFormat("#.##").format(distance1)));
-                        if(distance >= 1000 )
-                        {
-                            DecimalFormat df = new DecimalFormat("#.##");
-                            distance1 = df.format(Double.parseDouble(distance1));
-                            distance1 = distance1 + " Km";
-                        }
-                        else{
-                            distance1 = distance1 + " mtrs";
-                        }
-
-                    }
-                    catch(NumberFormatException e){
-                        e.printStackTrace();
-
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-
-                final Dialog dialog = new Dialog(context);
-                dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                dialog.setCancelable(false);
-                dialog.setContentView(R.layout.custom_dialog2);
-                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                lp.copyFrom(dialog.getWindow().getAttributes());
-                lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                dialog.getWindow().setAttributes(lp);
-
-                final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
-                final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
-                final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
-                final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
-                final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
-                final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
-                final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
-                final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
-                final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
-                final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
-                final TextView ettxt1 = dialog.findViewById(R.id.txt1);
-                final TextView ettxt2 = dialog.findViewById(R.id.txt2);
-                ettrvlmod.requestFocus();
-
-                date = CustomUtility.formateDate(date);
-                time = CustomUtility.formateTime(time);
-
-                etstrdt.setText(date + " " + time);
-                etstrlatlng.setText(strtlatlng);
-                etenddt.setText(current_end_date + " " + current_end_time);
-                etendlatlng.setText(to_lat+","+to_lng);
-
-                etstrlocadd.setText(fullAddress);
-                etendlocadd.setText(fullAddress1);
-
-                ettotdis.setText(distance1);
-
-
-                ettxt1.setText("Local Conveyance Details");
-                ettxt2.setText("Press Confirm will end your Journey");
-
-                etcncl.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        dialog.dismiss();
-                    }
-                });
-
-                etconfm.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-
-                        final String travel_mode = ettrvlmod.getText().toString();
-
-
-                        if (CustomUtility.isInternetOn(context)) {
-                            if (!TextUtils.isEmpty(travel_mode) && !travel_mode.equals("")) {
-
-                                progressDialog = ProgressDialog.show(context, "", "Sending Data to server..please wait !");
-
-                                new Thread(new Runnable() {
-                                    public void run() {
-                                        getActivity().runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                if(mService != null) {
-                                                    mService.removeLocationUpdates();
-                                                }
-                                                SyncLocalConveneinceDataToSap(travel_mode,fullAddress,fullAddress1,date,time, userModel.uid);
-                                            }
-                                        });
-                                    }
-                                }).start();
-
-                                dialog.dismiss();
-
-                            } else {
-                                Toast.makeText(context, "Please Enter Travel Mode.", Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(context, "Please Connect to Internet...", Toast.LENGTH_SHORT).show();
-                        }
-
-                    }
-                });
-
-                dialog.show();
-
-            } catch (Exception e) {
-                Log.d("onResponse", "There is an error");
-                e.printStackTrace();
-                if (progressDialog != null)
-                    if (progressDialog.isShowing()) {
-                        progressDialog.dismiss();
-                        progressDialog = null;
-                    }
-            }
-        }
-
-        }
 
 }

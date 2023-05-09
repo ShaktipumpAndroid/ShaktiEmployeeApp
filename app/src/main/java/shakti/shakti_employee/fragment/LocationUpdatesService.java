@@ -355,11 +355,11 @@ public class LocationUpdatesService extends Service {
             lat = Double.parseDouble(new DecimalFormat("##.######").format(mLocation.getLatitude()));
             lng = Double.parseDouble(new DecimalFormat("##.######").format(mLocation.getLongitude()));
 
-            LocalConvenienceBean localConvenienceBean;
-            String latlng = null;
+          /*  LocalConvenienceBean localConvenienceBean;
+            String start_lat = null;
             String date = null;
             String time = null;
-            String start = null;
+            String start_long = null;
 
 
             if (dataHelper.isRecordExist1(dataHelper.TABLE_LOCAL_CONVENIENCE, dataHelper.KEY_PERNR, userModel.uid, dataHelper.KEY_BEGDA,new CustomUtility().getCurrentDate())) {
@@ -378,8 +378,8 @@ public class LocationUpdatesService extends Service {
 
                             date = cursor.getString(cursor.getColumnIndex("begda"));
                             time = cursor.getString(cursor.getColumnIndex("start_time"));
-                            latlng = cursor.getString(cursor.getColumnIndex("start_lat"));
-                            start = cursor.getString(cursor.getColumnIndex("start_long"));
+                            start_lat = cursor.getString(cursor.getColumnIndex("start_lat"));
+                            start_long = cursor.getString(cursor.getColumnIndex("start_long"));
 
                         }
 
@@ -404,13 +404,13 @@ public class LocationUpdatesService extends Service {
                         "",
                         time,
                         "",
-                        latlng+longitude+","+latitude+";",
+                         start_lat,
                         "",
-                        start,
+                         start_long,
                         "",
                         "X",
                         "",
-                        "");
+                        "","","");
 
                 dataHelper.updateLocalconvenienceData(localConvenienceBean, userModel.uid, date,time);
             } else {
@@ -426,10 +426,10 @@ public class LocationUpdatesService extends Service {
                         "",
                         "",
                         "",
-                        "X");
+                        "X","","");
 
                 dataHelper.insertLocalconvenienceData(localConvenienceBean);
-            }
+            }*/
 
         } catch (NumberFormatException e) {
             e.printStackTrace();

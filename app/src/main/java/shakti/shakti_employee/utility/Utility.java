@@ -4,7 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.provider.Settings;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,6 +24,7 @@ import org.apache.http.params.HttpParams;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -168,5 +172,21 @@ public class Utility {
             return null;
         }
         return result;
+    }
+
+    public static String getBase64FromBitmap(Context context,String Imagepath) {
+        String imageString="";
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(Imagepath);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            imageString = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return imageString;
+
     }
 }

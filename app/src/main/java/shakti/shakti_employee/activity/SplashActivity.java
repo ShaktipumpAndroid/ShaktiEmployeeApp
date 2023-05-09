@@ -90,16 +90,15 @@ public class SplashActivity extends AppCompatActivity {
 
 
     private void requestPermission() {
-        if (SDK_INT >= Build.VERSION_CODES.R) {
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.CAMERA, Manifest.permission.READ_MEDIA_IMAGES,
-                            Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ActivityCompat.requestPermissions(SplashActivity.this,
+                    new String[]{Manifest.permission.CAMERA, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.READ_MEDIA_IMAGES},
                     REQUEST_CODE_PERMISSION);
         } else {
-            ActivityCompat.requestPermissions(this,
+            ActivityCompat.requestPermissions(SplashActivity.this,
                     new String[]{Manifest.permission.CAMERA,
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                            Manifest.permission.READ_EXTERNAL_STORAGE,
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
                             Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_CODE_PERMISSION);
@@ -107,25 +106,27 @@ public class SplashActivity extends AppCompatActivity {
         }
     }
 
+
     private boolean checkPermission() {
         int cameraPermission =
-                ContextCompat.checkSelfPermission(SplashActivity.this, CAMERA);
+                ContextCompat.checkSelfPermission(SplashActivity.this, Manifest.permission.CAMERA);
         int writeExternalStorage =
                 ContextCompat.checkSelfPermission(SplashActivity.this, WRITE_EXTERNAL_STORAGE);
         int ReadExternalStorage =
                 ContextCompat.checkSelfPermission(SplashActivity.this, READ_EXTERNAL_STORAGE);
-        int ReadMediaImages =
-                ContextCompat.checkSelfPermission(SplashActivity.this, READ_MEDIA_IMAGES);
 
         int AccessCoarseLocation =
                 ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_COARSE_LOCATION);
         int AccessFineLocation =
                 ContextCompat.checkSelfPermission(SplashActivity.this, ACCESS_FINE_LOCATION);
+        int ReadMediaImage =
+                ContextCompat.checkSelfPermission(SplashActivity.this, READ_MEDIA_IMAGES);
 
 
-        if (SDK_INT >= Build.VERSION_CODES.R) {
-            return cameraPermission == PackageManager.PERMISSION_GRANTED && ReadMediaImages == PackageManager.PERMISSION_GRANTED
-                    && AccessCoarseLocation == PackageManager.PERMISSION_GRANTED && AccessFineLocation == PackageManager.PERMISSION_GRANTED;
+
+        if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            return cameraPermission == PackageManager.PERMISSION_GRANTED
+                    && AccessCoarseLocation == PackageManager.PERMISSION_GRANTED && AccessFineLocation == PackageManager.PERMISSION_GRANTED && ReadMediaImage == PackageManager.PERMISSION_GRANTED;
         } else {
             return cameraPermission == PackageManager.PERMISSION_GRANTED && writeExternalStorage == PackageManager.PERMISSION_GRANTED
                     && ReadExternalStorage == PackageManager.PERMISSION_GRANTED
@@ -141,35 +142,26 @@ public class SplashActivity extends AppCompatActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_CODE_PERMISSION) {
             if (grantResults.length > 0) {
-                if (SDK_INT >= Build.VERSION_CODES.R) {
+                if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     boolean ACCESSCAMERA = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    //boolean ReadMediaImages = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    boolean AccessCoarseLocation = grantResults[2] == PackageManager.PERMISSION_GRANTED;
-                    boolean AccessFineLocation = grantResults[3] == PackageManager.PERMISSION_GRANTED;
+                    boolean AccessCoarseLocation = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean AccessFineLocation = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+                    boolean ReadMediaImage = grantResults[3] == PackageManager.PERMISSION_GRANTED;
 
 
-                    if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation) {
-                      if(!Environment.isExternalStorageManager()){
-                          try {
-                              Intent intent = new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION);
-                              intent.addCategory("android.intent.category.DEFAULT");
-                              intent.setData(Uri.parse(String.format("package:%s", SplashActivity.this.getPackageName())));
-                              startActivityForResult(intent, 2296);
-                          } catch (Exception e) {
-                              Intent intent = new Intent();
-                              intent.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
-                              startActivityForResult(intent, 2296);
-                          }
-                      }else {
-                          checkLoginStatus();
+                    if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage ) {
+                        checkLoginStatus();
 
-                      }
                     } else {
                         Toast.makeText(SplashActivity.this, R.string.all_permission, Toast.LENGTH_LONG).show();
-                    }} else {
+                        requestPermission();
+                    }
+                } else {
                     boolean ACCESSCAMERA = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean writeExternalStorage = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    boolean ReadExternalStorage = grantResults[2] == PackageManager.PERMISSION_GRANTED;
+                    boolean writeExternalStorage =
+                            grantResults[1] == PackageManager.PERMISSION_GRANTED;
+                    boolean ReadExternalStorage =
+                            grantResults[2] == PackageManager.PERMISSION_GRANTED;
                     boolean AccessCoarseLocation = grantResults[3] == PackageManager.PERMISSION_GRANTED;
                     boolean AccessFineLocation = grantResults[4] == PackageManager.PERMISSION_GRANTED;
 
@@ -177,11 +169,13 @@ public class SplashActivity extends AppCompatActivity {
                         checkLoginStatus();
                     } else {
                         Toast.makeText(SplashActivity.this, R.string.all_permission, Toast.LENGTH_LONG).show();
+                        requestPermission();
                     }
 
                 }
             }
         }
     }
+
 
 }
