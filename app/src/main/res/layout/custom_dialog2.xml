@@ -197,9 +197,8 @@
             android:id="@+id/photo2"
             android:layout_width="match_parent"
             android:layout_height="@dimen/space_xxlarge45"
-            android:background="@drawable/ic_back_wt"
-            android:drawableEnd="@drawable/red_icn"
-            android:layout_marginTop="@dimen/size_tinny10"
+            android:background="@drawable/icn_box"
+            android:drawableEnd="@drawable/right_mark_icn_green"
             android:padding="@dimen/space_mid10"
             android:singleLine="true"
             android:text="@string/end_photo"
@@ -208,6 +207,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.859"
             app:layout_constraintStart_toStartOf="parent"
+            android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@+id/til_trvl_mod"/>
 
         <LinearLayout

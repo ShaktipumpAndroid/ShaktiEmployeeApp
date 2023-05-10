@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Shakti Employee</string>
     <string name="app_version">Version 1.0</string>
-    <string name="google_API_KEY">AIzaSyAG9QApw05ttiQcSciVnGzAV7na7z423bo</string>
+    <string name="google_API_KEY">AIzaSyAohhwZ11LRwoxsS8lJ0VHGkA4L-cwjWmw</string>
     <string name="forgot_password">Forgot Password ?</string>
     <string name="date_time">Start Date</string>
     <string name="country">Country</string>

@@ -788,8 +788,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                         final TextView ettxt1 = dialog.findViewById(R.id.txt1);
                         final TextView ettxt2 = dialog.findViewById(R.id.txt2);
                         photo2 = dialog.findViewById(R.id.photo2);
-                        til_trvl_mod.setVisibility(View.GONE);
-                        etcncl.setVisibility(View.GONE);
+
 
                         etstrdt.setText(current_start_date + " " + current_start_time);
                         etstrlatlng.setText(from_lat + "," + from_lng);

@@ -8,6 +8,7 @@ android {
 
 
     defaultConfig {
+        namespace 'shakti.shakti_employee'
         applicationId "shakti.shakti_employee"
         minSdkVersion 21
         targetSdkVersion 33
