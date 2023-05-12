@@ -116,7 +116,7 @@
     <string name="endyourJourney">Press Confirm will end your Journey</string>
     <string name="sending_please_wait">Sending Data to server..please wait !</string>
     <string name="Please_Enter_Travel_Mode">Please Enter Travel Mode.</string>
-    <string name="ConnecttoInternet">Please Connect to Internet</string>
+    <string name="ConnectToInternet">Please check your internet connection first!</string>
     <string name="start_photo">Start Photo</string>
 
     <!-- For MRC Type Spinner -->

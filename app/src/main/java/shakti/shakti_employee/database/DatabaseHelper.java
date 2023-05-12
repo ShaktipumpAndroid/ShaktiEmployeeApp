@@ -1114,7 +1114,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_PHOTO2, localconvenienceBean.getPhoto2());
 
             // Insert Row
-            long i = db.insert(TABLE_LOCAL_CONVENIENCE, null, values);
+          db.insert(TABLE_LOCAL_CONVENIENCE, null, values);
 
             // Insert into database successfully.
             db.setTransactionSuccessful();
@@ -1180,61 +1180,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-
-   @SuppressLint("Range")
-   public ArrayList<LocalConvenienceBean1> getLocalConvience(Context context, String pernr) {
-       String userid = LoginBean.getUseid();
-       ArrayList<LocalConvenienceBean1> list_employeeGPSActivity = new ArrayList<>();
-       list_employeeGPSActivity.clear();
-
-       SQLiteDatabase db = this.getReadableDatabase();
-       String selectQuery = null;
-       Cursor cursor = null;
-       try {
-
-           selectQuery = "SELECT * FROM " + TABLE_LOCAL_CONVENIENCE
-                   + " WHERE " + KEY_PERNR + " = '" + pernr + "'";
-                   /*+ " AND " + KEY_BEGDA + " = '" + date + "'";*/
-
-
-           cursor = db.rawQuery(selectQuery, null);
-
-           if (cursor.getCount() > 0) {
-
-               while (cursor.moveToNext()) {
-
-                   LocalConvenienceBean1 employeeGPSActivity = new LocalConvenienceBean1();
-
-                   employeeGPSActivity.setPernr(cursor.getString(cursor.getColumnIndex(KEY_PERNR)));
-                   employeeGPSActivity.setBegda(cursor.getString(cursor.getColumnIndex(KEY_BEGDA)));
-                   employeeGPSActivity.setEndda(cursor.getString(cursor.getColumnIndex(KEY_ENDDA)));
-                   employeeGPSActivity.setFrom_time(cursor.getString(cursor.getColumnIndex(KEY_FROM_TIME)));
-                   employeeGPSActivity.setTo_time(cursor.getString(cursor.getColumnIndex(KEY_TO_TIME)));
-                   employeeGPSActivity.setFrom_lat(cursor.getString(cursor.getColumnIndex(KEY_FROM_LAT)));
-                   employeeGPSActivity.setTo_lat(cursor.getString(cursor.getColumnIndex(KEY_TO_LAT)));
-                   employeeGPSActivity.setFrom_lng(cursor.getString(cursor.getColumnIndex(KEY_FROM_LNG)));
-                   employeeGPSActivity.setTo_lng(cursor.getString(cursor.getColumnIndex(KEY_TO_LNG)));
-                   employeeGPSActivity.setStart_loc(cursor.getString(cursor.getColumnIndex(KEY_START_LOC)));
-                   employeeGPSActivity.setEnd_loc(cursor.getString(cursor.getColumnIndex(KEY_END_LOC)));
-                   employeeGPSActivity.setDistance(cursor.getString(cursor.getColumnIndex(KEY_DISTANCE)));
-
-                   list_employeeGPSActivity.add(employeeGPSActivity);
-               }
-
-           }
-       } catch (SQLiteException e) {
-           e.printStackTrace();
-
-       } finally {
-           if (cursor != null) {
-               cursor.close();
-           }
-
-
-           db.close();
-       }
-       return list_employeeGPSActivity;
-   }
 
     public void insertDOMTravelEntryDocument(TravelEntryDomDocBean travelEntryDomDocBean) {
         // Open the database for writing
@@ -3808,7 +3753,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.beginTransactionNonExclusive();
         try {
 
-            String selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " +  KEY_ENDDA +  " != '" +  "" + "'" + " AND " + KEY_TO_TIME + " != '" + "" + "'" ;
+            String selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE;
 
 
             Cursor cursor = db.rawQuery(selectQuery, null);
@@ -3832,7 +3777,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         localConvenienceBean.setStart_loc(cursor.getString(cursor.getColumnIndex(KEY_START_LOC)));
                         localConvenienceBean.setEnd_loc(cursor.getString(cursor.getColumnIndex(KEY_END_LOC)));
                         localConvenienceBean.setDistance(cursor.getString(cursor.getColumnIndex(KEY_DISTANCE)));
-
+                        localConvenienceBean.setPhoto1(cursor.getString(cursor.getColumnIndex(KEY_PHOTO1)));
+                        localConvenienceBean.setPhoto2(cursor.getString(cursor.getColumnIndex(KEY_PHOTO2)));
 
                         list_document.add(localConvenienceBean);
 

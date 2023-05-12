@@ -379,7 +379,6 @@ public class AttendanceCreateFragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // if the result is capturing Image
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
             if (resultCode == getActivity().RESULT_OK) {
 
@@ -414,10 +413,6 @@ public class AttendanceCreateFragment extends Fragment {
                         file.delete();
                     }
 
-//                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
-//                    startActivity(intent);
-//                    getActivity().finish();
-
                 }
 
                 if (Attendance_Mark.equals("OUT")) {
@@ -430,10 +425,6 @@ public class AttendanceCreateFragment extends Fragment {
                     if (file.exists()) {
                         file.delete();
                     }
-
-//                    Intent intent = new Intent(getActivity(), DashboardActivity.class);
-//                    startActivity(intent);
-//                    getActivity().finish();
                 }
 
 
@@ -463,26 +454,8 @@ public class AttendanceCreateFragment extends Fragment {
     }
 
 
-//    @Override
-//    public void onSaveInstanceState(Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//
-//        // save file url in bundle as it will be null on screen orientation
-//        // changes
-//        outState.putParcelable("file_uri", fileUri);
-//    }
-//
-//    @Override
-//    public void onRestoreInstanceState(Bundle savedInstanceState) {
-//        super.onRestoreInstanceState(savedInstanceState);
-//
-//        // get the file url
-//        fileUri = savedInstanceState.getParcelable("file_uri");
-//    }
 
     void saveLocally() {
-
-        //  MainActivity.mainActivity.mydb.insertAttendance(attendanceBean);
         dataHelper = new DatabaseHelper(mContext);
 
 
@@ -501,8 +474,6 @@ public class AttendanceCreateFragment extends Fragment {
         attendanceBean.IMAGE_DATA = "";
         attendanceBean.CURRENT_MILLIS = System.currentTimeMillis();
         attendanceBean.IN_LAT_LONG = latLong;
-//        attendanceBean.IN_FILE_NAME = mFile.getName();
-//        attendanceBean.IN_FILE_VALUE = mFile.getPath();
         attendanceBean.OUT_LAT_LONG = "";
         attendanceBean.OUT_FILE_NAME = "";
         attendanceBean.OUT_FILE_LENGTH = "";
@@ -530,13 +501,9 @@ public class AttendanceCreateFragment extends Fragment {
                     strReturnedAddress.append(returnedAddress.getAddressLine(i)).append("\n");
                 }
                 strAdd = strReturnedAddress.toString();
-                //   Log.w("My Current loction address", "" + strReturnedAddress.toString());
-            } else {
-                //     Log.w("My Current loction address", "No Address returned!");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            //    Log.w("My Current loction address", "Canont get Address!");
         }
         return strAdd;
     }
@@ -559,26 +526,16 @@ public class AttendanceCreateFragment extends Fragment {
         attendanceBean.WORKING_HOURS = time;
         attendanceBean.IMAGE_DATA = "";
         attendanceBean.OUT_LAT_LONG = latLong;
-        // attendanceBean.OUT_FILE_NAME = mFile.getName();
-        // attendanceBean.OUT_FILE_VALUE = mFile.getPath();
-
-
         dataHelper.updateMarkAttendance(attendanceBean, getActivity().getApplicationContext());
-        //Out Attendance
-//        new Capture_employee_gps_location(this, "3","");
-
-        //   MainActivity.mainActivity.mydb.updateAttendance(attendanceBean);
 
         Toast.makeText(mContext, "Out Attendance Marked", Toast.LENGTH_LONG).show();
-//        SyncAttendanceInBackground();
+
     }
 
     public void synDataToSAP() {
 
-
         if (CustomUtility.isInternetOn(mContext)) {
 
-            // creating progress bar dialog
             progressBar = new ProgressDialog(getActivity());
             progressBar.setCancelable(true);
             // progressBar.setCancelable(true);
@@ -590,26 +547,7 @@ public class AttendanceCreateFragment extends Fragment {
             //reset progress bar and filesize status
             progressBarStatus = 0;
 
-            new Thread(new Runnable() {
-                public void run() {
-
-//                while (progressBarStatus < 100) {
-                    // performing operation
-
-                    try {
-
-                        new SyncDataToSAP_New().SendAllDataToSAP(getActivity().getApplication());
-
-                        progressBar.dismiss();
-                        progressBar.cancel();
-
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-
-
-                }
-            }).start();
+            new SyncDataToSAP_New().SendAllDataToSAP(getActivity());
         } else {
             Toast.makeText(getActivity().getApplicationContext(), "No Internet Connection.Start Internet Service & Check after 15 Minutes", Toast.LENGTH_SHORT).show();
         }

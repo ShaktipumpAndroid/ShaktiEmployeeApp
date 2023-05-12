@@ -18,6 +18,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -93,36 +94,40 @@ public class CustomUtility {
         return formatedDate;
     }
 
-    public static String formateDate1(String date) {
-        String formatedDate = "";
-        try {
-            SimpleDateFormat formate = new SimpleDateFormat("dd.MM.yyyy",Locale.US);
-            Date mDate = formate.parse(date);
-//            SimpleDateFormat appFormate = new SimpleDateFormat("dd MMM, yyyy");
-            SimpleDateFormat appFormate = new SimpleDateFormat("yyyyMMdd",Locale.US);
-            formatedDate = appFormate.format(mDate);
-            Log.i("Result", "mDate " + formatedDate);
+    public static String formateDate1(String parseDare) {
+        String inputPattern = "yyyyMMdd";
+        String outputPattern = "dd-MMM-yyyy";
+        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
 
-        } catch (Exception e) {
+        Date date = null;
+        String str = null;
+
+        try {
+            date = inputFormat.parse(parseDare);
+            str = outputFormat.format(date);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-        return formatedDate;
+        return str;
     }
 
-    public static String formateTime1(String time) {
-        String formatedDate = "";
-        try {
-            SimpleDateFormat formate = new SimpleDateFormat("HH:mm:ss",Locale.getDefault());
-            Date mDate = formate.parse(time);
-//            SimpleDateFormat appFormate = new SimpleDateFormat("dd MMM, yyyy");
-            SimpleDateFormat appFormate = new SimpleDateFormat("HHmmss",Locale.getDefault());
-            formatedDate = appFormate.format(mDate);
-            Log.i("Result", "mDate " + formatedDate);
+    public static String formateTime1(String parseDare) {
+        String inputPattern = "HHmmss";
+        String outputPattern = "HH:mm:ss";
+        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
 
-        } catch (Exception e) {
+        Date date = null;
+        String str = null;
+
+        try {
+            date = inputFormat.parse(parseDare);
+            str = outputFormat.format(date);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-        return formatedDate;
+        return str;
     }
 
     public static void showSettingsAlert(final Context mContext) {
@@ -239,9 +244,7 @@ public class CustomUtility {
             NetworkInfo[] info = connectivity.getAllNetworkInfo();
             if (info != null) {
                 for (int i = 0; i < info.length; i++) {
-                    Log.e("INTERNET:", String.valueOf(i));
                     if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-                        Log.e("INTERNET123:", "connected!");
                         return true;
                     }
                 }
@@ -317,7 +320,7 @@ public class CustomUtility {
         return settings.getString(name, "");
     }
 
-    public String getCurrentDate() {
+    public  String getCurrentDate() {
         simpleDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         current_date = simpleDateFormat.format(new Date());
         return current_date.trim();

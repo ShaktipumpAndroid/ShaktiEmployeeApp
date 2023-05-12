@@ -4,7 +4,7 @@ import okhttp3.OkHttpClient;
 
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
-import retrofit2.converter.jackson.JacksonConverterFactory;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 
 public class RestUtil {
@@ -20,7 +20,7 @@ public class RestUtil {
         Retrofit.Builder builder =
                 new Retrofit.Builder()
                         .baseUrl(API_BASE_URL)
-                        .addConverterFactory(JacksonConverterFactory.create());
+                        .addConverterFactory(GsonConverterFactory.create());
         retrofit = builder.client(httpClient).build();
     }
 

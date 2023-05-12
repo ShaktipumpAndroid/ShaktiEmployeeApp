@@ -16,6 +16,8 @@
 
 package shakti.shakti_employee.fragment;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import android.app.ActivityManager;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -170,7 +172,7 @@ public class LocationUpdatesService extends Service {
         mNotificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         // Android O requires a Notification Channel.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (SDK_INT >= Build.VERSION_CODES.O) {
             CharSequence name = getString(R.string.app_name);
             // Create the channel for the notification
             NotificationChannel mChannel =
@@ -233,8 +235,9 @@ public class LocationUpdatesService extends Service {
         // do nothing. Otherwise, we make this service a foreground service.
         if (!mChangingConfiguration && Utils.requestingLocationUpdates(this)) {
             Log.i(TAG, "Starting foreground service");
-
-            startForeground(NOTIFICATION_ID, getNotification());
+            if (Build.VERSION.SDK_INT >= 26) {
+                startForeground(NOTIFICATION_ID, getNotification());
+            }
         }
         return true; // Ensures onRebind() is called when a client re-binds.
     }
@@ -284,19 +287,26 @@ public class LocationUpdatesService extends Service {
         Intent intent = new Intent(this, LocationUpdatesService.class);
 
         CharSequence text = Utils.getLocationText(mLocation);
+        int pendingFlags;
+        if (SDK_INT >= 23) {
+            pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        } else {
+            pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT;
+        }
+
 
         // Extra to help us figure out if we arrived in onStartCommand via the notification or not.
         intent.putExtra(EXTRA_STARTED_FROM_NOTIFICATION, true);
 
         // The PendingIntent that leads to a call to onStartCommand() in this service.
         PendingIntent servicePendingIntent = PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
+                pendingFlags);
 
         // The PendingIntent to launch activity.
         PendingIntent activityPendingIntent = PendingIntent.getActivity(this, 0,
-                new Intent(this, DashboardActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+                new Intent(this, DashboardActivity.class), pendingFlags);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANNEL_ID)
                 .addAction(R.drawable.ic_launch, getString(R.string.launch_activity),
                         activityPendingIntent)
                 .addAction(R.drawable.ic_cancel, getString(R.string.remove_location_updates),
@@ -310,7 +320,7 @@ public class LocationUpdatesService extends Service {
                 .setWhen(System.currentTimeMillis());
 
         // Set the Channel ID for Android O.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (SDK_INT >= Build.VERSION_CODES.O) {
             builder.setChannelId(CHANNEL_ID); // Channel ID
         }
 
@@ -344,8 +354,6 @@ public class LocationUpdatesService extends Service {
         Intent intent = new Intent(ACTION_BROADCAST);
         intent.putExtra(EXTRA_LOCATION, location);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
-
-        DatabaseHelper dataHelper = new DatabaseHelper(context);
 
         try {
 
@@ -505,4 +513,6 @@ public class LocationUpdatesService extends Service {
             return LocationUpdatesService.this;
         }
     }
+
+
 }

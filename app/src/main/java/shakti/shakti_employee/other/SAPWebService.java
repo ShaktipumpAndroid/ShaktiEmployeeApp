@@ -977,7 +977,7 @@ public class SAPWebService {
 
             JSONArray ja_taxcode = null;
 
-            if (obj != null) {
+            if (!obj.isEmpty()) {
 
                 JSONObject jsonObj = new JSONObject(obj);
                 if (jsonObj.has("taxcode") && !String.valueOf(jsonObj.getJSONArray("taxcode")).isEmpty()) {

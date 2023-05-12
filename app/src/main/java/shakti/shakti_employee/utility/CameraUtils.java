@@ -29,7 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Objects;
 
 import okhttp3.ResponseBody;
 
@@ -43,6 +47,12 @@ public class CameraUtils {
      */
     static final String TAG = "FileUtils";
     private static final boolean DEBUG = false; // Set to true to enable logging
+
+    public static final String GALLERY_DIRECTORY_NAME = "Employee Photo";
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+    public static final String IMAGE_EXTENSION = "jpg";
+    public static final String VIDEO_EXTENSION = "mp4";
     /**
      * File and folder comparator. TODO Expose sorting option method
      */
@@ -721,6 +731,42 @@ public class CameraUtils {
 
 
         return BitmapFactory.decodeFile(filePath,options);
+    }
+    public static File getOutputMediaFile(int type) {
+
+        // External sdcard location
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), GALLERY_DIRECTORY_NAME);
+
+        // Create the storage directory if it does not exist
+        if (!mediaStorageDir.exists()) {
+            if (!mediaStorageDir.mkdirs()) {
+                Log.e(GALLERY_DIRECTORY_NAME, "Oops! Failed create "
+                        + GALLERY_DIRECTORY_NAME + " directory");
+                return null;
+            }
+        }
+
+        // Preparing media file naming convention
+        // adds timestamp
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(new Date());
+
+        File mediaFile;
+
+        if (type == MEDIA_TYPE_IMAGE) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "IMG_" + timeStamp + "." + IMAGE_EXTENSION);
+        } else if (type == MEDIA_TYPE_VIDEO) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator
+                    + "VID_" + timeStamp + "." + VIDEO_EXTENSION);
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
+
+    public static Uri getOutputMediaFileUri(Context context, File file) {
+        return FileProvider.getUriForFile(Objects.requireNonNull(context), context.getPackageName() + ".provider", file);
     }
 
 }

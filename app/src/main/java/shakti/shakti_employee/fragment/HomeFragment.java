@@ -3,20 +3,14 @@ package shakti.shakti_employee.fragment;
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
-import static android.Manifest.permission.READ_CONTACTS;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.READ_MEDIA_AUDIO;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
-import static android.Manifest.permission.READ_PHONE_STATE;
-import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Context.LOCATION_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.content.PermissionChecker.checkSelfPermission;
 import static com.google.android.gms.location.LocationServices.getFusedLocationProviderClient;
-
-import static shakti.shakti_employee.activity.CheckInvkActivity.BITMAP_SAMPLE_SIZE;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -33,13 +27,11 @@ import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -50,7 +42,6 @@ import android.os.Message;
 import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.provider.Settings;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,42 +64,31 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.apache.http.util.TextUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import models.DistanceResponse;
 import models.Element;
@@ -120,7 +100,6 @@ import shakti.shakti_employee.activity.AttendanceActivity;
 import shakti.shakti_employee.activity.CheckInvkActivity;
 import shakti.shakti_employee.activity.CompleteTaskActivity;
 import shakti.shakti_employee.activity.CreateTaskActivity;
-import shakti.shakti_employee.activity.DashboardActivity;
 import shakti.shakti_employee.activity.DomesticTravelExpensesActivity;
 import shakti.shakti_employee.activity.ExportTravelExpensesActivity;
 import shakti.shakti_employee.activity.GatepassApproveActivity;
@@ -135,7 +114,6 @@ import shakti.shakti_employee.activity.TravelExpenseReportActivity;
 import shakti.shakti_employee.activity.webViewActivity;
 import shakti.shakti_employee.bean.AttendanceBean;
 import shakti.shakti_employee.bean.LocalConvenienceBean;
-import shakti.shakti_employee.bean.LocalConvenienceBean1;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.model.LoggedInUser;
@@ -173,11 +151,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
     private static HomeFragment instance;
     // For Leave Balance
     DatabaseHelper dataHelper;
-    String fullAddress = null, fullAddress1 = null,distance1 = null, latlng = null,  from_lat, from_lng, to_lat, to_lng, start_photo_text, end_photo_text,
+    String fullAddress = null, fullAddress1 = null, distance1 = null, latlng = null, from_lat, from_lng, to_lat, to_lng, start_photo_text, end_photo_text,
             value, latLong, mParam1, mParam2, mTravel, mHod, current_start_date, current_end_date, current_start_time, current_end_time,
-            strtlatlng = null,  date = null, time = null, startphoto,allLatLong;
+            strtlatlng = null, date = null, time = null, startphoto, allLatLong;
 
-  Bitmap bitmap;
+    Bitmap bitmap;
     GPSTracker gps;
     CustomUtility customutility = null;
     AttendanceBean attendanceBean;
@@ -262,7 +240,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
 
         if (!mediaStorageDir.exists()) {
             if (!mediaStorageDir.mkdirs()) {
-               return null;
+                return null;
             }
         }
 
@@ -599,17 +577,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                    if (progressDialog != null)
-                        if (progressDialog.isShowing()) {
-                            progressDialog.dismiss();
-                            progressDialog = null;
-                        }
                 }
             }
         });
     }
 
-    @SuppressLint("UseRequireInsteadOfGet")
+
     public void startLocationUpdates1() {
         end_photo_text = "";
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
@@ -677,7 +650,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                                         progressDialog.dismiss();
                                         progressDialog = null;
                                     }
-                                allLatLong = from_lat+","+from_lng +","+to_lat+","+to_lng;
+                                allLatLong = from_lat + "," + from_lng + "," + to_lat + "," + to_lng;
                                 getDistanceInfo(from_lat, from_lng, to_lat, to_lng, allLatLong);
                             } else {
                                 if (progressDialog != null)
@@ -692,8 +665,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                     if (mService != null) { // add null checker
                         mService.removeLocationUpdates();
                     }
-                }
-                else {
+                } else {
                     Toast.makeText(getActivity(), R.string.saved_travel_data, Toast.LENGTH_SHORT).show();
                     LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid), current_start_date,
                             current_end_date,
@@ -717,7 +689,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
             }
         });
     }
-    private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2,  String allLatLong) {
+
+    private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2, String allLatLong) {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
 
 
@@ -732,168 +705,170 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
         DistanceApiClient client = RestUtil.getInstance().getRetrofit().create(DistanceApiClient.class);
 
         Call<DistanceResponse> call = client.getDistanceInfo(mapQuery);
+        Log.e("URL===>", String.valueOf(call.request().url()));
+        Log.e("URL===>", String.valueOf(call.request().url()));
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
             public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
-                if (response.body() != null &&
-                        response.body().getRows() != null &&
-                        response.body().getRows().size() > 0 &&
-                        response.body().getRows().get(0) != null &&
-                        response.body().getRows().get(0).getElements() != null &&
-                        response.body().getRows().get(0).getElements().size() > 0 &&
-                        response.body().getRows().get(0).getElements().get(0) != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDistance() != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDuration() != null) {
 
-                    try {
+
+
+                    if (response.body() != null &&
+                            response.body().getRows() != null &&
+                            response.body().getRows().size() > 0 &&
+                            response.body().getRows().get(0) != null &&
+                            response.body().getRows().get(0).getElements() != null &&
+                            response.body().getRows().get(0).getElements().size() > 0 &&
+                            response.body().getRows().get(0).getElements().get(0) != null &&
+                            response.body().getRows().get(0).getElements().get(0).getDistance() != null &&
+                            response.body().getRows().get(0).getElements().get(0).getDuration() != null) {
+                        Log.e("Response======>", String.valueOf(response.body()));
 
                         if (progressDialog != null)
-                            if (progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                                progressDialog = null;
-                            }
-                        ;
+                                if (progressDialog.isShowing()) {
+                                    progressDialog.dismiss();
+                                    progressDialog = null;
+                                }
 
-                        Element element = response.body().getRows().get(0).getElements().get(0);
-                        fullAddress = response.body().getOriginAddresses().get(0);
-                        fullAddress1 = response.body().getDestinationAddresses().get(0);
-                        distance1 = element.getDistance().getText();
+                            Element element = response.body().getRows().get(0).getElements().get(0);
+                        if(response.body().getOriginAddresses()!=null && response.body().getOriginAddresses().size()>0) {
+                            fullAddress = response.body().getOriginAddresses().get(0);
+                        }else {
+                            fullAddress = Utility.retrieveAddress(lat1,lon1,getActivity());
+                        }
+                        if(response.body().getDestinationAddresses()!=null && response.body().getDestinationAddresses().size()>0) {
+                            fullAddress1 = response.body().getDestinationAddresses().get(0);
+                        }else {
+                            fullAddress1 = Utility.retrieveAddress(lat2,lon2,getActivity());
+                        }
 
-                        Log.e("distance1=====>",distance1);
-
-                        final Dialog dialog = new Dialog(getActivity());
-                        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
-                        dialog.setCancelable(false);
-                        dialog.setCanceledOnTouchOutside(false);
-                        dialog.setContentView(R.layout.custom_dialog2);
-                        WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
-                        lp.copyFrom(dialog.getWindow().getAttributes());
-                        lp.width = WindowManager.LayoutParams.MATCH_PARENT;
-                        lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
-                        dialog.getWindow().setAttributes(lp);
-
-                        final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
-                        final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
-                        final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
-                        final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
-                        final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
-                        final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
-                        final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
-                        final TextInputLayout til_trvl_mod = dialog.findViewById(R.id.til_trvl_mod);
-                        final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
+                            distance1 = element.getDistance().getText();
 
 
-                        final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
-                        final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
-                        final TextView ettxt1 = dialog.findViewById(R.id.txt1);
-                        final TextView ettxt2 = dialog.findViewById(R.id.txt2);
-                        photo2 = dialog.findViewById(R.id.photo2);
+                            Log.e("distance1=====>", distance1);
+
+                    final Dialog dialog = new Dialog(getActivity());
+                    dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+                    dialog.setCancelable(false);
+                    dialog.setCanceledOnTouchOutside(false);
+                    dialog.setContentView(R.layout.custom_dialog2);
+                    WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                    lp.copyFrom(dialog.getWindow().getAttributes());
+                    lp.width = WindowManager.LayoutParams.MATCH_PARENT;
+                    lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                    dialog.getWindow().setAttributes(lp);
+
+                    final TextInputEditText etstrdt = dialog.findViewById(R.id.tiet_str_dt);
+                    final TextInputEditText etstrlatlng = dialog.findViewById(R.id.tiet_str_lat_lng);
+                    final TextInputEditText etstrlocadd = dialog.findViewById(R.id.tiet_str_loc_add);
+                    final TextInputEditText etenddt = dialog.findViewById(R.id.tiet_end_dt);
+                    final TextInputEditText etendlatlng = dialog.findViewById(R.id.tiet_end_lat_lng);
+                    final TextInputEditText etendlocadd = dialog.findViewById(R.id.tiet_end_loc_add);
+                    final TextInputEditText ettotdis = dialog.findViewById(R.id.tiet_tot_dis);
+                    final TextInputLayout til_trvl_mod = dialog.findViewById(R.id.til_trvl_mod);
+                    final TextInputEditText ettrvlmod = dialog.findViewById(R.id.tiet_trvl_mod);
 
 
-                        etstrdt.setText(current_start_date + " " + current_start_time);
-                        etstrlatlng.setText(from_lat + "," + from_lng);
-                        etenddt.setText(current_end_date + " " + current_end_time);
-                        etendlatlng.setText(to_lat + "," + to_lng);
-                        etstrlocadd.setText(fullAddress);
-                        etendlocadd.setText(fullAddress1);
-                        ettotdis.setText(distance1);
-
-                        ettxt1.setText(getResources().getString(R.string.localconveniencedetails));
-                        ettxt2.setText(getResources().getString(R.string.endyourJourney));
+                    final TextView etcncl = dialog.findViewById(R.id.btn_cncl);
+                    final TextView etconfm = dialog.findViewById(R.id.btn_cnfrm);
+                    final TextView ettxt1 = dialog.findViewById(R.id.txt1);
+                    final TextView ettxt2 = dialog.findViewById(R.id.txt2);
+                    photo2 = dialog.findViewById(R.id.photo2);
 
 
-                        photo2.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                if (end_photo_text == null || end_photo_text.isEmpty()) {
+                    etstrdt.setText(CustomUtility.formateDate1(current_start_date) + " " + CustomUtility.formateTime1(current_start_time));
+                    etstrlatlng.setText(from_lat + "," + from_lng);
+                    etenddt.setText(CustomUtility.formateDate1(current_end_date) + " " + CustomUtility.formateTime1(current_end_time));
+                    etendlatlng.setText(to_lat + "," + to_lng);
+                    etstrlocadd.setText(fullAddress);
+                    etendlocadd.setText(fullAddress1);
+                    ettotdis.setText(distance1);
+
+                    ettxt1.setText(getResources().getString(R.string.localconveniencedetails));
+                    ettxt2.setText(getResources().getString(R.string.endyourJourney));
+
+                    photo2.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            if (end_photo_text == null || end_photo_text.isEmpty()) {
+                                if (checkPermission()) {
                                     if (checkPermission()) {
-                                        if (checkPermission()) {
-                                            openCamera();
-                                        } else {
-                                            requestPermission();
-                                        }
+                                        openCamera();
                                     } else {
                                         requestPermission();
                                     }
-
-                                }
-                            }
-                        });
-
-                        etcncl.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                        etconfm.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-
-
-                                if (CustomUtility.isOnline(getActivity())) {
-                                    if (!ettrvlmod.getText().toString().isEmpty()) {
-
-                                        progressDialog = ProgressDialog.show(getActivity(), "", getResources().getString(R.string.sending_please_wait));
-
-                                        new Thread(new Runnable() {
-                                            public void run() {
-                                                getActivity().runOnUiThread(new Runnable() {
-                                                    @Override
-                                                    public void run() {
-                                                        LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid), current_start_date,
-                                                                current_end_date,
-                                                                current_start_time,
-                                                                current_end_time,
-                                                                from_lat,
-                                                                to_lat,
-                                                                from_lng,
-                                                                to_lng,
-                                                                fullAddress,
-                                                                fullAddress1,
-                                                                distance1,
-                                                                startphoto,
-                                                                end_photo_text
-                                                        );
-
-                                                        dataHelper.updateLocalconvenienceData(localConvenienceBean);
-                                                        SyncLocalConveneinceDataToSap(ettrvlmod.getText().toString(), current_end_date, current_end_time, distance1, allLatLong);
-                                                    }
-                                                });
-                                            }
-
-                                            ;
-                                        }).start();
-
-                                        dialog.dismiss();
-
-                                    } else {
-                                        Toast.makeText(getActivity(), getResources().getString(R.string.Please_Enter_Travel_Mode), Toast.LENGTH_SHORT).show();
-                                    }
                                 } else {
-                                    Toast.makeText(getActivity(), getResources().getString(R.string.ConnecttoInternet), Toast.LENGTH_SHORT).show();
+                                    requestPermission();
                                 }
-                            }
-                        });
 
-                        dialog.show();
-
-                    } catch (Exception e) {
-                        Log.d("onResponse", "There is an error");
-                        e.printStackTrace();
-                        if (progressDialog != null)
-                            if (progressDialog.isShowing()) {
-                                progressDialog.dismiss();
-                                progressDialog = null;
                             }
-                        ;
-                    }
+                        }
+                    });
+
+                    etcncl.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            dialog.dismiss();
+                        }
+                    });
+
+                    etconfm.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+
+
+                            if (CustomUtility.isOnline(getActivity())) {
+                                if (!ettrvlmod.getText().toString().isEmpty()) {
+
+                                    progressDialog = ProgressDialog.show(getActivity(), "", getResources().getString(R.string.sending_please_wait));
+
+                                    new Thread(new Runnable() {
+                                        public void run() {
+                                            getActivity().runOnUiThread(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid), current_start_date,
+                                                            current_end_date,
+                                                            current_start_time,
+                                                            current_end_time,
+                                                            from_lat,
+                                                            to_lat,
+                                                            from_lng,
+                                                            to_lng,
+                                                            fullAddress,
+                                                            fullAddress1,
+                                                            distance1,
+                                                            startphoto,
+                                                            end_photo_text
+                                                    );
+
+                                                    dataHelper.updateLocalconvenienceData(localConvenienceBean);
+                                                    SyncLocalConveneinceDataToSap(ettrvlmod.getText().toString(), current_end_date, current_end_time, distance1, allLatLong);
+                                                }
+                                            });
+                                        }
+
+                                        ;
+                                    }).start();
+
+                                    dialog.dismiss();
+
+                                } else {
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.Please_Enter_Travel_Mode), Toast.LENGTH_SHORT).show();
+                                }
+                            } else {
+                                Toast.makeText(getActivity(), getResources().getString(R.string.ConnectToInternet), Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+
+                    dialog.show();
+
                 }
             }
 
             @Override
-            public void onFailure(Call<DistanceResponse> call, Throwable t) {
+            public void onFailure(@NonNull Call<DistanceResponse> call,@NonNull Throwable t) {
 
                 Log.e("Failed", "&&&", t);
 
@@ -1133,30 +1108,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
 
                             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                           /* android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
-                            // Setting Dialog Title
-                            alertDialog.setTitle("Confirmation");
-                            // Setting Dialog Message
-                            alertDialog.setMessage("Press Confirm will start your Journey");
-                            // On pressing Settings button
-                            alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int which) {*/
-
-                            //getGpsLocation();
                             startLocationUpdates();
 
-                            /*    }
-                            });
-                            // on pressing cancel button
-                            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
-                            // Showing Alert Message
-                            alertDialog.show();*/
                             dialog.dismiss();
 
 
@@ -1182,36 +1135,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                     .setCancelable(false)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-
-
                             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                           /* android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(context);
-                            // Setting Dialog Title
-                            alertDialog.setTitle("Confirmation");
-                            // Setting Dialog Message
-                            alertDialog.setMessage("Press Confirm will start your Journey");
-                            // On pressing Settings button
-                            alertDialog.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
-
-                                public void onClick(DialogInterface dialog, int which) {
-*/
-                            //getGpsLocation();
-                            //startLocationUpdates1();
-/*
-
-                                }
-                            });
-                            // on pressing cancel button
-                            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.cancel();
-                                }
-                            });
-
-                            // Showing Alert Message
-                            alertDialog.show();
-
-*/
                             dialog.dismiss();
 
                         }
@@ -1243,7 +1167,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
     }
 
 
-
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // if the result is capturing Image
@@ -1254,7 +1177,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                     Bitmap bitmap =
                             MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), fileUri);
 
-                    Bitmap   UserBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),
+                    Bitmap UserBitmap = MediaStore.Images.Media.getBitmap(context.getContentResolver(),
                             fileUri);
 
                     String path = CameraUtils.getPath(context, fileUri); // From Gallery
@@ -1262,7 +1185,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                     if (path == null) {
                         path = data.getData().getPath(); // From File Manager
                     }
-                  String  filedata = path;
+                    String filedata = path;
                     Log.e("Activity", "PathHolder22= " + path);
 
                     String filename = path.substring(path.lastIndexOf("/") + 1);
@@ -1273,7 +1196,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                         file = "";
                     }
                     if (android.text.TextUtils.isEmpty(file)) {
-                      CustomUtility.ShowToast("File not valid",getActivity());
+                        CustomUtility.ShowToast("File not valid", getActivity());
                     } else {
 
                         if (start_photo_flag) {
@@ -1298,6 +1221,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
             }
         }
     }
+
     public void setIcon(String key) {
 
         switch (key) {
@@ -1323,6 +1247,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
         }
 
     }
+
     @Override
     public void onClick(View v) {
         int id = v.getId();
@@ -1494,7 +1419,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
             case R.id.start_travel:
 
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                        ||locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 
                     startLocationUpdates();
 
@@ -1509,9 +1434,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
 
 
                 if (locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-                        ||locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
+                        || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)) {
 
-                    startLocationUpdates1();
+                       startLocationUpdates1();
+
+
 
                 } else {
                     buildAlertMessageNoGps1();
@@ -1572,59 +1499,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
         pending_task_notification.setText(Integer.toString(dataHelper.getPendinTaskCount()));
         gp_notification.setText(Integer.toString(dataHelper.getPendinGatePassCount()));
 
-    }
-
-    void saveLocally() {
-
-        dataHelper = new DatabaseHelper(context);
-
-
-        attendanceBean.PERNR = userModel.uid;
-        attendanceBean.BEGDA = customutility.getCurrentDate1();
-        attendanceBean.SERVER_DATE_IN = customutility.getCurrentDate1();
-        attendanceBean.SERVER_TIME_IN = customutility.getCurrentTime1();
-        String[] latlong = latLong.split(",");
-        attendanceBean.IN_ADDRESS = getCompleteAddressString(Double.parseDouble(latlong[0]), Double.parseDouble(latlong[1]));
-        attendanceBean.IN_TIME = customutility.getCurrentTime1();
-        attendanceBean.SERVER_DATE_OUT = "";
-        attendanceBean.SERVER_TIME_OUT = "";
-        attendanceBean.OUT_ADDRESS = "";
-        attendanceBean.OUT_TIME = "";
-        attendanceBean.WORKING_HOURS = "";
-        attendanceBean.IMAGE_DATA = "";
-        attendanceBean.CURRENT_MILLIS = System.currentTimeMillis();
-        attendanceBean.IN_LAT_LONG = latLong;
-        attendanceBean.OUT_LAT_LONG = "";
-        attendanceBean.OUT_FILE_NAME = "";
-        attendanceBean.OUT_FILE_LENGTH = "";
-        attendanceBean.OUT_FILE_VALUE = "";
-
-        dataHelper.insertMarkAttendance(attendanceBean);
-
-        Toast.makeText(context, "In Attendance Marked", Toast.LENGTH_LONG).show();
-
-    }
-
-    void updateLocally() {
-
-        dataHelper = new DatabaseHelper(context);
-
-        attendanceBean.PERNR = userModel.uid;
-        attendanceBean.SERVER_DATE_OUT = customutility.getCurrentDate1();
-        attendanceBean.SERVER_TIME_OUT = customutility.getCurrentTime1();
-        String[] latlong = latLong.split(",");
-        attendanceBean.OUT_ADDRESS = getCompleteAddressString(Double.parseDouble(latlong[0]), Double.parseDouble(latlong[1]));
-        attendanceBean.OUT_TIME = customutility.getCurrentTime1();
-        long attendanceDifference = System.currentTimeMillis() - attendanceBean.CURRENT_MILLIS;
-        long second = (attendanceDifference / 1000) % 60;
-        long minute = (attendanceDifference / (1000 * 60)) % 60;
-        long hour = (attendanceDifference / (1000 * 60 * 60)) % 24;
-        String time = String.format("%02d:%02d:%02d", hour, minute, second);
-        attendanceBean.WORKING_HOURS = time;
-        attendanceBean.IMAGE_DATA = "";
-        attendanceBean.OUT_LAT_LONG = latLong;
-
-        Toast.makeText(context, "Out Attendance Marked", Toast.LENGTH_LONG).show();
     }
 
 
@@ -1716,24 +1590,41 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
         try {
 
             jsonObj.put("pernr", param_invc.getPernr());
-            jsonObj.put("begda", CustomUtility.formateDate(param_invc.getBegda()));
-            jsonObj.put("endda", CustomUtility.formateDate(param_invc.getEndda()));
+            jsonObj.put("begda", param_invc.getBegda());
+            jsonObj.put("endda", param_invc.getEndda());
 
-            jsonObj.put("start_time", CustomUtility.formateTime(param_invc.getFrom_time()));
-            jsonObj.put("end_time", CustomUtility.formateTime(param_invc.getTo_time()));
+            jsonObj.put("start_time", param_invc.getFrom_time());
+            jsonObj.put("end_time", param_invc.getTo_time());
 
             jsonObj.put("start_lat", param_invc.getFrom_lat());
             jsonObj.put("end_lat", param_invc.getTo_lat());
             jsonObj.put("start_long", param_invc.getFrom_lng());
             jsonObj.put("end_long", param_invc.getTo_lng());
-            jsonObj.put("start_location", param_invc.getStart_loc());
-            jsonObj.put("end_location", param_invc.getEnd_loc());
+            if(param_invc.getStart_loc()!=null && !param_invc.getStart_loc().isEmpty()){
+                jsonObj.put("start_location", param_invc.getStart_loc());
+            }else {
+                jsonObj.put("start_location", Utility.retrieveAddress(param_invc.getFrom_lat(),param_invc.getFrom_lng(),getActivity()));
+            }
+
+            if(param_invc.getEnd_loc()!=null && !param_invc.getEnd_loc().isEmpty()){
+                jsonObj.put("end_location", param_invc.getEnd_loc());
+            }else {
+                jsonObj.put("end_location", Utility.retrieveAddress(param_invc.getTo_lat(),param_invc.getTo_lng(),getActivity()));
+            }
             jsonObj.put("distance", mFlotDistanceKM);
             jsonObj.put("TRAVEL_MODE", mode);
             jsonObj.put("LAT_LONG", allLatLong);
-            jsonObj.put("PHOTO1", Utility.getBase64FromBitmap(getActivity(),param_invc.getPhoto1().toString()));
-            jsonObj.put("PHOTO2", Utility.getBase64FromBitmap(getActivity(),param_invc.getPhoto1().toString()));
+            if(param_invc.getPhoto1()!=null && !param_invc.getPhoto1().isEmpty()){
+                jsonObj.put("PHOTO1", Utility.getBase64FromBitmap(context,param_invc.getPhoto1()));
+            }else {
+                jsonObj.put("PHOTO1", "");
+            }
 
+            if(param_invc.getPhoto2()!=null && !param_invc.getPhoto2().isEmpty()){
+                jsonObj.put("PHOTO2", Utility.getBase64FromBitmap(context,param_invc.getPhoto2()));
+            }else {
+                jsonObj.put("PHOTO2", "");
+            }
             ja_invc_data.put(jsonObj);
 
         } catch (Exception e) {
@@ -1754,7 +1645,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
 
             String obj2 = CustomHttpClient.executeHttpPost1(SapUrl.LOCAL_CONVENIENVCE, param1_invc);
 
-            if (obj2 != "") {
+            if (!obj2.isEmpty()) {
 
                 JSONArray ja = new JSONArray(obj2);
 
@@ -1817,7 +1708,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.CAMERA,
                             Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE,
-                          Manifest.permission.ACCESS_COARSE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION,
                             Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_CODE_PERMISSION);
 
@@ -1839,7 +1730,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                 ContextCompat.checkSelfPermission(getActivity(), ACCESS_FINE_LOCATION);
         int ReadMediaImage =
                 ContextCompat.checkSelfPermission(getActivity(), READ_MEDIA_IMAGES);
-
 
 
         if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -1867,7 +1757,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener, Goog
                     boolean ReadMediaImage = grantResults[3] == PackageManager.PERMISSION_GRANTED;
 
 
-                    if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage ) {
+                    if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage) {
                         if (value.equals("1")) {
                             showConfirmationGallery(DatabaseHelper.KEY_PHOTO1, "PHOTO1");
                         } else {

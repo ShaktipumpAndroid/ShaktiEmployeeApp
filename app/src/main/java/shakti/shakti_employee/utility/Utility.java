@@ -6,6 +6,8 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Address;
+import android.location.Geocoder;
 import android.provider.Settings;
 import android.util.Base64;
 import android.util.Log;
@@ -25,9 +27,12 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by shakti on 11/15/2016.
@@ -188,5 +193,20 @@ public class Utility {
         }
         return imageString;
 
+    }
+
+    public static String retrieveAddress(String lat, String lng, Context context) {
+        String Address = "";
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<android.location.Address> addresses = geocoder.getFromLocation(Double.parseDouble(lat), Double.parseDouble(lng), 1);
+            if (!addresses.isEmpty()) {
+                Address = addresses.get(0).getAddressLine(0);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        return Address;
     }
 }

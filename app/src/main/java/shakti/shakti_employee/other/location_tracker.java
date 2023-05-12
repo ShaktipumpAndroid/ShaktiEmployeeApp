@@ -54,7 +54,7 @@ public class location_tracker extends Service {
         // schedule task
 
 
-        mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
+   //     mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
 
 
     }
@@ -63,29 +63,14 @@ public class location_tracker extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
-//            }
-//        }).start();
-
-
-        // stopSelf();
-        // return START_NOT_STICKY;
-        //Toast.makeText(this, "start command", Toast.LENGTH_LONG).show();
-
         return Service.START_STICKY;
     }
 
 
     @Override
     public void onDestroy() {
-        //  isRunning = false;
         mTimer.cancel();
-        // Toast.makeText(this, "MyService Completed or Stopped.", Toast.LENGTH_SHORT).show();
-    }
+     }
 
 
     class TimeDisplayTimerTask extends TimerTask {
@@ -104,10 +89,6 @@ public class location_tracker extends Service {
                     // run in background
                     new Worker().execute();
 
-
-//
-//                    Toast.makeText(getApplicationContext(), getLatLong(),
-//                            Toast.LENGTH_SHORT).show();
                 }
 
             });
@@ -142,10 +123,8 @@ public class location_tracker extends Service {
             try {
 
 
-                // sync employee gps data to sap every 15 min
-//               if (CustomUtility.isInternetOn(c)) {
-                    new SyncDataToSAP_New().SendEmployeeGPS(getApplicationContext());
-//                }
+               //     new SyncDataToSAP_New().SendEmployeeGPS(getApplicationContext());
+
 
 
             } catch (Exception e) {
@@ -156,8 +135,6 @@ public class location_tracker extends Service {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-//            Log.i("SomeTag", System.currentTimeMillis() / 1000L
-//                    + " post execute \n" + result);
         }
 
 

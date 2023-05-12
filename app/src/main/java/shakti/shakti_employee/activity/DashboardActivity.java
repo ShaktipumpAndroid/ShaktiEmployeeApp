@@ -43,6 +43,7 @@ import shakti.shakti_employee.other.AndroidService;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SAPWebService;
 import shakti.shakti_employee.other.SyncDataService;
+import shakti.shakti_employee.other.SyncDataToSAP_New;
 import shakti.shakti_employee.other.TimeService;
 
 public class DashboardActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener {
@@ -174,9 +175,13 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 startService(new Intent(DashboardActivity.this, TimeService.class));
             }
         } else {
-            downloadDataFromSap();
+            if(CustomUtility.isOnline(getApplicationContext())) {
+                downloadDataFromSap();
+            }else {
+                CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet),getApplicationContext());
+            }
         }
-        //    }
+
         notificationload();
     }
 
@@ -410,19 +415,12 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
 
             if (CustomUtility.isInternetOn(getApplicationContext())) {
                 Toast.makeText(getApplicationContext(), "Logout user!", Toast.LENGTH_LONG).show();
-
-                // Delete Data from DB
-
                 dataHelper = new DatabaseHelper(DashboardActivity.this);
                 dataHelper.deleteLoginDetail();
                 dataHelper.deletependingleave();
@@ -440,11 +438,15 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 dataHelper.deleteExpTravelData();
                 dataHelper.deleteTaskCompleted();
                 dataHelper.deleteLocalconvenienceDetail();
+                stopService(new Intent(getApplicationContext(), TimeService.class));
+                stopService(new Intent(getApplicationContext(), SyncDataService.class));
+                stopService(new Intent(getApplicationContext(), AndroidService.class));
+
                 CustomUtility.setSharedPreference(mContext, "localconvenience", "0");
                 // Goto Login Activity
                 Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
                 startActivity(intent);
-                this.finish();
+                finish();
                 return true;
             } else {
                 Toast.makeText(DashboardActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
@@ -452,43 +454,33 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
         }
 
-        // Sync Data Manually
-
         if (id == R.id.action_sync) {
             Toast.makeText(getApplicationContext(), "Downloading Data!!", Toast.LENGTH_LONG).show();
             con = new SAPWebService();
 
             //SyncDataFromSap();
-            downloadDataFromSap();
+            if(CustomUtility.isOnline(getApplicationContext())) {
+                downloadDataFromSap();
+            }else {
+                CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet),getApplicationContext());
+            }
 
             return true;
         }
 
-
-        // Sync Offline Data Manually
-        if (userModel.mob_atnd.equalsIgnoreCase("Y")) {
-
-            if (id == R.id.action_sync_offline) {
-                Toast.makeText(getApplicationContext(), "Synchronizing Offline Data!!", Toast.LENGTH_LONG).show();
-                con = new SAPWebService();
-                SyncAttendanceInBackground();
-                Toast.makeText(getApplicationContext(), "Offline Data Sync Successfully", Toast.LENGTH_LONG).show();
+        if (id == R.id.action_sync_offline) {
+            if(CustomUtility.isOnline(getApplicationContext())) {
+            new SyncDataToSAP_New().SendAllDataToSAP(getApplicationContext());
+            }else {
+                CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet),getApplicationContext());
+            }
                 return true;
             }
-        }
-        else {
-            Toast.makeText(getApplicationContext(), "Data already send to Server ", Toast.LENGTH_LONG).show();
 
-        }
-
-        // user is in notifications fragment
-        // and selected 'Mark all as Read'
         if (id == R.id.action_mark_all_read) {
             Toast.makeText(getApplicationContext(), "All notifications marked as read!", Toast.LENGTH_LONG).show();
         }
 
-        // user is in notifications fragment
-        // and selected 'Clear All'
         if (id == R.id.action_clear_notifications) {
             Toast.makeText(getApplicationContext(), "Clear all notifications!", Toast.LENGTH_LONG).show();
         }
