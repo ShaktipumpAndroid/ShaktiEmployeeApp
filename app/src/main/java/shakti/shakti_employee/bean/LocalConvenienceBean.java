@@ -12,20 +12,9 @@ import java.io.Serializable;
  */
 public class LocalConvenienceBean {
 
-    private String pernr = "";
-    private String begda = "";
-    private String endda = "";
-    private String from_time = "";
-    private String to_time = "";
-    private String from_lat = "";
-    private String to_lat = "";
-    private String from_lng = "";
-    private String to_lng = "";
-    private String start_loc = "";
-    private String end_loc = "";
-    private String distance = "";
-    private String photo1 = "";
-    private String photo2 = "";
+    private String pernr = "", begda = "", endda = "", from_time = "", to_time = "", from_lat = "", to_lat = "", from_lng = "", to_lng = "", start_loc = "",
+     end_loc = "", distance = "", photo1 = "", photo2 = "";
+
 
 
 

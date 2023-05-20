@@ -36,7 +36,6 @@ import shakti.shakti_employee.fragment.AttendanceFragment;
 import shakti.shakti_employee.fragment.HomeFragment;
 import shakti.shakti_employee.fragment.LeaveFragment;
 import shakti.shakti_employee.fragment.LeaveRequestFragment;
-import shakti.shakti_employee.fragment.LocationUpdatesService;
 import shakti.shakti_employee.fragment.OfficialDutyFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.AndroidService;
@@ -45,8 +44,10 @@ import shakti.shakti_employee.other.SAPWebService;
 import shakti.shakti_employee.other.SyncDataService;
 import shakti.shakti_employee.other.SyncDataToSAP_New;
 import shakti.shakti_employee.other.TimeService;
+import shakti.shakti_employee.services.LocationUpdateService;
+import shakti.shakti_employee.utility.Constant;
 
-public class DashboardActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener {
+public class DashboardActivity extends AppCompatActivity  {
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     protected static final String TAG = "LocationOnOff";
@@ -89,7 +90,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
     private Context mContext;
     private LeaveRequestFragment mBaseFragment;
     private final boolean mBound = false;
-    private final LocationUpdatesService mService = null;
+
 
 
     @Override
@@ -182,7 +183,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
             }
         }
 
-        notificationload();
+
     }
 
     /***
@@ -250,14 +251,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
     }
 
-    private void notificationload() {
-
-        HomeFragment frag = HomeFragment.GetInstance();
-        if (frag != null) {
-            frag.testing();
-            frag.setNotification();
-        }
-    }
 
     private Fragment getHomeFragment() {
         switch (navItemIndex) {
@@ -438,11 +431,14 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 dataHelper.deleteExpTravelData();
                 dataHelper.deleteTaskCompleted();
                 dataHelper.deleteLocalconvenienceDetail();
+                dataHelper.deleteWayPointsDetail();
                 stopService(new Intent(getApplicationContext(), TimeService.class));
                 stopService(new Intent(getApplicationContext(), SyncDataService.class));
                 stopService(new Intent(getApplicationContext(), AndroidService.class));
+                stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
 
-                CustomUtility.setSharedPreference(mContext, "localconvenience", "0");
+                CustomUtility.setSharedPreference(mContext, Constant.LocalConveyance, "0");
+                CustomUtility.clearSharedPreference(mContext);
                 // Goto Login Activity
                 Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
                 startActivity(intent);
@@ -486,11 +482,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
 

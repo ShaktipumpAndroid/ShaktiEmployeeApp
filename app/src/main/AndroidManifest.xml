@@ -197,10 +197,10 @@
             android:name=".other.AndroidService"
             android:screenOrientation="portrait" />
         <service
-            android:name=".fragment.LocationUpdatesService"
+            android:name=".services.LocationUpdateService"
+            android:stopWithTask="false"
             android:enabled="true"
-            android:exported="true"
-            android:foregroundServiceType="location" />
+            android:exported="true"/>
     </application>
 
 </manifest>

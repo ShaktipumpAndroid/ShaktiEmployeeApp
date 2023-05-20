@@ -319,6 +319,15 @@ public class CustomUtility {
         SharedPreferences settings = context.getSharedPreferences(PREFERENCE, 0);
         return settings.getString(name, "");
     }
+    public static void removeFromSharedPreference(Context context,String name){
+        SharedPreferences settings = context.getSharedPreferences(PREFERENCE, 0);
+        settings.edit().remove(name).apply();
+    }
+    public static void clearSharedPreference(Context context){
+        SharedPreferences settings = context.getSharedPreferences(PREFERENCE, 0);
+        settings.edit().clear().apply();
+    }
+
 
     public  String getCurrentDate() {
         simpleDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
@@ -361,5 +370,6 @@ public class CustomUtility {
         }
         return false;
     }
+
 
 }

@@ -328,6 +328,7 @@ public class AttendanceActivity extends AppCompatActivity {
                 dataHelper.deleteExpTravelData();
                 dataHelper.deleteTaskCompleted();
                 dataHelper.deleteLocalconvenienceDetail();
+                dataHelper.deleteWayPointsDetail();
 
                 // Goto Login Activity
                 Intent intent = new Intent(AttendanceActivity.this, LoginActivity.class);

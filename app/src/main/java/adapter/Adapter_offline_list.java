@@ -54,6 +54,7 @@ import shakti.shakti_employee.R;
 import shakti.shakti_employee.activity.OfflineDataConveyance;
 import shakti.shakti_employee.bean.LocalConvenienceBean;
 import shakti.shakti_employee.bean.LoginBean;
+import shakti.shakti_employee.bean.WayPoints;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.other.CustomUtility;
@@ -284,9 +285,10 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
     private void getDistanceInfo(LocalConvenienceBean localConvenience) {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
         Map<String, String> mapQuery = new HashMap<>();
-
-        mapQuery.put("origins", Double.parseDouble(localConvenience.getFrom_lat()) + "," + Double.parseDouble(localConvenience.getFrom_lng()));
-        mapQuery.put("destinations", Double.parseDouble(localConvenience.getTo_lat()) + "," + Double.parseDouble(localConvenience.getTo_lng()));
+        WayPoints wayPoints = db.getWayPointsData(localConvenience.getBegda(),localConvenience.getFrom_time());
+        mapQuery.put("origin", Double.parseDouble(localConvenience.getFrom_lat()) + "," + Double.parseDouble(localConvenience.getFrom_lng()));
+        mapQuery.put("destination", Double.parseDouble(localConvenience.getTo_lat()) + "," + Double.parseDouble(localConvenience.getTo_lng()));
+        mapQuery.put("waypoints", wayPoints.getWayPoints());
         mapQuery.put("units", "metric");
         mapQuery.put("mode", "driving");
         mapQuery.put("key", context.getResources().getString(R.string.google_API_KEY));
@@ -298,14 +300,14 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
             @Override
             public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
                 if (response.body() != null &&
-                        response.body().getRows() != null &&
-                        response.body().getRows().size() > 0 &&
-                        response.body().getRows().get(0) != null &&
-                        response.body().getRows().get(0).getElements() != null &&
-                        response.body().getRows().get(0).getElements().size() > 0 &&
-                        response.body().getRows().get(0).getElements().get(0) != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDistance() != null &&
-                        response.body().getRows().get(0).getElements().get(0).getDuration() != null) {
+                        response.body().getRoutes() != null &&
+                        response.body().getRoutes().size() > 0 &&
+                        response.body().getRoutes().get(0) != null &&
+                        response.body().getRoutes().get(0).getLegs() != null &&
+                        response.body().getRoutes().get(0).getLegs().size() > 0 &&
+                        response.body().getRoutes().get(0).getLegs().get(0) != null &&
+                        response.body().getRoutes().get(0).getLegs().get(0).getDistance() != null &&
+                        response.body().getRoutes().get(0).getLegs().get(0).getDuration() != null) {
 
                     try {
 
@@ -316,19 +318,19 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
                             }
                         ;
 
-                        Element element = response.body().getRows().get(0).getElements().get(0);
-                        if(response.body().getOriginAddresses()!=null && response.body().getOriginAddresses().size()>0) {
-                            fullAddress = response.body().getOriginAddresses().get(0);
+
+                        if(response.body().getRoutes().get(0).getLegs().get(0).getStartAddress()!=null && !response.body().getRoutes().get(0).getLegs().get(0).getStartAddress().isEmpty()) {
+                            fullAddress = response.body().getRoutes().get(0).getLegs().get(0).getStartAddress();
                         }else {
                             fullAddress = Utility.retrieveAddress(localConvenience.getFrom_lat() ,localConvenience.getFrom_lng(),context);
                         }
-                        if(response.body().getDestinationAddresses()!=null && response.body().getDestinationAddresses().size()>0) {
-                            fullAddress1 = response.body().getDestinationAddresses().get(0);
+                        if(response.body().getRoutes().get(0).getLegs().get(0).getEndAddress()!=null && !response.body().getRoutes().get(0).getLegs().get(0).getEndAddress().isEmpty()) {
+                            fullAddress1 = response.body().getRoutes().get(0).getLegs().get(0).getEndAddress();
                         }else {
                             fullAddress1 = Utility.retrieveAddress(localConvenience.getTo_lat() ,localConvenience.getTo_lng(),context);
                         }
 
-                        distance1 = element.getDistance().getText();
+                        distance1 = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
 
 
                         localConvenienceBean = db.getLocalConvinienceData();
@@ -422,6 +424,12 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
                                                                 endpht);
 
                                                         db.updateLocalconvenienceData(localConvenienceBean);
+
+                                                        WayPoints wayPoints = new WayPoints(LoginBean.getUseid(), localConvenience.getBegda(),
+                                                                localConvenience.getEndda(),
+                                                                localConvenience.getFrom_time(),
+                                                                localConvenience.getTo_time(),"");
+                                                        db.updateWayPointData1(wayPoints);
                                                         SyncLocalConveneinceDataToSap(travel_mode, localConvenience);
                                                     }
                                                 });
@@ -552,8 +560,6 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
         final ArrayList<NameValuePair> param1_invc = new ArrayList<NameValuePair>();
         param1_invc.add(new BasicNameValuePair("travel_distance", String.valueOf(ja_invc_data)));
 
-        Log.e("param1_invc====>",param1_invc.toString());
-        Log.e("travel_distance====>",String.valueOf(ja_invc_data));
       try {
 
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
@@ -584,14 +590,13 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
                         msg.obj = docno_sap;
                         mHandler.sendMessage(msg);
                         db.deleteLocalconvenienceDetail1(localConvenienceBean.getEndda(), localConvenienceBean.getTo_time());
-
+                        db.deleteWayPointsDetail1(localConvenienceBean.getEndda(), localConvenienceBean.getTo_time());
 
                     } else if (invc_done.equalsIgnoreCase("E")) {
                         if ((progressDialog != null) && progressDialog.isShowing()) {
                             progressDialog.dismiss();
                             progressDialog = null;
                         }
-                        ;
                         Message msg = new Message();
                         msg.obj = docno_sap;
                         mHandler.sendMessage(msg);

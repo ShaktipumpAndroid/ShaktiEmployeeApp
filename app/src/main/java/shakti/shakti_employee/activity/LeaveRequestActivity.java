@@ -31,7 +31,7 @@ import shakti.shakti_employee.fragment.OfficialDutyFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.SAPWebService;
 
-public class LeaveRequestActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener {
+public class LeaveRequestActivity extends AppCompatActivity {
 
     // tags used to attach the fragments
     private static final String TAG_HOME = "home";
@@ -339,11 +339,6 @@ public class LeaveRequestActivity extends AppCompatActivity implements HomeFragm
         return super.onOptionsItemSelected(item);
     }
 
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
-    }
 
 
 }

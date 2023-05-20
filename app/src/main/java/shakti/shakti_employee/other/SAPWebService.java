@@ -932,9 +932,6 @@ public class SAPWebService {
                     dataHelper.deleteTehsilData();
 
                     ja_tehsil = jsonObj.getJSONArray("tehsil");
-                    Log.d("json_tehsil", "" + ja_tehsil);
-
-
                     for (int i = 0; i < ja_tehsil.length(); i++) {
 
                         JSONObject jo_tehsil = ja_tehsil.getJSONObject(i);

@@ -12,6 +12,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -162,9 +163,7 @@ public class TimeService extends Service {
 
             try {
                 if (CustomUtility.isOnline(TimeService.this)) {
-                    new SyncDataToSAP_New().SendAllDataToSAP(getApplicationContext());
-                } else {
-                    CustomUtility.ShowToast(getApplicationContext().getResources().getString(R.string.ConnectToInternet), getApplicationContext());
+                    new SyncDataToSAP_New().SendAllDataToSAP(TimeService.this);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
