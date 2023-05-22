@@ -18,14 +18,21 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.os.StrictMode;
+import android.provider.Settings;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -119,7 +126,11 @@ public class LoginActivity extends AppCompatActivity {
 
                 if (CustomUtility.isInternetOn(mContext)) {
                     if(checkPermission()) {
-                        submitForm();
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            askNotificationPermission();
+                        } else {
+                            submitForm();
+                        }
                     }else {
                         requestPermission();
                     }
@@ -382,7 +393,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
                     if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage ) {
-                        submitForm();
+                        askNotificationPermission();
 
                     } else {
                         Toast.makeText(LoginActivity.this, R.string.all_permission, Toast.LENGTH_LONG).show();
@@ -409,4 +420,68 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
     }
+    private void askNotificationPermission() {
+        // This is only necessary for API level >= 33 (TIRAMISU)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) ==
+                    PackageManager.PERMISSION_GRANTED) {
+                submitForm();
+                // FCM SDK (and your app) can post notifications.
+            } else if (shouldShowRequestPermissionRationale(Manifest.permission.POST_NOTIFICATIONS)) {
+                // TODO: display an educational UI explaining to the user the features that will be enabled
+                //       by them granting the POST_NOTIFICATION permission. This UI should provide the user
+                //       "OK" and "No thanks" buttons. If the user selects "OK," directly request the permission.
+                //       If the user selects "No thanks," allow the user to continue without notifications.
+                showNotificationPopup();
+            } else {
+                // Directly ask for the permission
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
+            }
+        }
+    }
+    private void showNotificationPopup() {
+        LayoutInflater inflater = (LayoutInflater) LoginActivity.this.getSystemService(
+                Context.LAYOUT_INFLATER_SERVICE);
+        View layout = inflater.inflate(R.layout.notification_popup, null);
+        final AlertDialog.Builder builder =
+                new AlertDialog.Builder(LoginActivity.this, R.style.MyDialogTheme);
+
+        builder.setView(layout);
+        builder.setCancelable(true);
+        AlertDialog alertDialog = builder.create();
+        alertDialog.setCanceledOnTouchOutside(true);
+        alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        alertDialog.getWindow().setGravity(Gravity.BOTTOM);
+        alertDialog.show();
+
+        LinearLayout okLinear = layout.findViewById(R.id.okLinear);
+        LinearLayout cancelLinear = layout.findViewById(R.id.cancelLinear);
+
+        okLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                startActivity(new Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS));
+            }
+        });
+
+        cancelLinear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                alertDialog.dismiss();
+                askNotificationPermission();
+            }
+        });
+
+    }
+    private final ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    // FCM SDK (and your app) can post notifications.
+                    submitForm();
+                } else {
+                    // TODO: Inform user that that your app will not show notifications.
+                    askNotificationPermission();
+                }
+            });
 }

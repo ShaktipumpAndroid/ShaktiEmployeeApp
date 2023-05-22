@@ -296,7 +296,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLongitude())));
                         lat[0] = location.getLatitude();
                         lng[0] = location.getLongitude();
-                        LocationUpdateService.currentLocation = location;
                     } else {
                         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
@@ -313,7 +312,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                         from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLongitude())));
                         lat[0] = location1.getLatitude();
                         lng[0] = location1.getLongitude();
-                        LocationUpdateService.currentLocation = location1;
+
                     }
 
                     progressDialog = ProgressDialog.show(getActivity(), getResources().getString(R.string.loading), getResources().getString(R.string.please_wait_));
@@ -1102,7 +1101,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         if (!gps_enabled && !network_enabled) {
             buildAlertMessageNoGps();
         } else {
-            checkPermission();
+           if(!checkPermission()){
+               requestPermission();
+           }else {
+               if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                      startLocationService();
+               }
+           }
         }
 
         leave_notification.setText(Integer.toString(dataHelper.getPendinLeaveCount()));
@@ -1305,6 +1310,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
 
                     if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage) {
+                        if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                            startLocationService();
+                        }
                         if (value.equals("1")) {
                             showConfirmationGallery(DatabaseHelper.KEY_PHOTO1, "PHOTO1");
                         } else {
@@ -1324,6 +1332,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     boolean AccessFineLocation = grantResults[4] == PackageManager.PERMISSION_GRANTED;
 
                     if (ACCESSCAMERA && writeExternalStorage && ReadExternalStorage && AccessCoarseLocation && AccessFineLocation) {
+                        if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                            startLocationService();
+                        }
                         if (value.equals("1")) {
                             showConfirmationGallery(DatabaseHelper.KEY_PHOTO1, "PHOTO1");
                         } else {
@@ -1339,10 +1350,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startLocationService() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            getActivity().startForegroundService(new Intent(getActivity(), LocationUpdateService.class));
-        } else {
-            getActivity().startService(new Intent(getActivity(), LocationUpdateService.class));
+        if(!LocationUpdateService.isServiceRunning) {
+            Intent intent = new Intent(getActivity(), LocationUpdateService.class);
+            getActivity().startService(intent);
         }
     }
 

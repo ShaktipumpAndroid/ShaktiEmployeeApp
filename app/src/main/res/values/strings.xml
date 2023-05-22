@@ -118,6 +118,9 @@
     <string name="Please_Enter_Travel_Mode">Please Enter Travel Mode.</string>
     <string name="ConnectToInternet">Please check your internet connection first!</string>
     <string name="start_photo">Start Photo</string>
+    <string name="notification_permission">Notification access required</string>
+    <string name="notification_permission_txt">Please give access to receive notification for \nnew updates.</string>
+
 
     <!-- For MRC Type Spinner -->
     <string-array name="spinner_mrc_type">
