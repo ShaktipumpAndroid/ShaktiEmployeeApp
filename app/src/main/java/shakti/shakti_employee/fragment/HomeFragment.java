@@ -120,7 +120,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     // For Leave Balance
     DatabaseHelper dataHelper;
     String fullAddress = null, fullAddress1 = null, distance1 = null, from_lat, from_lng, to_lat, to_lng, start_photo_text, end_photo_text,
-            value, mTravel, mHod, current_start_date, current_end_date, current_start_time, current_end_time, startphoto, allLatLong;
+            value, mTravel, mHod, current_start_date, current_end_date, current_start_time, current_end_time, startphoto, allLatLong, totalWayPoint = "";
 
     CustomUtility customutility = null;
     View view, view1;
@@ -414,11 +414,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                         dataHelper.insertLocalconvenienceData(localConvenienceBean);
 
                                         String latlng = "via:" + from_lat + "," + from_lng;
-                                        Log.e("latlng=====>",latlng);
+                                        Log.e("latlng=====>", latlng);
                                         WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
                                                 "",
                                                 current_start_time,
-                                                "",latlng);
+                                                "", latlng);
                                         dataHelper.insertWayPointsData(wayPoints);
                                         CustomUtility.setSharedPreference(getActivity(), Constant.LocalConveyance, "1");
                                         CustomUtility.setSharedPreference(getActivity(), Constant.FromLatitude, from_lat);
@@ -549,7 +549,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
                             current_end_date,
                             current_start_time,
-                            current_end_time,"");
+                            current_end_time, "");
                     dataHelper.updateWayPointData1(wayPoints);
                     stopLocationService();
                     CustomUtility.setSharedPreference(getActivity(), Constant.LocalConveyance, "0");
@@ -566,12 +566,22 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2, String allLatLong) {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
 
-        wayPoints = dataHelper.getWayPointsData(current_start_date,current_start_time);
-        Map<String, String> mapQuery = new HashMap<>();
+        wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
 
-        mapQuery.put("origin", lat1+","+lon1);
-        mapQuery.put("destination", lat2+","+lon2);
-        mapQuery.put("waypoints", wayPoints.getWayPoints());
+        String[] json = wayPoints.getWayPoints().split("\\|");
+
+        for (int i = 1; i < json.length / 20; i++) {
+            if (totalWayPoint.isEmpty()) {
+                totalWayPoint = json[i];
+            } else {
+                totalWayPoint = totalWayPoint + "|" + json[i];
+            }
+        }
+
+        Map<String, String> mapQuery = new HashMap<>();
+        mapQuery.put("origin", lat1 + "," + lon1);
+        mapQuery.put("destination", lat2 + "," + lon2);
+        mapQuery.put("waypoints", totalWayPoint);
         mapQuery.put("units", "metric");
         mapQuery.put("mode", "driving");
         mapQuery.put("key", getResources().getString(R.string.google_API_KEY));
@@ -715,7 +725,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                                     WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
                                                             current_end_date,
                                                             current_start_time,
-                                                            current_end_time,"");
+                                                            current_end_time, "");
                                                     dataHelper.updateWayPointData1(wayPoints);
                                                     SyncLocalConveneinceDataToSap(ettrvlmod.getText().toString(), current_end_date, current_end_time, distance1, allLatLong);
                                                 }
@@ -1101,13 +1111,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         if (!gps_enabled && !network_enabled) {
             buildAlertMessageNoGps();
         } else {
-           if(!checkPermission()){
-               requestPermission();
-           }else {
-               if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
-                      startLocationService();
-               }
-           }
+            if (!checkPermission()) {
+                requestPermission();
+            } else {
+                if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                    startLocationService();
+                }
+            }
         }
 
         leave_notification.setText(Integer.toString(dataHelper.getPendinLeaveCount()));
@@ -1350,7 +1360,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     }
 
     private void startLocationService() {
-        if(!LocationUpdateService.isServiceRunning) {
+        if (!LocationUpdateService.isServiceRunning) {
             Intent intent = new Intent(getActivity(), LocationUpdateService.class);
             getActivity().startService(intent);
         }

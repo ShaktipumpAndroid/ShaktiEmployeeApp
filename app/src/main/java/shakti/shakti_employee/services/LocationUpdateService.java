@@ -20,6 +20,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
@@ -41,7 +42,7 @@ import shakti.shakti_employee.utility.Constant;
 public class LocationUpdateService extends Service {
 
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
-    public int TIME_INTERVAL = 30 * 1000;
+    public int TIME_INTERVAL = 120 * 1000;
     public int METER_DISTANCE = 30;
 
     public static Location currentLocation = null;
@@ -60,16 +61,12 @@ public class LocationUpdateService extends Service {
     //Location Callback
     private final LocationCallback locationCallback = new LocationCallback() {
         @Override
-        public void onLocationResult(LocationResult locationResult) {
+        public void onLocationResult(@NonNull LocationResult locationResult) {
             super.onLocationResult(locationResult);
             currentLocation = locationResult.getLastLocation();
-            Log.e("Locations ", currentLocation.getLatitude() + "," + currentLocation.getLongitude());
-
 
             if (CustomUtility.getSharedPreferences(mContext, Constant.FromLatitude) != null
                     && !CustomUtility.getSharedPreferences(mContext, Constant.FromLatitude).isEmpty()) {
-                Log.e("FromLatitude2 ", CustomUtility.getSharedPreferences(mContext, Constant.FromLatitude));
-                Log.e("FromLongitude2 ", CustomUtility.getSharedPreferences(mContext, Constant.FromLongitude));
 
                 if (!CustomUtility.getSharedPreferences(mContext, Constant.FromLatitude).equals(String.valueOf(currentLocation.getLatitude()))) {
                     Location loc1 = new Location("PointA");
@@ -78,7 +75,6 @@ public class LocationUpdateService extends Service {
 
                     float distanceInMeters = loc1.distanceTo(currentLocation);
                     if (distanceInMeters >= METER_DISTANCE) {
-                        Log.e("distanceInMeters======>", String.valueOf(distanceInMeters));
                             wayPoints = databaseHelper.getWayPointsData(localConvenienceBean.getBegda(), localConvenienceBean.getFrom_time());
 
                             if (wayPoints.getWayPoints() != null && !wayPoints.getWayPoints().isEmpty()) {
@@ -86,7 +82,6 @@ public class LocationUpdateService extends Service {
                                 WayPoints wayPoints1 = new WayPoints(wayPoints.getPernr(), wayPoints.getBegda(), "", wayPoints.getFrom_time(), "", wayPoint);
 
                                 databaseHelper.updateWayPointData(wayPoints1);
-                                Log.e("databaseWayPoints2====>", databaseHelper.getWayPointsData(localConvenienceBean.getBegda(), localConvenienceBean.getFrom_time()).getWayPoints());
                                 CustomUtility.setSharedPreference(mContext, Constant.FromLatitude, String.valueOf(currentLocation.getLatitude()));
                                 CustomUtility.setSharedPreference(mContext, Constant.FromLongitude, String.valueOf(currentLocation.getLongitude()));
                                 CustomUtility.setSharedPreference(mContext, Constant.DistanceInMeter, String.valueOf(Math.round(distanceInMeters)));
