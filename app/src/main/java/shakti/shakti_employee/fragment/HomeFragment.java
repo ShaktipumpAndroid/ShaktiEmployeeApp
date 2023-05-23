@@ -64,8 +64,10 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -567,16 +569,23 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
 
         wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
+        String wp = wayPoints.getWayPoints().replaceAll("%3A", ":");
+        wp = wp.replaceAll("%2C", ",");
+        wp = wp.replaceAll("%7C", "|");
+        String[] json = wp.split("\\|");
 
-        String[] json = wayPoints.getWayPoints().split("\\|");
 
-        for (int i = 1; i < json.length / 20; i++) {
+        int position = json.length / 20;
+        for (int i = 1; i <= json.length; i++) {
             if (totalWayPoint.isEmpty()) {
-                totalWayPoint = json[i];
+                totalWayPoint = json[position * i];
             } else {
-                totalWayPoint = totalWayPoint + "|" + json[i];
+                if (position * i < json.length) {
+                    totalWayPoint = totalWayPoint + "|" + json[position * i];
+                }
             }
         }
+        Log.e("totalWayPoint", totalWayPoint);
 
         Map<String, String> mapQuery = new HashMap<>();
         mapQuery.put("origin", lat1 + "," + lon1);
