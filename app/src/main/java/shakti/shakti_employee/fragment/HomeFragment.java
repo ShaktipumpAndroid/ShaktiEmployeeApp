@@ -568,23 +568,41 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2, String allLatLong) {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
 
-        wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
-        String wp = wayPoints.getWayPoints().replaceAll("%3A", ":");
+       wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
+
+         String wp = wayPoints.getWayPoints().replaceAll("%3A", ":");
         wp = wp.replaceAll("%2C", ",");
         wp = wp.replaceAll("%7C", "|");
         String[] json = wp.split("\\|");
 
+          if(json.length>20) {
+              double position= (double) json.length/ 20;
 
-        int position = json.length / 20;
-        for (int i = 1; i <= json.length; i++) {
-            if (totalWayPoint.isEmpty()) {
-                totalWayPoint = json[position * i];
-            } else {
-                if (position * i < json.length) {
-                    totalWayPoint = totalWayPoint + "|" + json[position * i];
-                }
-            }
-        }
+              int pos = (int) position;
+              Log.e("position=====>", String.valueOf(position));
+              Log.e("pos=====>", String.valueOf(pos));
+
+              for (int i = 1; i <= json.length; i++) {
+                  if (totalWayPoint.isEmpty()) {
+                      totalWayPoint = json[pos * i];
+                  } else {
+                      if (pos * i < json.length) {
+                          totalWayPoint = totalWayPoint + "|" + json[pos * i];
+                      }
+                  }
+              }
+          }else {
+              for (int i = 1; i <= json.length; i++) {
+                  if (totalWayPoint.isEmpty()) {
+                      totalWayPoint = json[i];
+                  } else {
+                      if ( i < json.length) {
+                          totalWayPoint = totalWayPoint + "|" + json[i];
+                      }
+                  }
+              }
+          }
+
         Log.e("totalWayPoint", totalWayPoint);
 
         Map<String, String> mapQuery = new HashMap<>();

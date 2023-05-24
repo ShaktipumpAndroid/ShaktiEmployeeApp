@@ -42,7 +42,7 @@ import shakti.shakti_employee.utility.Constant;
 public class LocationUpdateService extends Service {
 
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
-    public int TIME_INTERVAL = 120 * 1000;
+    public int TIME_INTERVAL = 30* 1000;
     public int METER_DISTANCE = 30;
 
     public static Location currentLocation = null;
@@ -82,6 +82,7 @@ public class LocationUpdateService extends Service {
                                 WayPoints wayPoints1 = new WayPoints(wayPoints.getPernr(), wayPoints.getBegda(), "", wayPoints.getFrom_time(), "", wayPoint);
 
                                 databaseHelper.updateWayPointData(wayPoints1);
+                                Log.e("databaseHelper====>",wayPoints.getWayPoints());
                                 CustomUtility.setSharedPreference(mContext, Constant.FromLatitude, String.valueOf(currentLocation.getLatitude()));
                                 CustomUtility.setSharedPreference(mContext, Constant.FromLongitude, String.valueOf(currentLocation.getLongitude()));
                                 CustomUtility.setSharedPreference(mContext, Constant.DistanceInMeter, String.valueOf(Math.round(distanceInMeters)));
