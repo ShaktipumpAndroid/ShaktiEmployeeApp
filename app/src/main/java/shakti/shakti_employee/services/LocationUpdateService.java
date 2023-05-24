@@ -42,7 +42,7 @@ import shakti.shakti_employee.utility.Constant;
 public class LocationUpdateService extends Service {
 
     public static final String CHANNEL_ID = "ForegroundServiceChannel";
-    public int TIME_INTERVAL = 30* 1000;
+    public int TIME_INTERVAL = 120* 1000;
     public int METER_DISTANCE = 30;
 
     public static Location currentLocation = null;
