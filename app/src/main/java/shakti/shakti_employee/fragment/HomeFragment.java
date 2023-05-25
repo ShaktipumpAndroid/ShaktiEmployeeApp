@@ -568,12 +568,14 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2, String allLatLong) {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
 
-       wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
+//       wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
 
-         String wp = wayPoints.getWayPoints().replaceAll("%3A", ":");
+         String Waypoint = "22.6510314,75.8311687|via:22.646311,75.82705|via:22.6363154,75.8102577|via:22.6188241,75.8001532|via:22.6137027,75.7296271|via:22.5729242,75.64688|via:22.4826654,75.662669|via:22.4287308,75.6141796|via:22.3967036,75.5421609|via:22.3646816,75.5201035|via:22.3169305,75.5019289|via:22.2580246,75.4815097|via:22.1836916,75.461323|via:22.1359212,75.4524393|via:22.128685,75.5257001|via:22.1278634,75.5986423|via:22.1006113,75.6189049|via:22.0487933,75.6283918|via:21.9814243,75.6234854|via:21.9111633,75.6082268|via:21.8378883,75.6029096|via:21.8306464,75.6201181|via:21.8139638,75.6173002|via:21.8088259,75.6229617|via:21.8089434,75.6225366|via:21.8087555,75.6229097|via:22.6510314,75.8311687|via:22.646311,75.82705|via:22.6363154,75.8102577|via:22.6188241,75.8001532|via:22.6137027,75.7296271|via:22.5729242,75.64688|via:22.4826654,75.662669|via:22.4287308,75.6141796|via:22.3967036,75.5421609|via:22.3646816,75.5201035|via:22.3169305,75.5019289|via:22.2580246,75.4815097|via:22.1836916,75.461323|via:22.1359212,75.4524393|via:22.128685,75.5257001|via:22.1278634,75.5986423|via:22.1006113,75.6189049|via:22.0487933,75.6283918|via:21.9814243,75.6234854|via:21.9111633,75.6082268|via:21.8378883,75.6029096|via:21.8306464,75.6201181|via:21.8139638,75.6173002|via:21.8088259,75.6229617|via:21.8089434,75.6225366|via:21.8087555,75.6229097";
+         String wp = Waypoint.replaceAll("%3A", ":");
         wp = wp.replaceAll("%2C", ",");
         wp = wp.replaceAll("%7C", "|");
         String[] json = wp.split("\\|");
+
 
           if(json.length>20) {
               double position= (double) json.length/ 20;
@@ -582,26 +584,41 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
               Log.e("position=====>", String.valueOf(position));
               Log.e("pos=====>", String.valueOf(pos));
 
-              for (int i = 1; i <= json.length; i++) {
+              for (int i = 0; i <= json.length; i++) {
                   if (totalWayPoint.isEmpty()) {
-                      totalWayPoint = json[pos * i];
+                      if(!totalWayPoint.contains(json[pos * i])) {
+
+                          totalWayPoint = json[pos * i];
+                          Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
+                      }
+
                   } else {
                       if (pos * i < json.length) {
-                          totalWayPoint = totalWayPoint + "|" + json[pos * i];
+                          if(!totalWayPoint.contains(json[pos * i])) {
+                              totalWayPoint = totalWayPoint + "|" + json[pos * i];
+                              Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
+                          }
                       }
                   }
               }
           }else {
-              for (int i = 1; i <= json.length; i++) {
+              for (int i = 0; i <= json.length; i++) {
                   if (totalWayPoint.isEmpty()) {
-                      totalWayPoint = json[i];
+                      if(!totalWayPoint.contains(json[i])) {
+                          totalWayPoint = json[i];
+                      }
                   } else {
                       if ( i < json.length) {
-                          totalWayPoint = totalWayPoint + "|" + json[i];
+                          if(!totalWayPoint.contains(json[i])) {
+
+                              totalWayPoint = totalWayPoint + "|" + json[i];
+                          }
                       }
                   }
               }
           }
+
+        Log.e("json", Arrays.toString(json));
 
         Log.e("totalWayPoint", totalWayPoint);
 
@@ -635,16 +652,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     Log.e("Response======>", String.valueOf(response.body()));
 
 
-                    if (response.body().getRoutes().get(0).getLegs().get(0).getStartAddress() != null && !response.body().getRoutes().get(0).getLegs().get(0).getStartAddress().isEmpty()) {
-                        fullAddress = response.body().getRoutes().get(0).getLegs().get(0).getStartAddress();
-                    } else {
-                        fullAddress = Utility.retrieveAddress(lat1, lon1, getActivity());
-                    }
-                    if (response.body().getRoutes().get(0).getLegs().get(0).getEndAddress() != null && !response.body().getRoutes().get(0).getLegs().get(0).getEndAddress().isEmpty()) {
-                        fullAddress1 = response.body().getRoutes().get(0).getLegs().get(0).getEndAddress();
-                    } else {
-                        fullAddress1 = Utility.retrieveAddress(lat2, lon2, getActivity());
-                    }
+                    fullAddress = Utility.retrieveAddress(lat1, lon1, getActivity());
+
+                    fullAddress1 = Utility.retrieveAddress(lat2, lon2, getActivity());
 
                     distance1 = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
 
