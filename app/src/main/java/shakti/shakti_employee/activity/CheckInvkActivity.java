@@ -74,25 +74,14 @@ public class CheckInvkActivity extends AppCompatActivity {
 
     double inst_latitude_double,
             inst_longitude_double;
-    private EditText edtVendorNameID, edtContactNoID, edtLatitudeID, edtLongitudeID, edtremarkConversionID, edtLatLongID, edtSizeOfBorewellID,edtRelevantInformationID,
-            edtWaterLeveatSiteID, edtPumpingwaterlevelrequiredID,edtRatingOfPumpSetID, edtSurvePersonContactID,edtSurvePersonNameID,edtFarmerContactID, edtFarmerNameID;
+    private EditText edtVendorNameID, edtContactNoID, edtLatitudeID, edtLongitudeID, edtremarkConversionID;
 
-    private String strApplicantNameID, strContactNoID, strApplicationNoID, strSiteAddressID, strVillageNameID, strLatLongID, strSizeOfBorewellID,strRelevantInformationID,
-            strWaterLeveatSiteID, strPumpingwaterlevelrequiredID,strRatingOfPumpSetID, strSurvePersonContactID,strSurvePersonNameID,strFarmerContactID, strFarmerNameID;
 
-    private Spinner spinner_RatingOfPumpSetID,spinner_SizeOfBorewellID,spinner_SourceOfwaterID,spinner_InternetConnectivityAvailableID,spinner_PumpingwaterlevelrequiredID,spinner_ACandDCID,spinner_TypeOfIrrigationSystemInstalled,spinner_TypeOfPumpID,spinner_conntype5;
-
-    private RadioGroup rgGroupDarkZoneID1,rgGroupFormerHavingElectricConnectionID1, rgGroupSouthFacingShadowFreeID1, rgAgreeToInstallUniversalsolarPumpID1;
-    private RadioButton radio_DarkZone_yesID,radio_FormerHavingElectricConnection_yesID,radio_SouthFacingShadowFree_yesID,radio_AgreeToInstallUniversalsolarPump_yesID;
-    private RadioButton radio_DarkZone_NoID,radio_FormerHavingElectricConnection_NoID,radio_SouthFacingShadowFree_NoID,radio_AgreeToInstallUniversalsolarPump_NoID;
-
-    String imageStoragePath, enq_docno, photo1_text, photo2_text, photo3_text;
+    String imageStoragePath, mPhotoValue1, photo1_text;
     File file;
-    // String type="INST/";
     String type="VENDOR/";
     String mImageFolderName = "/SKAPP/VENDOR/";
-    // String mImageFolderName = "/SKAPP/DMGMISS/";
-    // String mImageFolderName = "/SHAKTI/DMGMISS/";
+
 
     public static final int BITMAP_SAMPLE_SIZE = 4;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -112,40 +101,15 @@ public class CheckInvkActivity extends AppCompatActivity {
 
     private String mHomePath, PathHolder, Filename,cust_name;
 
-    TextView photo1,photo2, photo3;
-    TextView txtSubmitInspectionID;
-
+    TextView photo1;
 
     private Context context;
 
-
-
-    private RelativeLayout rlvPhotoID1,rlvPhotoID2,rlvPhotoID3,rlvPhotoID4,rlvPhotoID5;
-    private RelativeLayout rlvBackViewID;
-
-
-
-
-
-    private String mPhotoValue1;
-
-
-
-    private int index_conntype1,index_conntype2,index_conntype3,index_conntype4,index_conntype5,index_conntype6,index_conntype7, index_conntype8;
-    String conntype_text1 = "", conntype_text2 = "",conntype_text3 = "",conntype_text4 = "",conntype_text5 = "", conntype_text6 = "",conntype_text7 = "", conntype_text8 = "";
-
-
-
-
     String billnoN ;
-    String billdate,name,state, city,mobileno,address,kunnr, pernr;
 
     TextView txtLatID, txtLongID;
     String strLatID, strLongID;
 
-    String mUserID = "";
-    String mproject_noID = "";
-    String mproject_login_noID = "";
 
     private RelativeLayout rlvSaveButtonID;
 
@@ -245,26 +209,14 @@ public class CheckInvkActivity extends AppCompatActivity {
 
 
     private void initView() {
-
-
-       // pernr  = CustomUtility.getSharedPreferences(context, "userid");
-       // Utility.CUSTOMERID_ID  = CustomUtility.getSharedPreferences(context, "userid");
         Utility.CUSTOMERID_ID  = userModel.uid;
-
-
-
-
-
         pref = getApplicationContext().getSharedPreferences("MyPref", MODE_PRIVATE);
         editor = pref.edit();
-
-
 
         File root = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),GALLERY_DIRECTORY_NAME);
 
         File dir = new File(root.getAbsolutePath() + mImageFolderName); //it is my root directory
 
-        // File billno = new File(root.getAbsolutePath() + mImageFolderName + WebURL.CUSTOMERID_ID); // it is my sub folder directory .. it can vary..
         File billno = new File(root.getAbsolutePath() + mImageFolderName + CustomUtility.getSharedPreferences(context, "userid")); // it is my sub folder directory .. it can vary..
 
         try {
@@ -280,111 +232,13 @@ public class CheckInvkActivity extends AppCompatActivity {
 
         }
 
-
         rlvSaveButtonID= findViewById(R.id.rlvSaveButtonID);
 
-        rlvBackViewID= findViewById(R.id.rlvBackViewID);
-
-
-
-
-
-        rlvPhotoID1= findViewById(R.id.rlvPhotoID1);
-
-
-
-
         photo1 = (TextView) findViewById(R.id.photo1);
-
-
-
-
-
-
-        // intiValidationCheck();
     }
 
-    private boolean intiValidationCheck() {
-
-        //String mDropdownValue1,mDropdownValue2,mDropdownValue3,mDropdownValue4,mDropdownValue5;
-
-        strApplicantNameID = edtVendorNameID.getText().toString().trim();
-
-
-        strContactNoID = edtContactNoID.getText().toString().trim();
-        strApplicationNoID = edtLatitudeID.getText().toString().trim();
-
-        strSiteAddressID = edtLongitudeID.getText().toString().trim();
-        strVillageNameID = edtremarkConversionID.getText().toString().trim();
-
-
-        //  strSizeOfBorewellID = edtSizeOfBorewellID.getText().toString().trim();
-        strWaterLeveatSiteID = edtWaterLeveatSiteID.getText().toString().trim();
-        //  strPumpingwaterlevelrequiredID = edtPumpingwaterlevelrequiredID.getText().toString().trim();
-
-        //  strRatingOfPumpSetID = edtRatingOfPumpSetID.getText().toString().trim();
-
-        strRelevantInformationID = edtRelevantInformationID.getText().toString().trim();
-        strSurvePersonContactID = edtSurvePersonContactID.getText().toString().trim();
-        strSurvePersonNameID = edtSurvePersonNameID.getText().toString().trim();
-        strFarmerContactID = edtFarmerContactID.getText().toString().trim();
-        strFarmerNameID = edtFarmerNameID.getText().toString().trim();
-
-        mPhotoValue1 = photo1_text;
-
-        //mRodioValue1 =
-
-
-           return true;
-
-        // return true;
-    }
-
-
-
-
-
-
-
-    // rgGroupFormerHavingElectricConnectionID1, rgGroupSouthFacingShadowFreeID1, rgAgreeToInstallUniversalsolarPumpID1
-
-
-
-   /* public void showConfirmationGallery(final String keyimage, final String name) {
-
-        final CustomUtility customUtility = new CustomUtility();
-
-        final CharSequence[] items = {"Take Photo", "Choose from Gallery", "Cancel"};
-
-        AlertDialog.Builder builder = new AlertDialog.Builder(context,R.style.MyDialogTheme);
-        builder.setTitle("Add Photo!");
-        builder.setItems(items, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int item) {
-                boolean result = customUtility.checkPermission(context);
-                if (items[item].equals("Take Photo")) {
-
-                    if (result) {
-                        openCamera(name);
-                        setFlag(keyimage);
-                    }
-                } else if (items[item].equals("Choose from Gallery")) {
-                    if (result) {
-                        openGallery(name);
-                        setFlag(keyimage);
-                    }
-                } else if (items[item].equals("Cancel")) {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.show();
-    }*/
 
     public void showConfirmationGallery(final String keyimage, final String name) {
-
-     //   final CustomUtility customUtility = new CustomUtility();
-
         final CharSequence[] items = {"Take Photo", "Choose from Gallery", "Cancel"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context,R.style.MyDialogTheme);
@@ -404,8 +258,6 @@ public class CheckInvkActivity extends AppCompatActivity {
                     if (result) {
                         openGallery(name);
                         setFlag(keyimage);
-
-
                     }
 
                 } else if (items[item].equals("Cancel")) {
@@ -417,8 +269,6 @@ public class CheckInvkActivity extends AppCompatActivity {
     }
 
     public void openCamera(String name) {
-
-
 
             file = new File(ImageManager.getMediaFilePath(type,name, Utility.CUSTOMERID_ID));
             imageStoragePath = file.getAbsolutePath();
@@ -433,7 +283,6 @@ public class CheckInvkActivity extends AppCompatActivity {
             i.putExtra("name", name);
 
             startActivityForResult(i, CAMERA_CAPTURE_IMAGE_REQUEST_CODE);
-
     }
 
 
@@ -452,7 +301,6 @@ public class CheckInvkActivity extends AppCompatActivity {
                 Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType("image/*");
                 ((Activity) context).startActivityForResult(Intent.createChooser(intent, "Select Photo"), GALLERY_IMAGE_REQUEST_CODE);
-
             }
 
         } else {
@@ -469,18 +317,9 @@ public class CheckInvkActivity extends AppCompatActivity {
         photo2_flag = false;
         photo3_flag = false;
 
-
-
-        switch (key) {
-
-            case DatabaseHelper.KEY_PHOTO1:
-                photo1_flag = true;
-                break;
-
-
-
+        if (DatabaseHelper.KEY_PHOTO1.equals(key)) {
+            photo1_flag = true;
         }
-
     }
 
     public void setIcon(String key) {
@@ -492,7 +331,6 @@ public class CheckInvkActivity extends AppCompatActivity {
                     photo1.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_mendotry, 0, R.drawable.right_mark_icn_green, 0);
                 }
                 break;
-
         }
     }
 
@@ -812,7 +650,7 @@ public class CheckInvkActivity extends AppCompatActivity {
 
 
 
-    private class SyncDAMAGEMISSData extends AsyncTask<String, String, String> {
+  /*  private class SyncDAMAGEMISSData extends AsyncTask<String, String, String> {
 
         ProgressDialog progressDialog;
 
@@ -963,7 +801,7 @@ public class CheckInvkActivity extends AppCompatActivity {
 
 
         }
-    }
+    }*/
 
     private boolean deleteDirectory(File path) {
         if( path.exists() ) {

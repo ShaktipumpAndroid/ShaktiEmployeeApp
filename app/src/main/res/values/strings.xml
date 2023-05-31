@@ -178,7 +178,21 @@
     </string-array>
     <string name="title_activity_maps">MapsActivity</string>
     <string name="location_notification_desc">Location Fetching</string>
-
+    <string name="place_to_visit">Place To Visit</string>
+    <string name="pleaseEnterName">please enter name</string>
+    <string name="pleaseEnterCode">please enter code</string>
+    <string name="comment">Write comment here</string>
+    <string name="please_attache_image">please attache image</string>
+    <string name="reason">Write reason here</string>
+    <string name="outcome">Write outcome here</string>
+    <string name="daily_report_date">Daily Report Date</string>
+    <string name="select_image">Select Image</string>
+    <string name="camera">Camera</string>
+    <string name="click_image">Please Click Image</string>
+    <string name="want_to_perform">What operation do you want to perform?</string>
+    <string name="display">Display</string>
+    <string name="change">Change</string>
+    <string name="gallery">Gallery</string>
     <!--<string name="personal_info_edit">Choose a Type</string>-->
 
     <!--<string-array name="personal_info_array">-->

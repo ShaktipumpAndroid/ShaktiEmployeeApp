@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".activity.DailyReportActivity">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+   <LinearLayout
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       android:orientation="vertical"
+       android:layout_marginLeft="@dimen/_10sdp"
+       android:layout_marginRight="@dimen/_10sdp"
+       android:layout_below="@+id/appbar">
+
+
+
+
+           <TextView
+               android:id="@+id/dailyReportTxt"
+               android:layout_height="wrap_content"
+               android:layout_width="match_parent"
+               android:hint="@string/daily_report_date"
+               android:textSize="@dimen/_12sdp"
+               android:layout_gravity="start"
+               android:gravity="start"
+               android:textColorHint="@color/colorPrimary"
+               android:textColor="@color/colorPrimary"
+               android:padding="@dimen/_10sdp"
+               android:layout_marginTop="@dimen/_10sdp"
+               android:background="@drawable/blueborder"
+               android:importantForAutofill="no" />
+
+
+       <RelativeLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="@dimen/_10sdp"
+           android:background="@drawable/blueborder">
+           <Spinner
+               android:id="@+id/selectPersonSpinner"
+               android:layout_width="fill_parent"
+               android:layout_height="35dp"
+               android:layout_margin="8dp"
+               android:hint="Gatepass Type" />
+
+       </RelativeLayout>
+
+       <RelativeLayout
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_marginTop="@dimen/_10sdp"
+           android:background="@drawable/blueborder">
+       <Spinner
+           android:id="@+id/selectReportType"
+           android:layout_width="fill_parent"
+           android:layout_height="35dp"
+           android:layout_margin="8dp"
+           android:hint="Gatepass Type" />
+
+       </RelativeLayout>
+
+
+           <EditText
+               android:id="@+id/nameTxt"
+               android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+               android:drawableEnd="@drawable/ic_mendotry"
+               android:hint="@string/pleaseEnterName"
+               android:padding="10dp"
+               android:singleLine="true"
+               android:maxLines="1"
+               android:textSize="@dimen/_12sdp"
+               android:textColor="@color/colorPrimary"
+               android:layout_marginTop="@dimen/_10sdp"
+               android:textColorHint="@color/colorPrimary"
+               android:importantForAutofill="no"
+               android:background="@drawable/blueborder"/>
+
+
+
+           <EditText
+               android:id="@+id/codeTxt"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:drawableEnd="@drawable/ic_mendotry"
+               android:hint="@string/pleaseEnterCode"
+               android:padding="10dp"
+               android:singleLine="true"
+               android:maxLines="1"
+               android:maxLength="25"
+               android:textSize="@dimen/_12sdp"
+               android:textColor="@color/colorPrimary"
+               android:layout_marginTop="@dimen/_10sdp"
+               android:textColorHint="@color/colorPrimary"
+               android:importantForAutofill="no"
+               android:background="@drawable/blueborder"/>
+
+       <RelativeLayout
+           android:id="@+id/ImageNameRelative"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:orientation="horizontal"
+           android:layout_marginTop="@dimen/_10sdp"
+           android:background="@drawable/blueborder"
+           android:layout_gravity="center">
+
+           <TextView
+               android:id="@+id/imgname"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:padding="@dimen/_10sdp"
+               android:text="@string/please_attache_image"
+               android:textColor="@color/colorPrimary"
+               android:textSize="@dimen/_12sdp"
+               android:layout_toStartOf="@+id/imgIcon"/>
+
+           <ImageView
+               android:id="@+id/imgIcon"
+               android:layout_width="@dimen/_20sdp"
+               android:layout_height="@dimen/_20sdp"
+               android:layout_gravity="end"
+               android:src="@drawable/red_icn"
+               android:layout_alignParentRight="true"
+               android:layout_centerVertical="true"/>
+               />
+       </RelativeLayout>
+
+
+
+           <EditText
+               android:id="@+id/reasonTxt"
+               android:layout_height="@dimen/_60sdp"
+               android:layout_width="match_parent"
+               android:hint="@string/reason"
+               android:maxLength="100"
+               android:textSize="@dimen/_12sdp"
+               android:layout_gravity="start"
+               android:gravity="start"
+               android:padding="@dimen/_5sdp"
+               android:layout_marginTop="@dimen/_10sdp"
+               android:textColorHint="@color/colorPrimary"
+               android:background="@drawable/blueborder"
+               android:textColor="@color/colorPrimary"
+               android:importantForAutofill="no" />
+
+
+
+           <EditText
+               android:id="@+id/outcomeTxt"
+               android:layout_height="@dimen/_60sdp"
+               android:layout_width="match_parent"
+               android:hint="@string/outcome"
+               android:maxLength="100"
+               android:layout_marginTop="@dimen/_10sdp"
+               android:background="@drawable/blueborder"
+               android:textSize="@dimen/_12sdp"
+               android:layout_gravity="start"
+               android:gravity="start"
+               android:padding="@dimen/_5sdp"
+               android:textColorHint="@color/colorPrimary"
+               android:textColor="@color/colorPrimary"
+               android:importantForAutofill="no" />
+
+
+   </LinearLayout>
+
+    <TextView
+        android:id="@+id/submitBtn"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:layout_alignParentBottom="true"
+        android:gravity="center"
+        android:background="@drawable/blue_btn_round"
+        android:layout_margin="@dimen/_10sdp"
+        android:text="Submit"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_14ssp"
+        android:fontFamily="sans-serif-condensed-medium"/>
+
+
+</RelativeLayout>
