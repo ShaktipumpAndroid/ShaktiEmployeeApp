@@ -575,9 +575,10 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         wp = wp.replaceAll("%7C", "|");
         String[] json = wp.split("\\|");
 
-
+        Log.e("jsonSize=====>", String.valueOf(json.length));
         if (json.length > 20) {
             double position = (double) json.length /8;
+            Log.e("position=====>", String.valueOf(position));
             position = position*2 ;
 
             int pos = (int) position;
