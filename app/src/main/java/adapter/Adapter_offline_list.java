@@ -40,6 +40,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -91,7 +92,7 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
     LocalConvenienceBean localConvenienceBean;
     LoginBean lb;
     public static TextView photo2;
-    public static String end_photo_text;
+    public static String end_photo_text,totalWayPoint;
     public static boolean end_photo_flag = false;
 
 
@@ -286,9 +287,67 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
         Map<String, String> mapQuery = new HashMap<>();
         WayPoints wayPoints = db.getWayPointsData(localConvenience.getBegda(),localConvenience.getFrom_time());
+
+        String Waypoint = wayPoints.getWayPoints();
+        String wp = Waypoint.replaceAll("%3A", ":");
+        wp = wp.replaceAll("%2C", ",");
+        wp = wp.replaceAll("%7C", "|");
+        String[] json = wp.split("\\|");
+
+
+
+        if (json.length > 20) {
+            double position = (double) json.length /8;
+            position = position*2 ;
+
+            int pos = (int) position;
+            Log.e("position1=====>", String.valueOf(position));
+            Log.e("pos=====>", String.valueOf(Math.round(pos)));
+
+            for (int i = 0; i <= json.length; i++) {
+                if(i!=0 && i!=json.length-1) {
+                    if (totalWayPoint.isEmpty()) {
+                        if (!totalWayPoint.contains(json[pos * i])) {
+
+                            totalWayPoint = json[pos * i];
+                            Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
+                        }
+
+                    } else {
+                        if (pos * i < json.length) {
+                            if (!totalWayPoint.contains(json[pos * i])) {
+                                totalWayPoint = totalWayPoint + "|" + json[pos * i];
+                                Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
+                            }
+                        }
+                    }
+                }
+            }
+
+
+        } else {
+            for (int i = 0; i <= json.length; i++) {
+                if (totalWayPoint.isEmpty()) {
+                    if (!totalWayPoint.contains(json[i])) {
+                        totalWayPoint = json[i];
+                    }
+                } else {
+                    if (i < json.length) {
+                        if (!totalWayPoint.contains(json[i])) {
+
+                            totalWayPoint = totalWayPoint + "|" + json[i];
+                        }
+                    }
+                }
+            }
+        }
+
+        Log.e("json", Arrays.toString(json));
+        Log.e("totalWayPoint", totalWayPoint);
+
         mapQuery.put("origin", Double.parseDouble(localConvenience.getFrom_lat()) + "," + Double.parseDouble(localConvenience.getFrom_lng()));
         mapQuery.put("destination", Double.parseDouble(localConvenience.getTo_lat()) + "," + Double.parseDouble(localConvenience.getTo_lng()));
-        mapQuery.put("waypoints", wayPoints.getWayPoints());
+        mapQuery.put("waypoints", totalWayPoint);
         mapQuery.put("units", "metric");
         mapQuery.put("mode", "driving");
         mapQuery.put("key", context.getResources().getString(R.string.google_API_KEY));
@@ -316,7 +375,7 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
                                 progressDialog.dismiss();
                                 progressDialog = null;
                             }
-                        ;
+
 
 
                         if(response.body().getRoutes().get(0).getLegs().get(0).getStartAddress()!=null && !response.body().getRoutes().get(0).getLegs().get(0).getStartAddress().isEmpty()) {

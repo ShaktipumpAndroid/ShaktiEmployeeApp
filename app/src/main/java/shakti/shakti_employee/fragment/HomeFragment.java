@@ -576,10 +576,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         String[] json = wp.split("\\|");
 
 
-               Log.e("json_size", String.valueOf(json.length));
         if (json.length > 20) {
             double position = (double) json.length /8;
-            Log.e("position=====>", String.valueOf(position));
             position = position*2 ;
 
             int pos = (int) position;
@@ -623,19 +621,15 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 }
             }
         }
-        fullAddress = Utility.retrieveAddress(lat1, lon1, getActivity());
 
-        fullAddress1 = Utility.retrieveAddress(lat2, lon2, getActivity());
         Log.e("json", Arrays.toString(json));
-
         Log.e("totalWayPoint", totalWayPoint);
 
         Map<String, String> mapQuery = new HashMap<>();
-        mapQuery.put("origin",fullAddress );
-        mapQuery.put("destination", fullAddress1);
+        mapQuery.put("origin",lat1+ "," + lon1);
+        mapQuery.put("destination", lat2+ "," + lon2);
         mapQuery.put("waypoints", totalWayPoint);
-
-      mapQuery.put("key", getResources().getString(R.string.google_API_KEY));
+        mapQuery.put("key", getResources().getString(R.string.google_API_KEY));
 
         DistanceApiClient client = RestUtil.getInstance().getRetrofit().create(DistanceApiClient.class);
 
@@ -670,7 +664,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     Log.e("Response======>", String.valueOf(response.body()));
 
 
+                    fullAddress = Utility.retrieveAddress(lat1, lon1, getActivity());
 
+                    fullAddress1 = Utility.retrieveAddress(lat2, lon2, getActivity());
 
                     distance1 = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
 
