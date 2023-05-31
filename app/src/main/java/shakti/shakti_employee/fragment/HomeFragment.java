@@ -50,7 +50,6 @@ import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.textfield.TextInputEditText;
@@ -64,8 +63,6 @@ import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.Array;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,6 +79,7 @@ import shakti.shakti_employee.activity.AttendanceActivity;
 import shakti.shakti_employee.activity.CheckInvkActivity;
 import shakti.shakti_employee.activity.CompleteTaskActivity;
 import shakti.shakti_employee.activity.CreateTaskActivity;
+import shakti.shakti_employee.activity.DailyReportActivity;
 import shakti.shakti_employee.activity.DomesticTravelExpensesActivity;
 import shakti.shakti_employee.activity.ExportTravelExpensesActivity;
 import shakti.shakti_employee.activity.GatepassApproveActivity;
@@ -112,7 +110,6 @@ import shakti.shakti_employee.utility.Utility;
 public class HomeFragment extends Fragment implements View.OnClickListener {
     public static final int REQUEST_CODE_PERMISSION = 1;
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
-    private LocationRequest locationRequest;
 
     TextView act_leave_req, act_leave_app, act_od_req, act_od_app, act_gp_req, txtCheckINID, txtCheckOutID, act_gp_app,
             gp_notification, tv_dom_travel, tv_dom_rep, tv_exp_rep, tv_exp_travel, markAttendanceBar, leave_notification, od_notification, pending_task_notification,
@@ -126,7 +123,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
     CustomUtility customutility = null;
     View view, view1;
-    LinearLayout travel;
+    LinearLayout travel, dailyReportLinear;
 
     private ProgressDialog progressDialog;
     private LoggedInUser userModel;
@@ -210,6 +207,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         markAttendanceBar = v.findViewById(R.id.markAttendanceBar);
         tv_create_attendance = v.findViewById(R.id.tv_create_attendance);
         view = v.findViewById(R.id.view);
+        dailyReportLinear = v.findViewById(R.id.dailyReportLinear);
 
     }
 
@@ -232,6 +230,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         start_travel.setOnClickListener(this);
         end_travel.setOnClickListener(this);
         convey_offline_data.setOnClickListener(this);
+        dailyReportLinear.setOnClickListener(this);
     }
 
     private void setValue() {
@@ -294,8 +293,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     current_start_date = new CustomUtility().getCurrentDate();
                     current_start_time = new CustomUtility().getCurrentTime();
                     if (location != null) {
-                        from_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLatitude())));
-                        from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLongitude())));
+                        from_lat = String.valueOf(location.getLatitude());
+                        from_lng = String.valueOf(location.getLongitude());
                         lat[0] = location.getLatitude();
                         lng[0] = location.getLongitude();
                     } else {
@@ -310,8 +309,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                             return;
                         }
                         Location location1 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        from_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLatitude())));
-                        from_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLongitude())));
+                        from_lat = String.valueOf(location1.getLatitude());
+                        from_lng = String.valueOf(location1.getLongitude());
                         lat[0] = location1.getLatitude();
                         lng[0] = location1.getLongitude();
 
@@ -483,8 +482,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     from_lng = localConvenienceBean.getFrom_lng();
                     startphoto = localConvenienceBean.getPhoto1();
                     if (location != null) {
-                        to_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLatitude())));
-                        to_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location.getLongitude())));
+                        to_lat = String.valueOf(location.getLatitude());
+                        to_lng = String.valueOf(location.getLongitude());
                     } else {
                         if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                             // TODO: Consider calling
@@ -497,8 +496,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                             return;
                         }
                         Location location1 = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-                        to_lat = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLatitude())));
-                        to_lng = String.valueOf(Double.parseDouble(new DecimalFormat("##.#####").format(location1.getLongitude())));
+                        to_lat = String.valueOf(location1.getLatitude());
+                        to_lng = String.valueOf(location1.getLongitude());
 
 
                     }
@@ -568,73 +567,92 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private void getDistanceInfo(String lat1, String lon1, String lat2, String lon2, String allLatLong) {
         // http://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&origins=Washington,DC&destinations=New+York+City,NY
 
-//       wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
+       wayPoints = dataHelper.getWayPointsData(current_start_date, current_start_time);
 
-         String Waypoint = "22.6510314,75.8311687|via:22.646311,75.82705|via:22.6363154,75.8102577|via:22.6188241,75.8001532|via:22.6137027,75.7296271|via:22.5729242,75.64688|via:22.4826654,75.662669|via:22.4287308,75.6141796|via:22.3967036,75.5421609|via:22.3646816,75.5201035|via:22.3169305,75.5019289|via:22.2580246,75.4815097|via:22.1836916,75.461323|via:22.1359212,75.4524393|via:22.128685,75.5257001|via:22.1278634,75.5986423|via:22.1006113,75.6189049|via:22.0487933,75.6283918|via:21.9814243,75.6234854|via:21.9111633,75.6082268|via:21.8378883,75.6029096|via:21.8306464,75.6201181|via:21.8139638,75.6173002|via:21.8088259,75.6229617|via:21.8089434,75.6225366|via:21.8087555,75.6229097|via:22.6510314,75.8311687|via:22.646311,75.82705|via:22.6363154,75.8102577|via:22.6188241,75.8001532|via:22.6137027,75.7296271|via:22.5729242,75.64688|via:22.4826654,75.662669|via:22.4287308,75.6141796|via:22.3967036,75.5421609|via:22.3646816,75.5201035|via:22.3169305,75.5019289|via:22.2580246,75.4815097|via:22.1836916,75.461323|via:22.1359212,75.4524393|via:22.128685,75.5257001|via:22.1278634,75.5986423|via:22.1006113,75.6189049|via:22.0487933,75.6283918|via:21.9814243,75.6234854|via:21.9111633,75.6082268|via:21.8378883,75.6029096|via:21.8306464,75.6201181|via:21.8139638,75.6173002|via:21.8088259,75.6229617|via:21.8089434,75.6225366|via:21.8087555,75.6229097";
-         String wp = Waypoint.replaceAll("%3A", ":");
+        String Waypoint = wayPoints.getWayPoints();
+        String wp = Waypoint.replaceAll("%3A", ":");
         wp = wp.replaceAll("%2C", ",");
         wp = wp.replaceAll("%7C", "|");
         String[] json = wp.split("\\|");
 
 
-          if(json.length>20) {
-              double position= (double) json.length/ 20;
+               Log.e("json_size", String.valueOf(json.length));
+        if (json.length > 20) {
+            double position = (double) json.length /8;
+            Log.e("position=====>", String.valueOf(position));
+            position = position*2 ;
 
-              int pos = (int) position;
-              Log.e("position=====>", String.valueOf(position));
-              Log.e("pos=====>", String.valueOf(pos));
+            int pos = (int) position;
+            Log.e("position1=====>", String.valueOf(position));
+            Log.e("pos=====>", String.valueOf(Math.round(pos)));
 
-              for (int i = 0; i <= json.length; i++) {
-                  if (totalWayPoint.isEmpty()) {
-                      if(!totalWayPoint.contains(json[pos * i])) {
+            for (int i = 0; i <= json.length; i++) {
+                if(i!=0 && i!=json.length-1) {
+                    if (totalWayPoint.isEmpty()) {
+                        if (!totalWayPoint.contains(json[pos * i])) {
 
-                          totalWayPoint = json[pos * i];
-                          Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
-                      }
+                            totalWayPoint = json[pos * i];
+                            Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
+                        }
 
-                  } else {
-                      if (pos * i < json.length) {
-                          if(!totalWayPoint.contains(json[pos * i])) {
-                              totalWayPoint = totalWayPoint + "|" + json[pos * i];
-                              Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
-                          }
-                      }
-                  }
-              }
-          }else {
-              for (int i = 0; i <= json.length; i++) {
-                  if (totalWayPoint.isEmpty()) {
-                      if(!totalWayPoint.contains(json[i])) {
-                          totalWayPoint = json[i];
-                      }
-                  } else {
-                      if ( i < json.length) {
-                          if(!totalWayPoint.contains(json[i])) {
+                    } else {
+                        if (pos * i < json.length) {
+                            if (!totalWayPoint.contains(json[pos * i])) {
+                                totalWayPoint = totalWayPoint + "|" + json[pos * i];
+                                Log.e("positi====>", String.valueOf(i) + "=====>" + json[pos * i]);
+                            }
+                        }
+                    }
+                }
+            }
 
-                              totalWayPoint = totalWayPoint + "|" + json[i];
-                          }
-                      }
-                  }
-              }
-          }
 
+        } else {
+            for (int i = 0; i <= json.length; i++) {
+                if (totalWayPoint.isEmpty()) {
+                    if (!totalWayPoint.contains(json[i])) {
+                        totalWayPoint = json[i];
+                    }
+                } else {
+                    if (i < json.length) {
+                        if (!totalWayPoint.contains(json[i])) {
+
+                            totalWayPoint = totalWayPoint + "|" + json[i];
+                        }
+                    }
+                }
+            }
+        }
+        fullAddress = Utility.retrieveAddress(lat1, lon1, getActivity());
+
+        fullAddress1 = Utility.retrieveAddress(lat2, lon2, getActivity());
         Log.e("json", Arrays.toString(json));
 
         Log.e("totalWayPoint", totalWayPoint);
 
         Map<String, String> mapQuery = new HashMap<>();
-        mapQuery.put("origin", lat1 + "," + lon1);
-        mapQuery.put("destination", lat2 + "," + lon2);
+        mapQuery.put("origin",fullAddress );
+        mapQuery.put("destination", fullAddress1);
         mapQuery.put("waypoints", totalWayPoint);
-        mapQuery.put("units", "metric");
-        mapQuery.put("mode", "driving");
-        mapQuery.put("key", getResources().getString(R.string.google_API_KEY));
+
+      mapQuery.put("key", getResources().getString(R.string.google_API_KEY));
 
         DistanceApiClient client = RestUtil.getInstance().getRetrofit().create(DistanceApiClient.class);
 
         Call<DistanceResponse> call = client.getDistanceInfo(mapQuery);
         Log.e("URL===>", String.valueOf(call.request().url()));
         Log.e("URL===>", String.valueOf(call.request().url()));
+
+     /*    totalWayPoint = totalWayPoint.replaceAll("via:","");
+        String newUri =
+                "https://www.google.com/maps/dir/?api=1&origin=" +lat1 + "," + lon1 + "&destination=" +lat2 + "," + lon2+"&waypoints="+totalWayPoint;
+        Log.e("maproute", "Uri: " + newUri);
+
+
+       Uri googleIntentURI = Uri.parse(String.valueOf(call.request().url()));
+        Intent mapIntent = new Intent(Intent.ACTION_VIEW, googleIntentURI);
+        mapIntent.setPackage("com.google.android.apps.maps");
+       context.startActivity(mapIntent);*/
         call.enqueue(new Callback<DistanceResponse>() {
             @Override
             public void onResponse(@NonNull Call<DistanceResponse> call, @NonNull Response<DistanceResponse> response) {
@@ -652,9 +670,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     Log.e("Response======>", String.valueOf(response.body()));
 
 
-                    fullAddress = Utility.retrieveAddress(lat1, lon1, getActivity());
 
-                    fullAddress1 = Utility.retrieveAddress(lat2, lon2, getActivity());
 
                     distance1 = response.body().getRoutes().get(0).getLegs().get(0).getDistance().getText();
 
@@ -1125,6 +1141,11 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 Intent intent_web_view = new Intent(context, AttendanceActivity.class);
                 startActivity(intent_web_view);
                 break;
+
+            case R.id.dailyReportLinear:
+                Intent intent1 = new Intent(context, DailyReportActivity.class);
+                startActivity(intent1);
+                break;
         }
     }
 
@@ -1151,7 +1172,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             if (!checkPermission()) {
                 requestPermission();
             } else {
-                if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("1")) {
                     startLocationService();
                 }
             }
@@ -1357,7 +1378,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
 
                     if (ACCESSCAMERA && AccessCoarseLocation && AccessFineLocation && ReadMediaImage) {
-                        if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                        if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("1")) {
                             startLocationService();
                         }
                         if (value.equals("1")) {
@@ -1379,7 +1400,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     boolean AccessFineLocation = grantResults[4] == PackageManager.PERMISSION_GRANTED;
 
                     if (ACCESSCAMERA && writeExternalStorage && ReadExternalStorage && AccessCoarseLocation && AccessFineLocation) {
-                        if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("0")) {
+                        if (CustomUtility.getSharedPreferences(context, Constant.LocalConveyance).equalsIgnoreCase("1")) {
                             startLocationService();
                         }
                         if (value.equals("1")) {
