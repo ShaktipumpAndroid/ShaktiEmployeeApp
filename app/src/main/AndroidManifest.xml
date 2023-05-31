@@ -16,7 +16,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
         android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" />
@@ -41,6 +41,9 @@
         android:supportsRtl="true"
         android:theme="@style/ShaktiEmployee"
         android:usesCleartextTraffic="true">
+        <activity
+            android:name=".activity.DailyReportActivity"
+            android:exported="false" />
 
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
@@ -57,7 +60,7 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_API_KEY" />
 
-        <activity android:name=".activity.CheckInvkActivity"/>
+        <activity android:name=".activity.CheckInvkActivity" />
         <activity
             android:name=".activity.SplashActivity"
             android:exported="true">
@@ -190,19 +193,25 @@
             android:screenOrientation="portrait" />
         <service
             android:name=".other.TimeService"
-            android:screenOrientation="portrait" />
-        <service
-            android:name=".other.TimeServiceDownloadData"
-            android:screenOrientation="portrait" />
-        <service
-            android:name=".other.AndroidService"
-            android:screenOrientation="portrait" />
-        <service
-            android:name=".services.LocationUpdateService"
-            android:stopWithTask="false"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location"/>
+            android:stopWithTask="true" />
+        <service
+            android:name=".other.TimeServiceDownloadData"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="true" />
+        <service
+            android:name=".other.AndroidService"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="true" />
+        <service
+            android:name=".services.LocationUpdateService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
     </application>
 
 </manifest>
