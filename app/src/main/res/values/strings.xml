@@ -193,12 +193,51 @@
     <string name="display">Display</string>
     <string name="change">Change</string>
     <string name="gallery">Gallery</string>
-    <!--<string name="personal_info_edit">Choose a Type</string>-->
+    <string name="prospective_vendor">Prospective Vendor</string>
+    <string name="vendor">Vendor</string>
+    <string name="daily_report">Daily Report</string>
+    <string name="vendor_name">Vendor Name</string>
+    <string name="enter_vendor_name">Please Enter Vendor Name</string>
+    <string name="vendor_code">Vendor Code</string>
+    <string name="enter_vendor_code">Please Enter Vendor Code</string>
+    <string name="vendor_address">Vendor Address</string>
+    <string name="enter_vendor_address">Please Enter Vendor Address</string>
+    <string name="vendor_contact_no">Vendor Contact No.</string>
+    <string name="enter_vendor_contact_number">Please Enter Vendor Contact Number</string>
+    <string name="enter_valid_contact_number">Please Enter valid Contact Number</string>
+    <string name="current_date">Current Date</string>
+    <string name="responsible_person">Responsible person</string>
+    <string name="enter_sap_code">Please Enter Sap Code</string>
+    <string name="responsible_person_2">Responsible person 2</string>
+    <string name="responsible_person_3">Responsible person 3</string>
+    <string name="visit_at">Visit At</string>
+    <string name="enter_agenda">Please Enter Agenda</string>
+    <string name="agenda">Agenda</string>
+    <string name="discussion_points">Discussion Points</string>
+    <string name="enter_discussion_points">Please Enter Discussion Points</string>
+    <string name="target_date">Target Date</string>
+    <string name="status">Status</string>
+    <string name="select_target_date">Please Select Target Date</string>
+    <string name="select_visitAt">Please Select Visit At first!</string>
+    <string name="select_StatusFirst">Please Select Status first!</string>
+    <string name="select_ImageFirst">Please Select Image first!</string>
+    <string name="submit">Submit</string>
+    <string name="meeting_with_vendor_img">Click Meeting with vendor Images</string>
+    <string name="reportSubmittedSuccessfully">Report Submitted Successfully</string>
+    <string name="somethingWentWrong">Something Went Wrong</string>
 
-    <!--<string-array name="personal_info_array">-->
-    <!--<item>Personal Mobile No</item>-->
-    <!--<item>Personal Email ID</item>-->
-    <!--&lt;!&ndash;<item>India</item>&ndash;&gt;-->
-    <!--</string-array>-->
+
+    <string-array name="spinner_status">
+        <item>Select Status</item>
+        <item>Online</item>
+        <item>In-progress</item>
+        <item>Offline</item>
+    </string-array>
+
+    <string-array name="spinner_visitAt">
+        <item>Select Visit At</item>
+        <item>On Shakti Premises</item>
+        <item>Vendor Premises</item>
+    </string-array>
 
 </resources>

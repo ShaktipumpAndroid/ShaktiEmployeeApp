@@ -75,7 +75,7 @@ public class SapUrl {
     public static final String TRIP_HOD_EXP_VIEW = BASEURL + "travel_expense_hod_view.htm";
     public static final String LOCAL_CONVENIENVCE = BASEURL + "start_end_location.htm";
 
+    public static final String DailyReportAPI = BASEURL + "mom_daily_reportinf.htm";
 
-    public static final String CHECK_IN_VENDORE = BASEURL + "start_end_location.htm";
-    public static final String CHECK_OUT_VENDORE = BASEURL + "start_end_location.htm";
+
 }
