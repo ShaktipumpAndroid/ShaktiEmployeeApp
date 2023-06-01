@@ -557,14 +557,14 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             jsonObj.put("DISC", discussionPointExt.getText().toString().trim());
             jsonObj.put("TGTDATE", selectedTargetDate);
             jsonObj.put("STATUS",selectedStatus.trim());
-            /*if(imageArrayList.size()>0) {
+            if(imageArrayList.size()>0) {
                 if(imageArrayList.get(0).isImageSelected()) {
                     jsonObj.put("photo1", CustomUtility.getBase64FromBitmap(imageArrayList.get(0).getImagePath()));
                 }
                 if(1<=imageArrayList.size()&& imageArrayList.get(1).isImageSelected()) {
                     jsonObj.put("photo2", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
                 }
-            }*/
+            }
             jsonArray.put(jsonObj);
         } catch (JSONException e) {
             e.printStackTrace();
@@ -592,6 +592,7 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
                         JSONArray jsonArray1 = new JSONArray();
                         jsonArray1 = jsonObject.getJSONArray("data_return");
                         if(jsonArray1.getJSONObject(0).get("return").equals("SUCCESS")){
+                            CustomUtility.deleteArrayList(getApplicationContext(),Constant.DailyRoutineImage);
                             CustomUtility.ShowToast(getResources().getString(R.string.reportSubmittedSuccessfully),getApplicationContext());
                             onBackPressed();
                         }else {
