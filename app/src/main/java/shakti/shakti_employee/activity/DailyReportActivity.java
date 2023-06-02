@@ -7,6 +7,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.os.Environment.getExternalStoragePublicDirectory;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -20,6 +21,8 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StrictMode;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -51,10 +54,13 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.JsonArray;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
@@ -67,6 +73,7 @@ import java.util.List;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.adapter.ImageSelectionAdapter;
 import shakti.shakti_employee.bean.ImageModel;
+import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.utility.CameraUtils;
@@ -538,12 +545,12 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             if(prospectiveVendorRadio.isChecked()) {
                 jsonObj.put("pros_vendor", vendorCodeExt.getText().toString().trim());
             }else {
-                jsonObj.put("pros_vendor", vendorCodeExt.getText().toString().trim());
+                jsonObj.put("pros_vendor", "");
             }
             if(vendorRadio.isChecked()){
                 jsonObj.put("vendor", vendorCodeExt.getText().toString().trim());
             }else {
-                jsonObj.put("vendor", vendorCodeExt.getText().toString().trim());
+                jsonObj.put("vendor", "");
             }
             jsonObj.put("name", vendorNameExt.getText().toString().trim());
             jsonObj.put("addres", vendorAddressExt.getText().toString().trim());
@@ -570,56 +577,55 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             e.printStackTrace();
         }
         Log.e("URL=====>", SapUrl.DailyReportAPI+"?final="+jsonArray.toString());
+        final ArrayList<NameValuePair> param1 = new ArrayList<NameValuePair>();
+        param1.add(new BasicNameValuePair("final", String.valueOf(jsonArray)));
+        showProgressDialogue();
+        try {
+            Log.e("SendDataToSap====>", String.valueOf(param1));
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+            StrictMode.setThreadPolicy(policy);
+            String obj2 = CustomHttpClient.executeHttpPost1(SapUrl.DailyReportAPI, param1);
+
+            if (!obj2.isEmpty()) {
+
+                try {
+                    JSONObject jsonObject =  new JSONObject(obj2);
+                    Log.e("Response=====>", jsonObject.toString());
+                    JSONArray jsonArray1 = new JSONArray();
+                    jsonArray1 = jsonObject.getJSONArray("data_return");
+                    if(jsonArray1.getJSONObject(0).get("return").equals("SUCCESS")){
+                        stopProgressDialogue();
+                        CustomUtility.deleteArrayList(getApplicationContext(),Constant.DailyRoutineImage);
+                        CustomUtility.ShowToast(getResources().getString(R.string.reportSubmittedSuccessfully),getApplicationContext());
+                        onBackPressed();
+                    }else {
+                        stopProgressDialogue();
+                        CustomUtility.ShowToast(getResources().getString(R.string.somethingWentWrong),getApplicationContext());
+                    }
+
+                } catch (JSONException e) {
+                    stopProgressDialogue();
+                    throw new RuntimeException(e);
+                }
 
 
+            }
+        } catch (Exception e) {
+            stopProgressDialogue();
+            e.printStackTrace();
+        }
+    }
+    public void showProgressDialogue(){
         progressDialog.setMessage(getResources().getString(R.string.loading));
         progressDialog.setCancelable(false);
         progressDialog.setCanceledOnTouchOutside(false);
         progressDialog.show();
-        RequestQueue mRequestQueue = Volley.newRequestQueue(this);
+    }
 
-        StringRequest mStringRequest = new StringRequest(Request.Method.GET, SapUrl.DailyReportAPI+"?final="+jsonArray.toString(), new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                }
-                if (!response.isEmpty()) {
-                    Log.e("response====>", response);
-
-                    try {
-                        JSONObject jsonObject =  new JSONObject(response);
-                        JSONArray jsonArray1 = new JSONArray();
-                        jsonArray1 = jsonObject.getJSONArray("data_return");
-                        if(jsonArray1.getJSONObject(0).get("return").equals("SUCCESS")){
-                            CustomUtility.deleteArrayList(getApplicationContext(),Constant.DailyRoutineImage);
-                            CustomUtility.ShowToast(getResources().getString(R.string.reportSubmittedSuccessfully),getApplicationContext());
-                            onBackPressed();
-                        }else {
-                            CustomUtility.ShowToast(getResources().getString(R.string.somethingWentWrong),getApplicationContext());
-                        }
-
-                    } catch (JSONException e) {
-                        throw new RuntimeException(e);
-                    }
-
-
-                }
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.i(TAG, "Error :" + error.toString());
-                if (progressDialog != null && progressDialog.isShowing()) {
-                    progressDialog.dismiss();
-                }
-            }
-        });
-        mStringRequest.setRetryPolicy(new DefaultRetryPolicy(
-                DefaultRetryPolicy.DEFAULT_TIMEOUT_MS,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,  // maxNumRetries = 0 means no retry
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
-        mRequestQueue.add(mStringRequest);
+    public void stopProgressDialogue(){
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
     }
 }
 
