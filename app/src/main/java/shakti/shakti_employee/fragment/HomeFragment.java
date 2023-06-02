@@ -547,11 +547,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                             end_photo_text
                     );
                     dataHelper.updateLocalconvenienceData(localConvenienceBean);
-                    WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
+                    wayPoints = dataHelper.getWayPointsData(localConvenienceBean.getBegda(), localConvenienceBean.getFrom_time());
+                    WayPoints wP = new WayPoints(String.valueOf(userModel.uid), current_start_date,
                             current_end_date,
                             current_start_time,
-                            current_end_time, "");
-                    dataHelper.updateWayPointData1(wayPoints);
+                            current_end_time, wayPoints.getWayPoints());
+                    dataHelper.updateWayPointData1(wP);
                     stopLocationService();
                     CustomUtility.setSharedPreference(getActivity(), Constant.LocalConveyance, "0");
                     CustomUtility.removeFromSharedPreference(getActivity(), Constant.FromLatitude);
@@ -772,11 +773,13 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                                     );
 
                                                     dataHelper.updateLocalconvenienceData(localConvenienceBean);
-                                                    WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
+                                                    WayPoints  wayPoints = dataHelper.getWayPointsData(localConvenienceBean.getBegda(), localConvenienceBean.getFrom_time());
+
+                                                    WayPoints wp = new WayPoints(String.valueOf(userModel.uid), current_start_date,
                                                             current_end_date,
                                                             current_start_time,
-                                                            current_end_time, "");
-                                                    dataHelper.updateWayPointData1(wayPoints);
+                                                            current_end_time, wayPoints.getWayPoints());
+                                                    dataHelper.updateWayPointData1(wp);
                                                     SyncLocalConveneinceDataToSap(ettrvlmod.getText().toString(), current_end_date, current_end_time, distance1, allLatLong);
                                                 }
                                             });
