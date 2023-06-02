@@ -92,7 +92,7 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
     LocalConvenienceBean localConvenienceBean;
     LoginBean lb;
     public static TextView photo2;
-    public static String end_photo_text,totalWayPoint;
+    public static String end_photo_text,totalWayPoint="";
     public static boolean end_photo_flag = false;
 
 
@@ -483,12 +483,12 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
                                                                 endpht);
 
                                                         db.updateLocalconvenienceData(localConvenienceBean);
-
-                                                        WayPoints wayPoints = new WayPoints(LoginBean.getUseid(), localConvenience.getBegda(),
+                                                        WayPoints  wayPoints = db.getWayPointsData(localConvenienceBean.getBegda(), localConvenienceBean.getFrom_time());
+                                                        WayPoints wp = new WayPoints(LoginBean.getUseid(), localConvenience.getBegda(),
                                                                 localConvenience.getEndda(),
                                                                 localConvenience.getFrom_time(),
-                                                                localConvenience.getTo_time(),"");
-                                                        db.updateWayPointData1(wayPoints);
+                                                                localConvenience.getTo_time(),wayPoints.getWayPoints());
+                                                        db.updateWayPointData1(wp);
                                                         SyncLocalConveneinceDataToSap(travel_mode, localConvenience);
                                                     }
                                                 });

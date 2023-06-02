@@ -1277,13 +1277,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_ENDDA, wayPoints.getEndda());
             values.put(KEY_FROM_TIME, wayPoints.getFrom_time());
             values.put(KEY_TO_TIME, wayPoints.getTo_time());
+            values.put(KEY_WayPoints, wayPoints.getWayPoints());
 
             where = KEY_PERNR + "='" + wayPoints.getPernr() + "'" + " AND " +
                     KEY_BEGDA + "='" + wayPoints.getBegda() + "'" + " AND " +
                     KEY_FROM_TIME + "='" + wayPoints.getFrom_time() + "'";
 
             // update Row
-            long i = db.update(TABLE_WayPoints, values, where, null);
+            db.update(TABLE_WayPoints, values, where, null);
             // Insert into database successfully.
             db.setTransactionSuccessful();
         } catch (SQLiteException e) {
