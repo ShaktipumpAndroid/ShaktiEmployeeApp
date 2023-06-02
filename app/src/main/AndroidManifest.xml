@@ -45,6 +45,9 @@
             android:name=".activity.DailyReportActivity"
             android:exported="false" />
 
+        <activity
+            android:name=".activity.ShowDocument"
+            android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
