@@ -1,5 +1,8 @@
 package shakti.shakti_employee.activity;
 
+import static shakti.shakti_employee.other.AndroidService.isNotificationServiceRunning;
+import static shakti.shakti_employee.other.TimeService.isTimeServiceRunning;
+
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -171,7 +174,7 @@ public class DashboardActivity extends AppCompatActivity  {
 
             }
 
-            if (!isTrackingServiceRunning()) {
+            if (!isTimeServiceRunning) {
                 Log.d("tracking_service", "Tracking Service Started");
                 startService(new Intent(DashboardActivity.this, TimeService.class));
             }
@@ -573,7 +576,7 @@ public class DashboardActivity extends AppCompatActivity  {
                 // close the progress bar dialog
                 progressBar.dismiss();
 
-                if (!isTrackingServiceRunning()) {
+                if (!isTimeServiceRunning) {
                     Log.d("tracking_service", "Tracking Service Started");
                     startService(new Intent(DashboardActivity.this, TimeService.class));
                 }
@@ -585,25 +588,11 @@ public class DashboardActivity extends AppCompatActivity  {
 
 
 
-    public void SyncAttendanceInBackground() {
-        Intent i = new Intent(this, SyncDataService.class);
-        this.startService(i);
-    }
-
-
     public void tracking_enabled() {
 
 
-//      // Make sure that GPS is enabled on the device
-//      LocationManager mlocManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-//      boolean enabled = mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-//
-//      if(!enabled) {
-//          Log.d("gps", "GPS OFF");
-//          enableLoc();
-//      }
 
-        if (!isNotificationServiceRunning()) {
+        if (!isNotificationServiceRunning) {
             // call service for gps notification
             startService(new Intent(DashboardActivity.this, AndroidService.class));
         }
@@ -611,25 +600,8 @@ public class DashboardActivity extends AppCompatActivity  {
 
 
 
-    private boolean isNotificationServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("other.AndroidService".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    private boolean isTrackingServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("other.TimeService".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     @Override
     protected void onPause() {

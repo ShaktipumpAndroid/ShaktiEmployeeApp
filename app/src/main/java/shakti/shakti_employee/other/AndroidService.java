@@ -46,6 +46,7 @@ public class AndroidService extends Service {
     private Handler mHandler = new Handler();
     // timer handling
     private Timer mTimer = null;
+    public static boolean isNotificationServiceRunning;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -54,7 +55,7 @@ public class AndroidService extends Service {
 
     @Override
     public void onCreate() {
-
+        isNotificationServiceRunning = true;
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
         {
             startMyOwnForeground();
@@ -120,7 +121,7 @@ public class AndroidService extends Service {
 
     @Override
     public void onDestroy() {
-        //  isRunning = false;
+        isNotificationServiceRunning = false;
         mTimer.cancel();
         // Toast.makeText(this, "MyService Completed or Stopped.", Toast.LENGTH_SHORT).show();
     }
