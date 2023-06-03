@@ -233,7 +233,9 @@ public class LoginActivity extends AppCompatActivity {
 
                             pernr = jo.getString("persno");
                             password = jo.getString("pass");
-                            ename = jo.getString("name");
+                            if(jo.getString("name")!=null) {
+                                ename = jo.getString("name");
+                            }
                             mob_atnd = jo.getString("mobAtnd");
                             travel = jo.getString("travel");
                             hod = jo.getString("hod");

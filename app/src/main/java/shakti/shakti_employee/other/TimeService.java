@@ -48,6 +48,7 @@ public class TimeService extends Service {
     private Handler mHandler = new Handler();
     // timer handling
     private Timer mTimer = null;
+    public static boolean isTimeServiceRunning;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -57,7 +58,7 @@ public class TimeService extends Service {
     @Override
     public void onCreate() {
 
-
+        isTimeServiceRunning = true;
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             startMyOwnForeground();
         } else {
@@ -86,6 +87,7 @@ public class TimeService extends Service {
 
     @Override
     public void onDestroy() {
+        isTimeServiceRunning = false;
         mTimer.cancel();
     }
 

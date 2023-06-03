@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -11,6 +13,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import models.VendorListModel;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
@@ -890,7 +893,7 @@ public class SAPWebService {
 
                 }
             }
-            progressBarStatus = 96;
+            progressBarStatus = 94;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -941,7 +944,7 @@ public class SAPWebService {
                     }
                 }
             }
-            progressBarStatus = 97;
+            progressBarStatus = 96;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -993,6 +996,51 @@ public class SAPWebService {
                         dataHelper.insertTaxcode(jo_taxcode.getString("mandt"), jo_taxcode.getString("tax_code"), jo_taxcode.getString("text"));
                     }
                 }
+            }
+            progressBarStatus = 97;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return progressBarStatus;
+    }
+
+    public int getVendorCode(Context context, String pernr) {
+
+
+        dataHelper = new DatabaseHelper(context);
+        dataHelper.deleteTaxcodeData();
+
+        int progressBarStatus= 0;
+
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+        StrictMode.setThreadPolicy(policy);
+
+        final ArrayList<NameValuePair> param = new ArrayList<>();
+        param.clear();
+        Log.d("emp", pernr);
+
+        param.add(new BasicNameValuePair("pernr", "1882"));
+
+        try {
+
+            String obj = CustomHttpClient.executeHttpPost1(SapUrl.VendorList,param);
+
+
+            if (!obj.isEmpty()) {
+
+                Log.e("obj====>",obj.trim());
+
+                VendorListModel vendorListModel = new Gson().fromJson(obj,VendorListModel.class);
+
+                for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
+
+                    dataHelper.insertVendorcode(vendorListModel.getResponse().get(i).getLifnr(), vendorListModel.getResponse().get(i).getName1(),
+                            vendorListModel.getResponse().get(i).getAdd());
+                }
+
             }
             progressBarStatus = 98;
 

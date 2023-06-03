@@ -77,5 +77,7 @@ public class SapUrl {
 
     public static final String DailyReportAPI = BASEURL + "mom_daily_reportinf.htm";
 
+    public static final String VendorList = BASEURL + "vendor_details.htm";
+
 
 }

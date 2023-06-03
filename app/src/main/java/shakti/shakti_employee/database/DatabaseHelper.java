@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.VendorListModel;
 import shakti.shakti_employee.bean.AttendanceBean;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
 import shakti.shakti_employee.bean.EmployeeGPSActivityBean;
@@ -199,6 +200,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_TEHSIL_TEXT = "tehsil_text";
     //taxcode field
     public static final String KEY_MANDT = "mandt";
+
+    public static final String KEY_VENDOR_CODE = "vendorCode";
+
+    public static final String KEY_VENDOR_NAME = "vendorName";
+
+    public static final String KEY_VENDOR_ADDRESS = "vendorAddress";
     public static final String KEY_TAXCODE = "tax_code";
     public static final String KEY_TEXT = "text";
     //exp field
@@ -241,6 +248,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_DISTRICT = "tbl_district";
     private static final String TABLE_TEHSIL = "tbl_tehsil";
     private static final String TABLE_TAXCODE = "tbl_taxcode";
+    private static final String TABLE_VENDORCODE = "tbl_vendorcode";
     private static final String TABLE_EXPTYPE = "tbl_exptype";
     private static final String TABLE_CURRENCY = "tbl_curr";
 
@@ -613,6 +621,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_MANDT + " TEXT,"
             + KEY_TAXCODE + " TEXT,"
             + KEY_TEXT + " TEXT)";
+
+
+    private static final String CREATETABLE_VENDORCODE = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_VENDORCODE + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_VENDOR_CODE + " TEXT,"
+            + KEY_VENDOR_NAME + " TEXT,"
+            + KEY_VENDOR_ADDRESS + " TEXT)";
     //  region table
     private static final String CREATE_EXPTYPE = "CREATE TABLE IF NOT EXISTS "
             + TABLE_EXPTYPE + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -690,6 +705,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_TRAVEL_HEAD);
         db.execSQL(CREATE_TABLE_LOCAL_CONVENIENCE);
         db.execSQL(CREATE_TABLE_WayPoints);
+        db.execSQL(CREATETABLE_VENDORCODE);
     }
 
 
@@ -723,6 +739,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_DISTRICT);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEHSIL);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAXCODE);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_VENDORCODE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPTYPE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CURRENCY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCAL_CONVENIENCE);
@@ -970,6 +987,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteTaxcodeData() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_TAXCODE, null, null);
+        db.close();
+    }
+
+    public void deleteVendorcodeData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_VENDORCODE, null, null);
         db.close();
     }
 
@@ -1697,75 +1720,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean isRecordExist1(String tablename, String field, String fieldvalue, String field1, String fieldvalue1) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = null;
-        Cursor c;
-
-        String Query = "SELECT * FROM " + tablename + " WHERE " +  field +  " = '" +  fieldvalue + "'" + " AND " + field1 + " = '" + fieldvalue1 + "'";
-        Cursor cursor = db.rawQuery(Query, null);
-        if (cursor.getCount() <= 0) {
-            cursor.close();
-            return false;
-        }
-        cursor.close();
-        return true;
-    }
 
 
-    /*public void EXPTravelEntryDocument(TravelEntryDomDocBean travelEntryDomDocBean, String serialno) {
-        // Open the database for writing
-        SQLiteDatabase db = this.getWritableDatabase();
-        // Start the transaction.
-        db.beginTransactionNonExclusive();
-        ContentValues values;
-        String where = "";
-
-        try {
-            values = new ContentValues();
-            values.put(PERNR, travelEntryDomDocBean.getPernr());
-            values.put(SERIALNO, travelEntryDomDocBean.getSerialno());
-            values.put(START_DATE, travelEntryDomDocBean.getStart_date());
-            values.put(END_DATE, travelEntryDomDocBean.getEnd_date());
-            values.put(COUNTRY_NAME, travelEntryDomDocBean.getCountry());
-            values.put(LOCATION, travelEntryDomDocBean.getLocation());
-            values.put(EXPENSES_TYPE, travelEntryDomDocBean.getExpenses_type());
-            values.put(AMOUNT, travelEntryDomDocBean.getAmount());
-            values.put(CURRENCY, travelEntryDomDocBean.getCurrency());
-            values.put(TAX_CODE, travelEntryDomDocBean.getTax_code());
-            values.put(FROM_DATE, travelEntryDomDocBean.getFrom_date());
-            values.put(TO_DATE, travelEntryDomDocBean.getTo_date());
-            values.put(COUNTRY_NAME1, travelEntryDomDocBean.getRegion());
-            values.put(DESCRIPTION, travelEntryDomDocBean.getDescription());
-            values.put(LOCATION1, travelEntryDomDocBean.getLocation1());
-            values.put(TRAV_TYPE, travelEntryDomDocBean.getType());
-            values.put(CARDINFO, travelEntryDomDocBean.getGstin_no());
-
-
-            if(travelEntryDomDocBean.getSerialno().equalsIgnoreCase(serialno))
-            {
-                where = SERIALNO +"='"+serialno+"'";
-                // update Row
-                long i = db.update(TABLE_TRAVEL_EXP_EXPENSES, values, where, null);
-            }
-            else{
-                // Insert Row
-                long i = db.insert(TABLE_TRAVEL_EXP_EXPENSES, null, values);
-            }
-
-            // Insert into database successfully.
-            db.setTransactionSuccessful();
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        } finally {
-            // End the transaction.
-            db.endTransaction();
-            // Close database
-            db.close();
-        }
-
-    }
-*/
     // Insert Pending leave
     public void createPendingLeave(
             String key_lev_no,
@@ -2069,19 +2025,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insertTaskPending(
-            String assigner,
-            String mrc_date,
-            String mrc_time,
-            String agenda,
-            String pernr,
-            String date_from,
-            String date_to,
-            String mrc_type,
-            String dep_name,
-            String dno,
-            String srno,
-            String checker_id) {
+    public void insertTaskPending(String assigner, String mrc_date, String mrc_time, String agenda, String pernr, String date_from, String date_to,
+            String mrc_type, String dep_name, String dno, String srno, String checker_id) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -2114,18 +2059,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Country Data
 
-    public void insertCountry(
-            String land1,
-            String landx) {
+    public void insertCountry(String land1, String landx) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_LANDX, landx);
-
-
         // insert row
         Log.d("data_country", " " + values);
 
@@ -2137,21 +2076,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Region Data
 
-    public void insertRegion(
-            String land1,
-            String bland,
-            String regio,
-            String bezei) {
+    public void insertRegion(String land1, String bland, String regio, String bezei) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_BLAND, bland);
         values.put(KEY_REGIO, regio);
         values.put(KEY_BEZEI, bezei);
-
 
         // insert row
         Log.d("data_region", " " + values);
@@ -2164,23 +2097,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //insert District Data
 
-    public void insertDistrict(
-            String land1,
-            String regio,
-            String cityc,
-            String bezei) {
+    public void insertDistrict(String land1, String regio, String cityc, String bezei) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_REGIO, regio);
         values.put(KEY_CITYC, cityc);
         values.put(KEY_BEZEI, bezei);
-
-
-
 
         Long result = db.insert(TABLE_DISTRICT, null, values);
 
@@ -2189,80 +2114,56 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //insert Tehsil Data
 
-    public void insertTehsil(
-            String land1,
-            String regio,
-            String district,
-            String tehsil,
-            String tehsil_txt) {
+    public void insertTehsil(String land1, String regio, String district, String tehsil, String tehsil_txt) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_REGIO, regio);
         values.put(KEY_DISTRICT, district);
         values.put(KEY_TEHSIL, tehsil);
         values.put(KEY_TEHSIL_TEXT, tehsil_txt);
 
-
-
         Long result = db.insert(TABLE_TEHSIL, null, values);
 
 
     }
 
-    public void insertTaxcode(
-            String mandt,
-            String taxcode,
-            String text
-    ) {
+    public void insertTaxcode(String mandt, String taxcode, String text) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_MANDT, mandt);
         values.put(KEY_TAXCODE, taxcode);
         values.put(KEY_TEXT, text);
-
-
-        Long result = db.insert(TABLE_TAXCODE, null, values);
-
-
-
+       db.insert(TABLE_TAXCODE, null, values);
     }
 
-    public void insertExpenses(
-            String spkzl,
-            String sptxt
-    ) {
+    public void insertVendorcode(String code, String name, String address) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
+        values.put(KEY_VENDOR_CODE, code);
+        values.put(KEY_VENDOR_NAME, name);
+        values.put(KEY_VENDOR_ADDRESS, address);
+        db.insert(TABLE_VENDORCODE, null, values);
+    }
+
+    public void insertExpenses(String spkzl, String sptxt) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
         values.put(KEY_SPKZL, spkzl);
         values.put(KEY_SPTXT, sptxt);
-
-
         Long result = db.insert(TABLE_EXPTYPE, null, values);
 
     }
 
-    public void insertCurrency(
-            String waers,
-            String ltext
-    ) {
+    public void insertCurrency(String waers, String ltext) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_WAERS, waers);
         values.put(KEY_LTEXT, ltext);
-
 
         Long result = db.insert(TABLE_CURRENCY, null, values);
 
@@ -2271,21 +2172,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // Insert Task Create Data
-    public void createTask(
-            String key_pernr,
-            String key_budat,
-            String key_time_in,
-            String key_description,
-            String key_task_for,
-            String key_task_date_from,
-            String key_task_date_to,
-            String key_task_mrc_type,
-            String key_task_department) {
+    public void createTask(String key_pernr, String key_budat, String key_time_in, String key_description, String key_task_for, String key_task_date_from, String key_task_date_to, String key_task_mrc_type, String key_task_department) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-
         values.put(KEY_PERNR, key_pernr);
         values.put(KEY_BUDAT, key_budat);
         values.put(KEY_TIME_IN, key_time_in);
@@ -2295,7 +2185,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_TASK_DATE_TO, key_task_date_to);
         values.put(KEY_MRC_TYPE, key_task_mrc_type);
         values.put(KEY_DEPARTMENT, key_task_department);
-
 
         Long result = db.insert(TABLE_TASK_CREATE, null, values);
 
@@ -2581,34 +2470,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public ArrayList<Taxcode> getTaxcode() {
-
         SQLiteDatabase db = this.getReadableDatabase();
-
         String selectQuery = "SELECT  * FROM " + TABLE_TAXCODE;
-
         Cursor d = db.rawQuery(selectQuery, null);
-
-        //Log.d("res_taxcode", " " + d.getCount());
-
         ArrayList<Taxcode> taxcodeArrayList = new ArrayList<Taxcode>();
-
-
         if (d.moveToFirst()) {
             while (!d.isAfterLast()) {
                 Taxcode taxcode = new Taxcode();
                 taxcode.setMandt(d.getString(d.getColumnIndex(KEY_MANDT)));
                 taxcode.setTaxcode(d.getString(d.getColumnIndex(KEY_TAXCODE)));
                 taxcode.setText(d.getString(d.getColumnIndex(KEY_TEXT)));
-
-
                 taxcodeArrayList.add(taxcode);
                 d.moveToNext();
             }
         }
-
-        Log.d("tehsil_list", "" + taxcodeArrayList);
         return taxcodeArrayList;
     }
+
+    @SuppressLint("Range")
+    public ArrayList<VendorListModel.Response> getVendorcode(String code) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_CODE + " LIKE '%" + code + "%'";
+        Cursor d = db.rawQuery(selectQuery, null);
+        ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
+        if (d.moveToFirst()) {
+            while (!d.isAfterLast()) {
+                VendorListModel.Response vendorListModel = new VendorListModel.Response();
+                vendorListModel.setLifnr(d.getString(d.getColumnIndex(KEY_VENDOR_CODE)));
+                vendorListModel.setName1(d.getString(d.getColumnIndex(KEY_VENDOR_NAME)));
+                vendorListModel.setAdd(d.getString(d.getColumnIndex(KEY_VENDOR_ADDRESS)));
+                taxcodeArrayList.add(vendorListModel);
+                d.moveToNext();
+            }
+        }
+        return taxcodeArrayList;
+    }
+
     @SuppressLint("Range")
     public ArrayList<Expenses> getExpenses() {
 

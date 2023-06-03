@@ -220,7 +220,8 @@
     <string name="select_target_date">Please Select Target Date</string>
     <string name="select_visitAt">Please Select Visit At first!</string>
     <string name="select_StatusFirst">Please Select Status first!</string>
-    <string name="select_ImageFirst">Please Select Image first!</string>
+    <string name="select_ImageFirst">Please attach Image first!</string>
+    <string name="select_MinimumImages">Please attach minimum 2 images!</string>
     <string name="submit">Submit</string>
     <string name="meeting_with_vendor_img">Click Meeting with vendor Images</string>
     <string name="reportSubmittedSuccessfully">Report Submitted Successfully</string>

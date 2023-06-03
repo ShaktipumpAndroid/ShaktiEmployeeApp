@@ -64,9 +64,52 @@
                         android:layout_height="wrap_content"
                         android:text="@string/vendor"
                         android:layout_gravity="center_horizontal"
-                        android:checked="false"
+                        android:checked="true"
                         android:textSize="@dimen/_12sdp" />
                 </RadioGroup>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor_code"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/vendorCodeExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_vendor_code"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:maxLength="10"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/vendorCodeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:visibility="gone"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -100,38 +143,7 @@
 
                 </LinearLayout>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="@dimen/_10sdp">
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/vendor_code"
-                        android:textColor="@color/colorPrimary"
-                        android:fontFamily="sans-serif-condensed-medium"
-                        android:textSize="@dimen/_14sdp"/>
-
-                    <EditText
-                        android:id="@+id/vendorCodeExt"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/_30sdp"
-                        android:background="@drawable/blueborder"
-                        android:hint="@string/enter_vendor_code"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12sdp"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:padding="@dimen/_5sdp"
-                        android:inputType="number"
-                        android:singleLine="true"
-                        android:maxLines="1"
-                        android:maxLength="10"
-                        android:imeOptions="actionNext"
-                        android:fontFamily="sans-serif-medium"/>
-
-                </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"

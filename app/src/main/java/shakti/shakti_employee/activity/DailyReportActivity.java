@@ -7,7 +7,6 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.Manifest.permission.READ_MEDIA_IMAGES;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
-import static android.os.Environment.getExternalStoragePublicDirectory;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -17,14 +16,14 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.StrictMode;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -45,24 +44,12 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.DefaultRetryPolicy;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.gson.JsonArray;
-
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,17 +57,20 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import models.VendorListModel;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.adapter.ImageSelectionAdapter;
+import shakti.shakti_employee.adapter.VendorListAdapter;
 import shakti.shakti_employee.bean.ImageModel;
 import shakti.shakti_employee.connect.CustomHttpClient;
+import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.utility.CameraUtils;
 import shakti.shakti_employee.utility.Constant;
 
 
-public class DailyReportActivity extends AppCompatActivity implements View.OnClickListener, ImageSelectionAdapter.ImageSelectionListener {
+public class DailyReportActivity extends AppCompatActivity implements View.OnClickListener, ImageSelectionAdapter.ImageSelectionListener, VendorListAdapter.ImageSelectionListener {
 
     public static int REQUEST_CODE_PERMISSION = 1;
     public static int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 2;
@@ -89,16 +79,21 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
 
     List<ImageModel> imageArrayList = new ArrayList<>();
     List<ImageModel> imageList = new ArrayList<>();
+
+    List<VendorListModel.Response> vendorList = new ArrayList<>();
     List<String> itemNameList = new ArrayList<>();
+
     Toolbar mToolbar;
     RadioButton prospectiveVendorRadio, vendorRadio;
     EditText vendorNameExt, vendorCodeExt, vendorAddressExt, vendorNumberExt, responsiblePersonExt, responsiblePerson2Ext, responsiblePerson3Ext,
             agendaExt, discussionPointExt;
     TextView currentDateTxt, targetDateTxt, submitBtn;
     Spinner visitAtSpinner, statusSpinner;
-    RecyclerView recyclerview;
+    RecyclerView recyclerview,vendorCodeList;
 
     ImageSelectionAdapter customAdapter;
+
+    VendorListAdapter vendorListAdapter;
     int mYear, mMonth, mDay,selectedIndex;
     SimpleDateFormat simpleDateFormat;
     String dateFormat = "dd-MM-yyyy",dateFormat2 = "yyyyMMdd", selectedTargetDate="", selectedVisitAt="", selectedStatus="",photoTxt="";
@@ -106,6 +101,8 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
     ProgressDialog progressDialog;
 
     JSONArray jsonArray = null;
+
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +119,7 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
     private void Init() {
 
         progressDialog = new ProgressDialog(this);
+        databaseHelper = new DatabaseHelper(this);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -143,6 +141,7 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
         visitAtSpinner = findViewById(R.id.visitAtSpinner);
         statusSpinner = findViewById(R.id.statusSpinner);
         recyclerview = findViewById(R.id.recyclerview);
+        vendorCodeList = findViewById(R.id.vendorCodeList);
         submitBtn = findViewById(R.id.submitBtn);
         simpleDateFormat = new SimpleDateFormat(dateFormat);
         currentDateTxt.setText(simpleDateFormat.format(new Date()));
@@ -186,6 +185,42 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
 
             }
         });
+
+        vendorCodeExt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if(s.length()>2){
+                    setVendorList(s.toString());
+                }else {
+                    vendorCodeList.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+    }
+
+    public void setVendorList(String code){
+
+        vendorList = databaseHelper.getVendorcode(code);
+        Log.e("vendorList====>", String.valueOf(vendorList.size()));
+        if(vendorList.size()>0) {
+            vendorCodeList.setVisibility(View.VISIBLE);
+            vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
+            vendorCodeList.setHasFixedSize(true);
+            vendorCodeList.setAdapter(vendorListAdapter);
+            vendorListAdapter.VendorSelection(this);
+        }else {
+            vendorCodeList.setVisibility(View.GONE);
+        }
     }
 
     public  void  setAdapter(){
@@ -194,6 +229,9 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
 
         itemNameList.add("Photo1");
         itemNameList.add("Photo2");
+        itemNameList.add("Photo3");
+        itemNameList.add("Photo4");
+        itemNameList.add("Photo5");
         for (int i = 0; i < itemNameList.size(); i++) {
             ImageModel imageModel = new ImageModel();
             imageModel.setName(itemNameList.get(i));
@@ -223,6 +261,9 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
         recyclerview.setHasFixedSize(true);
         recyclerview.setAdapter(customAdapter);
         customAdapter.ImageSelection(this);
+
+
+
 
     }
     @Override
@@ -532,6 +573,8 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             CustomUtility.ShowToast(getResources().getString(R.string.select_StatusFirst), getApplicationContext());
         } else if (imageArrayList.isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.select_ImageFirst), getApplicationContext());
+        } else if (imageArrayList.size()<2) {
+            CustomUtility.ShowToast(getResources().getString(R.string.select_MinimumImages), getApplicationContext());
         }else {
             SubmitDailyReport();
         }
@@ -626,6 +669,15 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
         if (progressDialog != null && progressDialog.isShowing()) {
             progressDialog.dismiss();
         }
+    }
+
+    @Override
+    public void VendorSelectionListener(VendorListModel.Response vendorList, int position) {
+        vendorCodeExt.setText(vendorList.getLifnr());
+        vendorNameExt.setText(vendorList.getName1());
+        vendorAddressExt.setText(vendorList.getAdd());
+        vendorNumberExt.setText(vendorList.getTelf1());
+        vendorCodeList.setVisibility(View.GONE);
     }
 }
 
