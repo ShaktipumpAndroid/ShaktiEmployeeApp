@@ -173,9 +173,14 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 
                 if (position != 0) {
-                    Toast.makeText(getApplicationContext(), "The visitAtSpinner is " +
-                            parent.getItemAtPosition(position).toString(), Toast.LENGTH_LONG).show();
                     selectedVisitAt = parent.getItemAtPosition(position).toString().trim();
+
+                    if(selectedVisitAt.equals("Shakti H.O")){
+                        GatePassLinear.setVisibility(View.VISIBLE);
+                        showGatePassList();
+                    }else {
+                        GatePassLinear.setVisibility(View.GONE);
+                    }
                 }
             }
 
@@ -223,7 +228,7 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             }
         });
 
-        prospectiveVendorRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        /*prospectiveVendorRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
@@ -233,7 +238,7 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
                     GatePassLinear.setVisibility(View.GONE);
                 }
             }
-        });
+        });*/
     }
 
     public void setVendorList(String code) {
@@ -600,7 +605,7 @@ public class DailyReportActivity extends AppCompatActivity implements View.OnCli
             CustomUtility.ShowToast(getResources().getString(R.string.select_MinimumImages), getApplicationContext());
         }  else {
 
-            if(prospectiveVendorRadio.isChecked()){
+            if(selectedVisitAt.equals("Shakti H.O")){
                   if (selectedGatePass.isEmpty()) {
                     CustomUtility.ShowToast(getResources().getString(R.string.selectOpenGatePass), getApplicationContext());
                 }else {

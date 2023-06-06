@@ -334,9 +334,11 @@ public class SAPWebService {
 
                 GatePassModel gatePassModel = new Gson().fromJson(obj,GatePassModel.class);
 
-                for (int i = 0; i < gatePassModel.getResponse().size(); i++) {
+                if(gatePassModel.getResponse()!=null && gatePassModel.getResponse().size()>0) {
+                    for (int i = 0; i < gatePassModel.getResponse().size(); i++) {
 
-                    dataHelper.inserGatePassData(gatePassModel.getResponse().get(i));
+                        dataHelper.inserGatePassData(gatePassModel.getResponse().get(i));
+                    }
                 }
 
             }
@@ -1079,12 +1081,12 @@ public class SAPWebService {
                 Log.e("obj====>",obj.trim());
 
                 VendorListModel vendorListModel = new Gson().fromJson(obj,VendorListModel.class);
+                if(vendorListModel.getResponse()!=null && vendorListModel.getResponse().size()>0) {
+                    for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
 
-                for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
-
-                    dataHelper.insertVendorcode(vendorListModel.getResponse().get(i));
+                        dataHelper.insertVendorcode(vendorListModel.getResponse().get(i));
+                    }
                 }
-
             }
             progressBarStatus = 98;
 
