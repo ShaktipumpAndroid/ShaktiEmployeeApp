@@ -13,13 +13,12 @@
             android:id="@+id/txt1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="3dp"
-            android:textSize="16sp"
-            android:textAlignment="viewStart"
-            android:textColor="@color/black"
+            android:layout_marginTop="4dp"
+            android:textSize="14sp"
+            android:textColor="@color/gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/icn_cancel" />
+            tools:ignore="MissingConstraints" />
 
         <TextView
             android:id="@+id/txt2"
@@ -27,14 +26,13 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
             android:textSize="14sp"
-            android:textColor="@color/grey"
+            android:textColor="@color/gray"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txt1" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_str_dt"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="Start Date/Time"
@@ -53,7 +51,6 @@
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_str_lat_lng"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="Start Latitude/Longitude"
@@ -74,7 +71,6 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_str_loc_add"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="Start Location Address"
@@ -95,7 +91,6 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_end_dt"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="End Date/Time"
@@ -114,7 +109,7 @@
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_end_lat_lng"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="End Latitude/Longitude"
@@ -135,7 +130,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_end_loc_add"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="End Location Address"
@@ -156,7 +151,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_tot_dis"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="Total Distance"
@@ -177,12 +172,12 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/til_trvl_mod"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:hint="@string/trvlmod"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+
             app:layout_constraintTop_toBottomOf="@+id/til_tot_dis"
             >
             <com.google.android.material.textfield.TextInputEditText
@@ -195,39 +190,68 @@
                 />
         </com.google.android.material.textfield.TextInputLayout>
 
+
         <TextView
-            android:id="@+id/btn_cncl"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:background="@layout/rounded_corner_blue"
-            android:gravity="center"
+            android:id="@+id/photo2"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/space_xxlarge45"
+            android:background="@drawable/icn_box"
+            android:drawableEnd="@drawable/right_mark_icn_green"
             android:padding="@dimen/space_mid10"
-            android:text="Cancel"
-            android:textColor="@color/white"
-            android:textSize="14sp"
+            android:singleLine="true"
+            android:text="@string/end_photo"
+            android:textColor="@color/black"
+            android:textSize="@dimen/size_xlarge20"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.859"
+            app:layout_constraintStart_toStartOf="parent"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@+id/til_trvl_mod"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2"
+            android:gravity="center"
+            android:layout_marginTop="@dimen/_10sdp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.900"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_trvl_mod" />
+            app:layout_constraintTop_toBottomOf="@+id/photo2">
 
-        <TextView
-            android:id="@+id/btn_cnfrm"
-            android:layout_width="120dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="12dp"
-            android:background="@layout/rounded_corner_blue"
-            android:gravity="center"
-            android:padding="@dimen/space_mid10"
-            android:text="Confirm"
-            android:textColor="@color/white"
-            android:textSize="14sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.10"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/til_trvl_mod" />
+
+
+            <TextView
+                android:id="@+id/btn_cnfrm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@layout/rounded_corner_blue"
+                android:gravity="center"
+                android:padding="@dimen/space_mid10"
+                android:text="@string/confirm_"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:layout_weight="1"
+                android:layout_marginRight="@dimen/_2sdp"
+                />
+
+            <TextView
+                android:id="@+id/btn_cncl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+
+                android:background="@layout/rounded_corner_blue"
+                android:gravity="center"
+                android:padding="@dimen/space_mid10"
+                android:text="@string/cancel"
+                android:textColor="@color/white"
+                android:textSize="14sp"
+                android:layout_weight="1"
+                android:layout_marginLeft="@dimen/_2sdp" />
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

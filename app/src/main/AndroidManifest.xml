@@ -1,31 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="shakti.shakti_employee">
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <uses-permission android:name="android.permission.ACROSS_USERS_FULL" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
-    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.BROADCAST_STICKY" />
     <uses-permission android:name="android.permission.ACCESS_GPS" />
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.hardware.camera2.full"/>
+
     <uses-permission
         android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" />
 
     <uses-feature android:name="android.hardware.location.gps" />
-
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+    <uses-feature
+        android:name="android.hardware.camera.front"
+        android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:name=".other.CrashDetails"
@@ -38,9 +43,36 @@
         android:supportsRtl="true"
         android:theme="@style/ShaktiEmployee"
         android:usesCleartextTraffic="true">
-        <activity android:name=".activity.CheckInvkActivity">
 
-        </activity>
+        <activity
+            android:name=".activity.CameraActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
+            android:name=".activity.DailyReportActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+
+        <activity
+            android:name=".activity.ShowDocument"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <!--
+             TODO: Before you run your application, you need a Google Maps API key.
+
+             To get one, follow the directions here:
+
+                https://developers.google.com/maps/documentation/android-sdk/get-api-key
+
+             Once you have your API key (it starts with "AIza"), define a new property in your
+             project's local.properties file (e.g. MAPS_API_KEY=Aiza...), and replace the
+             "YOUR_API_KEY" string in this file with "${MAPS_API_KEY}".
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_API_KEY" />
+
+        <activity android:name=".activity.CheckInvkActivity" />
         <activity
             android:name=".activity.SplashActivity"
             android:exported="true">
@@ -93,7 +125,7 @@
         <activity
             android:name=".utility.CameraActivitySurvey"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateVisible|adjustResize"/>
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <activity
             android:name=".activity.OdApproveActivity"
             android:screenOrientation="portrait"
@@ -173,18 +205,25 @@
             android:screenOrientation="portrait" />
         <service
             android:name=".other.TimeService"
-            android:screenOrientation="portrait" />
-        <service
-            android:name=".other.TimeServiceDownloadData"
-            android:screenOrientation="portrait" />
-        <service
-            android:name=".other.AndroidService"
-            android:screenOrientation="portrait" />
-        <service
-            android:name=".fragment.LocationUpdatesService"
             android:enabled="true"
             android:exported="true"
-            android:foregroundServiceType="location" />
+            android:stopWithTask="false" />
+        <service
+            android:name=".other.TimeServiceDownloadData"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="true" />
+        <service
+            android:name=".other.AndroidService"
+            android:enabled="true"
+            android:exported="true"
+            android:stopWithTask="true" />
+        <service
+            android:name=".services.LocationUpdateService"
+            android:enabled="true"
+            android:exported="true"
+            android:foregroundServiceType="location"
+            android:stopWithTask="false" />
     </application>
 
 </manifest>

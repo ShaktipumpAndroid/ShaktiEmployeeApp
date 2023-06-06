@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.StrictMode;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
@@ -11,9 +13,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
+import models.VendorListModel;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
+import shakti.shakti_employee.model.GatePassModel;
 
 /**
  * Created by shakti on 1/23/2017.
@@ -292,7 +296,53 @@ public class SAPWebService {
 
             }
 
-            progressBarStatus = 10;
+            progressBarStatus = 4;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return progressBarStatus;
+    }
+
+    public int getGatePass(Context context, String pernr) {
+
+
+        dataHelper = new DatabaseHelper(context);
+        dataHelper.deleteTaxcodeData();
+
+        int progressBarStatus= 0;
+
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+        StrictMode.setThreadPolicy(policy);
+
+        final ArrayList<NameValuePair> param = new ArrayList<>();
+        param.clear();
+        Log.d("emp", pernr);
+
+        param.add(new BasicNameValuePair("pernr", pernr));
+
+        try {
+
+            String obj = CustomHttpClient.executeHttpPost1(SapUrl.OpenGatePassList,param);
+
+
+            if (!obj.isEmpty()) {
+
+                Log.e("obj====>",obj.trim());
+
+                GatePassModel gatePassModel = new Gson().fromJson(obj,GatePassModel.class);
+
+                if(gatePassModel.getResponse()!=null && gatePassModel.getResponse().size()>0) {
+                    for (int i = 0; i < gatePassModel.getResponse().size(); i++) {
+
+                        dataHelper.inserGatePassData(gatePassModel.getResponse().get(i));
+                    }
+                }
+
+            }
+            progressBarStatus = 8;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -890,7 +940,7 @@ public class SAPWebService {
 
                 }
             }
-            progressBarStatus = 96;
+            progressBarStatus = 94;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -932,9 +982,6 @@ public class SAPWebService {
                     dataHelper.deleteTehsilData();
 
                     ja_tehsil = jsonObj.getJSONArray("tehsil");
-                    Log.d("json_tehsil", "" + ja_tehsil);
-
-
                     for (int i = 0; i < ja_tehsil.length(); i++) {
 
                         JSONObject jo_tehsil = ja_tehsil.getJSONObject(i);
@@ -944,7 +991,7 @@ public class SAPWebService {
                     }
                 }
             }
-            progressBarStatus = 97;
+            progressBarStatus = 96;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -977,7 +1024,7 @@ public class SAPWebService {
 
             JSONArray ja_taxcode = null;
 
-            if (obj != null) {
+            if (!obj.isEmpty()) {
 
                 JSONObject jsonObj = new JSONObject(obj);
                 if (jsonObj.has("taxcode") && !String.valueOf(jsonObj.getJSONArray("taxcode")).isEmpty()) {
@@ -994,6 +1041,50 @@ public class SAPWebService {
 
 
                         dataHelper.insertTaxcode(jo_taxcode.getString("mandt"), jo_taxcode.getString("tax_code"), jo_taxcode.getString("text"));
+                    }
+                }
+            }
+            progressBarStatus = 97;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return progressBarStatus;
+    }
+
+    public int getVendorCode(Context context, String pernr) {
+
+
+        dataHelper = new DatabaseHelper(context);
+        dataHelper.deleteTaxcodeData();
+
+        int progressBarStatus= 0;
+
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+        StrictMode.setThreadPolicy(policy);
+
+        final ArrayList<NameValuePair> param = new ArrayList<>();
+        param.clear();
+        Log.d("emp", pernr);
+
+        param.add(new BasicNameValuePair("pernr", pernr));
+
+        try {
+
+            String obj = CustomHttpClient.executeHttpPost1(SapUrl.VendorList,param);
+
+
+            if (!obj.isEmpty()) {
+
+                Log.e("obj====>",obj.trim());
+
+                VendorListModel vendorListModel = new Gson().fromJson(obj,VendorListModel.class);
+                if(vendorListModel.getResponse()!=null && vendorListModel.getResponse().size()>0) {
+                    for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
+
+                        dataHelper.insertVendorcode(vendorListModel.getResponse().get(i));
                     }
                 }
             }

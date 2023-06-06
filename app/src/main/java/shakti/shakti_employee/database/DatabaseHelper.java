@@ -8,29 +8,29 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.StrictMode;
 import android.util.Log;
 
 import org.apache.http.NameValuePair;
-import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import models.VendorListModel;
 import shakti.shakti_employee.bean.AttendanceBean;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
 import shakti.shakti_employee.bean.EmployeeGPSActivityBean;
 import shakti.shakti_employee.bean.LocalConvenienceBean;
-import shakti.shakti_employee.bean.LocalConvenienceBean1;
 import shakti.shakti_employee.bean.LoginBean;
 import shakti.shakti_employee.bean.TravelEntryDomDocBean;
 import shakti.shakti_employee.bean.TravelEntryExpDocBean;
 import shakti.shakti_employee.bean.TravelHeadBean;
 import shakti.shakti_employee.bean.TravelTripDomDocBean;
 import shakti.shakti_employee.bean.TravelTripExpDocBean;
+import shakti.shakti_employee.bean.WayPoints;
 import shakti.shakti_employee.connect.CustomHttpClient;
+import shakti.shakti_employee.model.GatePassModel;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.Country;
 import shakti.shakti_employee.other.Currency;
@@ -58,11 +58,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final int DATABASE_VERSION = 6;
 
     public static final String KEY_PHOTO1 = "photo1";
-    public static final String KEY_PHOTO1_2 = "photo1_2";
-    public static final String KEY_PHOTO1_3 = "photo1_3";
-    public static final String KEY_PHOTO1_4 = "photo1_4";
-    public static final String KEY_PHOTO1_5 = "photo1_5";
-    // Table Names
+    public static final String KEY_PHOTO2 = "photo2";
     public static final String TABLE_LOGIN = "tbl_login";
     public static final String TABLE_ACTIVE_EMPLOYEE = "tbl_active_employee";
     public static final String TABLE_LEAVE_BALANCE = "tbl_leave_balance";
@@ -205,6 +201,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_TEHSIL_TEXT = "tehsil_text";
     //taxcode field
     public static final String KEY_MANDT = "mandt";
+
+    public static final String KEY_VENDOR_CODE = "vendorCode";
+
+    public static final String KEY_VENDOR_NAME = "vendorName";
+
+    public static final String KEY_VENDOR_ADDRESS = "vendorAddress";
+
+    public static final String KEY_VENDOR_CONTACT_NO = "vendorContact";
+    public static final String KEY_VENDOR_STREET_ADDRESS = "streetAddress";
+    public static final String KEY_VENDOR_REGION  = "vendorRegion";
+    public static final String KEY_VENDOR_CITY = "vendorCITY";
+
+
+    public static final String KEY_GATEPASS_NO = "gatepassno";
+    public static final String KEY_GATEPASS_VISITORNAME = "visitorName";
+
+
     public static final String KEY_TAXCODE = "tax_code";
     public static final String KEY_TEXT = "text";
     //exp field
@@ -247,10 +260,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_DISTRICT = "tbl_district";
     private static final String TABLE_TEHSIL = "tbl_tehsil";
     private static final String TABLE_TAXCODE = "tbl_taxcode";
+    private static final String TABLE_VENDORCODE = "tbl_vendorcode";
+
+    private static final String TABLE_OPEN_GATE_PASS = "tbl_opengatepass";
     private static final String TABLE_EXPTYPE = "tbl_exptype";
     private static final String TABLE_CURRENCY = "tbl_curr";
+
+    private static final String TABLE_WayPoints = "wayPoints";
     // Common column names
     private static final String KEY_ID = "id";
+
+    public static final String KEY_WayPoints = "wayPoints";
+
     //Domestic Expenses table
     public static final String CREATE_TABLE_DOM_EXPENSES = "CREATE TABLE IF NOT EXISTS  "
             + TABLE_TRAVEL_DOM_EXPENSES + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
@@ -346,7 +367,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TYPE + " TEXT,"
             + PERNR + " TEXT,"
             + BEGDA + " TEXT,"
-
             + SERVER_DATE_IN + " TEXT,"
             + SERVER_TIME_IN + " TEXT,"
             + SERVER_DATE_OUT + " TEXT,"
@@ -364,18 +384,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + IN_FILE_LENGTH + " TEXT,"
             + IN_FILE_VALUE + " TEXT,"
             + OUT_FILE_NAME + " TEXT,"
-
             + IN_STATUS + " TEXT,"
             + OUT_STATUS + " TEXT,"
-
             + IN_IMAGE + " TEXT,"
             + OUT_IMAGE + " TEXT,"
-
-
             + OUT_FILE_LENGTH + " TEXT,"
-            + OUT_FILE_VALUE + " TEXT" +
+            + OUT_FILE_VALUE + " TEXT)";
 
-            ")";
+
+
+
     private static final String KEY_CREATED_AT = "created_at";
     private static final String ATT_KEY_BEGDAT = "begdat";
     private static final String ATT_KEY_INDZ = "indz";
@@ -533,14 +551,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_MRC_TYPE + " TEXT,"
             + KEY_DEPARTMENT + " TEXT,"
             + KEY_TASK_DATE_TO + " TEXT)";
-    // Task Pending fields . Same As Task create Fields
-//    public static final String KEY_DESCRIPTION  = "description";
-//    public  static final String KEY_TASK_FOR     = "task_for";
-//    private static final String KEY_TASK_DATE_FROM   = "date_from";
-//    private static final String KEY_TASK_DATE_TO    = "date_to";
-//    private static final String KEY_SYNC    = "sync";
-//    private static final String KEY_MRC_TYPE    = "mrc_type";
-//    private static final String KEY_DEPARTMENT    = "department";
 
     // Local convenience table
     private static final String CREATE_TABLE_LOCAL_CONVENIENCE= "CREATE TABLE IF NOT EXISTS "
@@ -557,6 +567,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_START_LOC + " TEXT,"
             + KEY_END_LOC + " TEXT,"
             + KEY_DISTANCE+ " TEXT,"
+            + KEY_PHOTO1 + " BLOB,"
+            + KEY_PHOTO2 + " BLOB,"
             + KEY_TASK_DATE_TO + " TEXT)";
     //  task pending table
     private static final String CREATE_TABLE_TASK_PENDING = "CREATE TABLE IF NOT EXISTS "
@@ -623,6 +635,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + KEY_MANDT + " TEXT,"
             + KEY_TAXCODE + " TEXT,"
             + KEY_TEXT + " TEXT)";
+
+
+    private static final String CREATETABLE_VENDORCODE = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_VENDORCODE + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_VENDOR_CODE + " TEXT,"
+            + KEY_VENDOR_NAME + " TEXT,"
+            + KEY_VENDOR_ADDRESS + " TEXT,"
+            + KEY_VENDOR_CONTACT_NO + " TEXT,"
+            + KEY_VENDOR_STREET_ADDRESS + " TEXT,"
+            + KEY_VENDOR_REGION + " TEXT,"
+            + KEY_VENDOR_CITY + " TEXT)";
+
+
+    private static final String CREATETABLE_OPENGATEPASS = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_OPEN_GATE_PASS + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_GATEPASS_NO + " TEXT,"
+            + KEY_GATEPASS_VISITORNAME + " TEXT)";
     //  region table
     private static final String CREATE_EXPTYPE = "CREATE TABLE IF NOT EXISTS "
             + TABLE_EXPTYPE + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -637,6 +666,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TABLE_TRAVEL_PARAMETERS + "(" + KEY_PERNR + " PRIMARY KEY ,"
             + CHRG_NAME4 + " TEXT,"
             + DIRECT_INDIRECT + " TEXT)";
+
+    private static final String CREATE_TABLE_WayPoints = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_WayPoints + "(" + KEY_ID + " PRIMARY KEY ,"
+            + KEY_PERNR + " TEXT,"
+            + KEY_BEGDA + " TEXT,"
+            + KEY_ENDDA + " TEXT,"
+            + KEY_FROM_TIME + " TEXT,"
+            + KEY_TO_TIME + " TEXT,"
+            + KEY_WayPoints + " TEXT)";
+
+    /*CREATE_TABLE_WayPoints*/
     public Cursor cursordom = null, cursordom1 = null, cursordom2 = null, cursordom3 = null;
     public Cursor cursorexp = null, cursorexp1 = null, cursorexp2 = null, cursorexp3 = null;
     String obj_active_employee;
@@ -688,6 +728,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_DOM_EXPENSES1);
         db.execSQL(CREATE_TABLE_TRAVEL_HEAD);
         db.execSQL(CREATE_TABLE_LOCAL_CONVENIENCE);
+        db.execSQL(CREATE_TABLE_WayPoints);
+        db.execSQL(CREATETABLE_VENDORCODE);
+        db.execSQL(CREATETABLE_OPENGATEPASS);
     }
 
 
@@ -721,9 +764,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_DISTRICT);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_TEHSIL);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_TAXCODE);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_VENDORCODE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_EXPTYPE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CURRENCY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCAL_CONVENIENCE);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_WayPoints);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPEN_GATE_PASS);
 
 
             // create new tables
@@ -745,10 +791,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.delete(TABLE_LOCAL_CONVENIENCE, null, null);
     }
 
-    public void deleteLocalconvenienceDetail(String pernr,String date,String time) {
+    public void deleteLocalconvenienceDetail1(String enddt,String endtm) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_PERNR + "='" + pernr + "'" + " AND " + KEY_BEGDA + " = '" + date + "'" + " AND " + KEY_FROM_TIME + " = '" + time + "'");
+        db.execSQL("DELETE FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_ENDDA + "='" + enddt + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'");
     }
+    public void deleteWayPointsDetail() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_WayPoints);
+    }
+    public void deleteWayPointsDetail1(String enddt,String endtm) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.execSQL("DELETE FROM " + TABLE_WayPoints + " WHERE " + KEY_ENDDA + "='" + enddt + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'");
+
+    }
+
 
     public void deleteTravelHeadData() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -960,6 +1016,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
     }
 
+    public void deleteVendorcodeData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_VENDORCODE, null, null);
+        db.close();
+    }
+
+    public void deleteOpenGatePassData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_OPEN_GATE_PASS, null, null);
+        db.close();
+    }
+
     public void deleteExpensesData() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_EXPTYPE, null, null);
@@ -1081,9 +1149,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
 
         values.put(KEY_LEAVETYPE, leavetype);
-       /* values.put(KEY_ENAME, beanproduct.getEname());
-        values.put(KEY_BTEXT, beanproduct.getBtext());*/
-
         // insert row
         Log.d("data_of_values", " " + values);
         try {
@@ -1120,10 +1185,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_START_LOC, localconvenienceBean.getStart_loc());
             values.put(KEY_END_LOC, localconvenienceBean.getEnd_loc());
             values.put(KEY_DISTANCE, localconvenienceBean.getDistance());
-
+            values.put(KEY_PHOTO1, localconvenienceBean.getPhoto1());
+            values.put(KEY_PHOTO2, localconvenienceBean.getPhoto2());
 
             // Insert Row
-            long i = db.insert(TABLE_LOCAL_CONVENIENCE, null, values);
+          db.insert(TABLE_LOCAL_CONVENIENCE, null, values);
 
             // Insert into database successfully.
             db.setTransactionSuccessful();
@@ -1136,9 +1202,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
         }
 
+
     }
 
-    public void updateLocalconvenienceData(LocalConvenienceBean localconvenienceBean, String pernr, String date, String time) {
+    public void updateLocalconvenienceData(LocalConvenienceBean localconvenienceBean) {
 
         // Open the database for writing
         SQLiteDatabase db = this.getWritableDatabase();
@@ -1153,6 +1220,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
             values.put(KEY_PERNR, localconvenienceBean.getPernr());
             values.put(KEY_BEGDA, localconvenienceBean.getBegda());
+
             values.put(KEY_ENDDA, localconvenienceBean.getEndda());
             values.put(KEY_FROM_TIME, localconvenienceBean.getFrom_time());
             values.put(KEY_TO_TIME, localconvenienceBean.getTo_time());
@@ -1163,8 +1231,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             values.put(KEY_START_LOC, localconvenienceBean.getStart_loc());
             values.put(KEY_END_LOC, localconvenienceBean.getEnd_loc());
             values.put(KEY_DISTANCE, localconvenienceBean.getDistance());
+            values.put(KEY_PHOTO1, localconvenienceBean.getPhoto1());
+            values.put(KEY_PHOTO2, localconvenienceBean.getPhoto2());
 
-            where  = KEY_PERNR +"='"+pernr+"'"+" AND "+ KEY_BEGDA +"='"+date+"'"+" AND "+ KEY_FROM_TIME +"='"+time+"'";
+            where = KEY_PERNR + "='" + localconvenienceBean.getPernr() + "'" + " AND " +
+                    KEY_BEGDA + "='" + localconvenienceBean.getBegda() + "'" + " AND " +
+                    KEY_FROM_TIME + "='" + localconvenienceBean.getFrom_time() + "'" + " AND " +
+                    KEY_FROM_LAT + "='" + localconvenienceBean.getFrom_lat() + "'" + " AND " +
+                    KEY_FROM_LNG + "='" + localconvenienceBean.getFrom_lng() + "'";
+
             // update Row
             long i = db.update(TABLE_LOCAL_CONVENIENCE, values, where, null);
             // Insert into database successfully.
@@ -1180,7 +1255,33 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-   /* public void updateLocalconvenienceData(LocalConvenienceBean localconvenienceBean, String pernr) {
+    public void insertWayPointsData(WayPoints wayPoints) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.beginTransactionNonExclusive();
+        ContentValues values;
+        Log.e("wayPoint2",wayPoints.getWayPoints());
+        try {
+            values = new ContentValues();
+            values.put(KEY_PERNR, wayPoints.getPernr());
+            values.put(KEY_BEGDA, wayPoints.getBegda());
+            values.put(KEY_ENDDA, wayPoints.getEndda());
+            values.put(KEY_FROM_TIME, wayPoints.getFrom_time());
+            values.put(KEY_TO_TIME, wayPoints.getTo_time());
+            values.put(KEY_WayPoints, wayPoints.getWayPoints());
+            db.insert(TABLE_WayPoints, null, values);
+
+            db.setTransactionSuccessful();
+            Log.e("wayPoint3",wayPoints.getWayPoints());
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        } finally {
+            db.endTransaction();
+            db.close();
+        }
+    }
+
+    public void updateWayPointData(WayPoints wayPoints) {
 
         // Open the database for writing
         SQLiteDatabase db = this.getWritableDatabase();
@@ -1193,16 +1294,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         try {
             values = new ContentValues();
 
-            values.put(KEY_PERNR, localconvenienceBean.getPernr());
-            values.put(KEY_ENDDA, localconvenienceBean.getEndda());
-            values.put(KEY_TO_TIME, localconvenienceBean.getTo_time());
-            values.put(KEY_FROM_LAT, localconvenienceBean.getFrom_lat());
-            values.put(KEY_TO_LNG, localconvenienceBean.getTo_lng());
+            values.put(KEY_WayPoints, wayPoints.getWayPoints());
 
+            where = KEY_PERNR + "='" + wayPoints.getPernr() + "'" + " AND " +
+                    KEY_BEGDA + "='" + wayPoints.getBegda() + "'" + " AND " +
+                    KEY_FROM_TIME + "='" + wayPoints.getFrom_time() + "'";
 
-            where  = KEY_PERNR +"='"+pernr+"'";
             // update Row
-            long i = db.update(TABLE_LOCAL_CONVENIENCE, values, where, null);
+            long i = db.update(TABLE_WayPoints, values, where, null);
             // Insert into database successfully.
             db.setTransactionSuccessful();
         } catch (SQLiteException e) {
@@ -1214,61 +1313,46 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.close();
         }
 
-    }*/
-   @SuppressLint("Range")
-   public ArrayList<LocalConvenienceBean1> getLocalConvience(Context context, String pernr) {
-       String userid = LoginBean.getUseid();
-       ArrayList<LocalConvenienceBean1> list_employeeGPSActivity = new ArrayList<>();
-       list_employeeGPSActivity.clear();
+    }
+    public void updateWayPointData1(WayPoints wayPoints) {
 
-       SQLiteDatabase db = this.getReadableDatabase();
-       String selectQuery = null;
-       Cursor cursor = null;
-       try {
+        // Open the database for writing
+        SQLiteDatabase db = this.getWritableDatabase();
+        // Start the transaction.
+        db.beginTransactionNonExclusive();
+        String selectQuery = null;
+        ContentValues values;
+        String where = "";
 
-           selectQuery = "SELECT * FROM " + TABLE_LOCAL_CONVENIENCE
-                   + " WHERE " + KEY_PERNR + " = '" + pernr + "'";
-                   /*+ " AND " + KEY_BEGDA + " = '" + date + "'";*/
+        try {
+            values = new ContentValues();
 
+            values.put(KEY_PERNR, wayPoints.getPernr());
+            values.put(KEY_BEGDA, wayPoints.getBegda());
+            values.put(KEY_ENDDA, wayPoints.getEndda());
+            values.put(KEY_FROM_TIME, wayPoints.getFrom_time());
+            values.put(KEY_TO_TIME, wayPoints.getTo_time());
+            values.put(KEY_WayPoints, wayPoints.getWayPoints());
 
-           cursor = db.rawQuery(selectQuery, null);
+            where = KEY_PERNR + "='" + wayPoints.getPernr() + "'" + " AND " +
+                    KEY_BEGDA + "='" + wayPoints.getBegda() + "'" + " AND " +
+                    KEY_FROM_TIME + "='" + wayPoints.getFrom_time() + "'";
 
-           if (cursor.getCount() > 0) {
+            // update Row
+            db.update(TABLE_WayPoints, values, where, null);
+            // Insert into database successfully.
+            db.setTransactionSuccessful();
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+        } finally {
+            // End the transaction.
+            db.endTransaction();
+            // Close database
+            db.close();
+        }
 
-               while (cursor.moveToNext()) {
+    }
 
-                   LocalConvenienceBean1 employeeGPSActivity = new LocalConvenienceBean1();
-
-                   employeeGPSActivity.setPernr(cursor.getString(cursor.getColumnIndex(KEY_PERNR)));
-                   employeeGPSActivity.setBegda(cursor.getString(cursor.getColumnIndex(KEY_BEGDA)));
-                   employeeGPSActivity.setEndda(cursor.getString(cursor.getColumnIndex(KEY_ENDDA)));
-                   employeeGPSActivity.setFrom_time(cursor.getString(cursor.getColumnIndex(KEY_FROM_TIME)));
-                   employeeGPSActivity.setTo_time(cursor.getString(cursor.getColumnIndex(KEY_TO_TIME)));
-                   employeeGPSActivity.setFrom_lat(cursor.getString(cursor.getColumnIndex(KEY_FROM_LAT)));
-                   employeeGPSActivity.setTo_lat(cursor.getString(cursor.getColumnIndex(KEY_TO_LAT)));
-                   employeeGPSActivity.setFrom_lng(cursor.getString(cursor.getColumnIndex(KEY_FROM_LNG)));
-                   employeeGPSActivity.setTo_lng(cursor.getString(cursor.getColumnIndex(KEY_TO_LNG)));
-                   employeeGPSActivity.setStart_loc(cursor.getString(cursor.getColumnIndex(KEY_START_LOC)));
-                   employeeGPSActivity.setEnd_loc(cursor.getString(cursor.getColumnIndex(KEY_END_LOC)));
-                   employeeGPSActivity.setDistance(cursor.getString(cursor.getColumnIndex(KEY_DISTANCE)));
-
-                   list_employeeGPSActivity.add(employeeGPSActivity);
-               }
-
-           }
-       } catch (SQLiteException e) {
-           e.printStackTrace();
-
-       } finally {
-           if (cursor != null) {
-               cursor.close();
-           }
-
-
-           db.close();
-       }
-       return list_employeeGPSActivity;
-   }
 
     public void insertDOMTravelEntryDocument(TravelEntryDomDocBean travelEntryDomDocBean) {
         // Open the database for writing
@@ -1668,75 +1752,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean isRecordExist1(String tablename, String field, String fieldvalue, String field1, String fieldvalue1) {
-        SQLiteDatabase db = this.getReadableDatabase();
-        String selectQuery = null;
-        Cursor c;
-
-        String Query = "SELECT * FROM " + tablename + " WHERE " +  field +  " = '" +  fieldvalue + "'" + " AND " + field1 + " = '" + fieldvalue1 + "'";
-        Cursor cursor = db.rawQuery(Query, null);
-        if (cursor.getCount() <= 0) {
-            cursor.close();
-            return false;
-        }
-        cursor.close();
-        return true;
-    }
 
 
-    /*public void EXPTravelEntryDocument(TravelEntryDomDocBean travelEntryDomDocBean, String serialno) {
-        // Open the database for writing
-        SQLiteDatabase db = this.getWritableDatabase();
-        // Start the transaction.
-        db.beginTransactionNonExclusive();
-        ContentValues values;
-        String where = "";
-
-        try {
-            values = new ContentValues();
-            values.put(PERNR, travelEntryDomDocBean.getPernr());
-            values.put(SERIALNO, travelEntryDomDocBean.getSerialno());
-            values.put(START_DATE, travelEntryDomDocBean.getStart_date());
-            values.put(END_DATE, travelEntryDomDocBean.getEnd_date());
-            values.put(COUNTRY_NAME, travelEntryDomDocBean.getCountry());
-            values.put(LOCATION, travelEntryDomDocBean.getLocation());
-            values.put(EXPENSES_TYPE, travelEntryDomDocBean.getExpenses_type());
-            values.put(AMOUNT, travelEntryDomDocBean.getAmount());
-            values.put(CURRENCY, travelEntryDomDocBean.getCurrency());
-            values.put(TAX_CODE, travelEntryDomDocBean.getTax_code());
-            values.put(FROM_DATE, travelEntryDomDocBean.getFrom_date());
-            values.put(TO_DATE, travelEntryDomDocBean.getTo_date());
-            values.put(COUNTRY_NAME1, travelEntryDomDocBean.getRegion());
-            values.put(DESCRIPTION, travelEntryDomDocBean.getDescription());
-            values.put(LOCATION1, travelEntryDomDocBean.getLocation1());
-            values.put(TRAV_TYPE, travelEntryDomDocBean.getType());
-            values.put(CARDINFO, travelEntryDomDocBean.getGstin_no());
-
-
-            if(travelEntryDomDocBean.getSerialno().equalsIgnoreCase(serialno))
-            {
-                where = SERIALNO +"='"+serialno+"'";
-                // update Row
-                long i = db.update(TABLE_TRAVEL_EXP_EXPENSES, values, where, null);
-            }
-            else{
-                // Insert Row
-                long i = db.insert(TABLE_TRAVEL_EXP_EXPENSES, null, values);
-            }
-
-            // Insert into database successfully.
-            db.setTransactionSuccessful();
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        } finally {
-            // End the transaction.
-            db.endTransaction();
-            // Close database
-            db.close();
-        }
-
-    }
-*/
     // Insert Pending leave
     public void createPendingLeave(
             String key_lev_no,
@@ -2040,19 +2057,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-    public void insertTaskPending(
-            String assigner,
-            String mrc_date,
-            String mrc_time,
-            String agenda,
-            String pernr,
-            String date_from,
-            String date_to,
-            String mrc_type,
-            String dep_name,
-            String dno,
-            String srno,
-            String checker_id) {
+    public void insertTaskPending(String assigner, String mrc_date, String mrc_time, String agenda, String pernr, String date_from, String date_to,
+            String mrc_type, String dep_name, String dno, String srno, String checker_id) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
@@ -2085,18 +2091,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Country Data
 
-    public void insertCountry(
-            String land1,
-            String landx) {
+    public void insertCountry(String land1, String landx) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_LANDX, landx);
-
-
         // insert row
         Log.d("data_country", " " + values);
 
@@ -2108,21 +2108,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //Insert Region Data
 
-    public void insertRegion(
-            String land1,
-            String bland,
-            String regio,
-            String bezei) {
+    public void insertRegion(String land1, String bland, String regio, String bezei) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_BLAND, bland);
         values.put(KEY_REGIO, regio);
         values.put(KEY_BEZEI, bezei);
-
 
         // insert row
         Log.d("data_region", " " + values);
@@ -2135,142 +2129,98 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     //insert District Data
 
-    public void insertDistrict(
-            String land1,
-            String regio,
-            String cityc,
-            String bezei) {
+    public void insertDistrict(String land1, String regio, String cityc, String bezei) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_REGIO, regio);
         values.put(KEY_CITYC, cityc);
         values.put(KEY_BEZEI, bezei);
 
-
-        // insert row
-        Log.d("data_district", " " + values);
-
         Long result = db.insert(TABLE_DISTRICT, null, values);
 
-        Log.d("data_district", " " + result);
 
     }
 
     //insert Tehsil Data
 
-    public void insertTehsil(
-            String land1,
-            String regio,
-            String district,
-            String tehsil,
-            String tehsil_txt) {
+    public void insertTehsil(String land1, String regio, String district, String tehsil, String tehsil_txt) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_LAND1, land1);
         values.put(KEY_REGIO, regio);
         values.put(KEY_DISTRICT, district);
         values.put(KEY_TEHSIL, tehsil);
         values.put(KEY_TEHSIL_TEXT, tehsil_txt);
 
-
-        // insert row
-        Log.d("data_tehsil", " " + values);
-
         Long result = db.insert(TABLE_TEHSIL, null, values);
 
-        Log.d("data_tehsil", " " + result);
 
     }
 
-    public void insertTaxcode(
-            String mandt,
-            String taxcode,
-            String text
-    ) {
+    public void insertTaxcode(String mandt, String taxcode, String text) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_MANDT, mandt);
         values.put(KEY_TAXCODE, taxcode);
         values.put(KEY_TEXT, text);
-
-        // insert row
-        Log.d("data_taxcode", " " + values);
-
-        Long result = db.insert(TABLE_TAXCODE, null, values);
-
-        Log.d("data_taxcode", " " + result);
-
+       db.insert(TABLE_TAXCODE, null, values);
     }
 
-    public void insertExpenses(
-            String spkzl,
-            String sptxt
-    ) {
+    public void insertVendorcode(VendorListModel.Response response) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
+        values.put(KEY_VENDOR_CODE, response.getLifnr());
+        values.put(KEY_VENDOR_NAME, response.getName1());
+        values.put(KEY_VENDOR_ADDRESS, response.getAdd());
+        values.put(KEY_VENDOR_CONTACT_NO, response.getTelf1());
+        values.put(KEY_VENDOR_STREET_ADDRESS, response.getStras());
+        values.put(KEY_VENDOR_REGION, response.getOrt01());
+        values.put(KEY_VENDOR_CITY, response.getOrt02());
+        db.insert(TABLE_VENDORCODE, null, values);
+    }
+
+    public void inserGatePassData(GatePassModel.Response response) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_GATEPASS_NO, response.getDocno());
+        values.put(KEY_GATEPASS_VISITORNAME, response.getNameVisitor());
+        db.insert(TABLE_OPEN_GATE_PASS, null, values);
+    }
+
+    public void insertExpenses(String spkzl, String sptxt) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
         values.put(KEY_SPKZL, spkzl);
         values.put(KEY_SPTXT, sptxt);
-
-        // insert row
-        Log.d("data_Expenses", " " + values);
-
         Long result = db.insert(TABLE_EXPTYPE, null, values);
-
-        Log.d("data_Expenses", " " + result);
 
     }
 
-    public void insertCurrency(
-            String waers,
-            String ltext
-    ) {
+    public void insertCurrency(String waers, String ltext) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-//        att_emp
         values.put(KEY_WAERS, waers);
         values.put(KEY_LTEXT, ltext);
 
-        // insert row
-        Log.d("data_currency", " " + values);
-
         Long result = db.insert(TABLE_CURRENCY, null, values);
 
-        Log.d("data_currency", " " + result);
 
     }
 
 
     // Insert Task Create Data
-    public void createTask(
-            String key_pernr,
-            String key_budat,
-            String key_time_in,
-            String key_description,
-            String key_task_for,
-            String key_task_date_from,
-            String key_task_date_to,
-            String key_task_mrc_type,
-            String key_task_department) {
+    public void createTask(String key_pernr, String key_budat, String key_time_in, String key_description, String key_task_for, String key_task_date_from, String key_task_date_to, String key_task_mrc_type, String key_task_department) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-
         values.put(KEY_PERNR, key_pernr);
         values.put(KEY_BUDAT, key_budat);
         values.put(KEY_TIME_IN, key_time_in);
@@ -2281,12 +2231,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_MRC_TYPE, key_task_mrc_type);
         values.put(KEY_DEPARTMENT, key_task_department);
 
-        // insert row
-        Log.d("data_of_values", " " + values);
-
         Long result = db.insert(TABLE_TASK_CREATE, null, values);
 
-        Log.d("data_of_table", " " + result);
+
 
     }
 
@@ -2327,8 +2274,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return discription;
     }
 
-
-    // Leave Balance data from database table and put into array
 
     @SuppressLint("Range")
     public ArrayList<String> getLeaveBalance() {
@@ -2570,35 +2515,67 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public ArrayList<Taxcode> getTaxcode() {
-
         SQLiteDatabase db = this.getReadableDatabase();
-
         String selectQuery = "SELECT  * FROM " + TABLE_TAXCODE;
-
         Cursor d = db.rawQuery(selectQuery, null);
-
-        //Log.d("res_taxcode", " " + d.getCount());
-
         ArrayList<Taxcode> taxcodeArrayList = new ArrayList<Taxcode>();
-
-
         if (d.moveToFirst()) {
             while (!d.isAfterLast()) {
                 Taxcode taxcode = new Taxcode();
                 taxcode.setMandt(d.getString(d.getColumnIndex(KEY_MANDT)));
                 taxcode.setTaxcode(d.getString(d.getColumnIndex(KEY_TAXCODE)));
                 taxcode.setText(d.getString(d.getColumnIndex(KEY_TEXT)));
-
-
                 taxcodeArrayList.add(taxcode);
                 d.moveToNext();
             }
         }
-
-        Log.d("tehsil_list", "" + taxcodeArrayList);
         return taxcodeArrayList;
     }
 
+    @SuppressLint("Range")
+    public ArrayList<VendorListModel.Response> getVendorcode(String code) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_CODE + " LIKE '%" + code + "%'";
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                VendorListModel.Response vendorListModel = new VendorListModel.Response();
+                vendorListModel.setLifnr(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CODE)));
+                vendorListModel.setName1(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_NAME)));
+                vendorListModel.setAdd(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_ADDRESS)));
+                vendorListModel.setTelf1(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CONTACT_NO)));
+                vendorListModel.setStras(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_STREET_ADDRESS)));
+                vendorListModel.setOrt01(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_REGION)));
+                vendorListModel.setOrt02(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CITY)));
+                taxcodeArrayList.add(vendorListModel);
+                cursor.moveToNext();
+            }
+        }
+        return taxcodeArrayList;
+    }
+
+
+    @SuppressLint("Range")
+    public ArrayList<GatePassModel.Response> gatePassList() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_OPEN_GATE_PASS;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        ArrayList<GatePassModel.Response> taxcodeArrayList = new ArrayList<GatePassModel.Response>();
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                GatePassModel.Response gatePassModel = new GatePassModel.Response();
+                gatePassModel.setDocno(cursor.getString(cursor.getColumnIndex(KEY_GATEPASS_NO)));
+                gatePassModel.setNameVisitor(cursor.getString(cursor.getColumnIndex(KEY_GATEPASS_VISITORNAME)));
+                taxcodeArrayList.add(gatePassModel);
+                cursor.moveToNext();
+            }
+        }
+        return taxcodeArrayList;
+    }
+
+
+    @SuppressLint("Range")
     public ArrayList<Expenses> getExpenses() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2730,7 +2707,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // Select Pending Leave InDirect Reporting data from database table and put into array
-
+    @SuppressLint("Range")
     public ArrayList<States> getPendingLeaveInDirect() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2765,7 +2742,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // Select Pending OD data from database table and put into array
-
+    @SuppressLint("Range")
     public ArrayList<OD> getPendingOdDirect() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2877,7 +2854,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // Select Task Created from database table and put into array
-
+    @SuppressLint("Range")
     public ArrayList<TaskCreated> getTaskCreated() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2915,7 +2892,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // Select Task Pending from database table and put into array
-
+    @SuppressLint("Range")
     public ArrayList<TaskPending> getPendingTask() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2956,7 +2933,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     // Select Task Completed from database table and put into array
-
+    @SuppressLint("Range")
     public ArrayList<TaskPending> getCompletedTask() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -2973,16 +2950,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (d.moveToFirst()) {
             while (!d.isAfterLast()) {
                 TaskPending task = new TaskPending();
-//                task.setPernr(d.getString(d.getColumnIndex(KEY_PERNR)));
-//                task.setCurrentDate(d.getString(d.getColumnIndex(KEY_BUDAT)));
-//                task.setCurrentTime(d.getString(d.getColumnIndex(KEY_TIME_IN)));
-//                task.setDescription(d.getString(d.getColumnIndex(KEY_DESCRIPTION)));
-//                task.setTask_assign_to(d.getString(d.getColumnIndex(KEY_TASK_FOR)));
-//                task.setFromDateEtxt(d.getString(d.getColumnIndex(KEY_TASK_DATE_FROM)));
-//                task.setToDateEtxt(d.getString(d.getColumnIndex(KEY_TASK_DATE_TO)));
-//                task.setSync(d.getString(d.getColumnIndex(KEY_SYNC)));
-//                task.setMrc_type(d.getString(d.getColumnIndex(KEY_MRC_TYPE)));
-//                task.setDepartment(d.getString(d.getColumnIndex(KEY_DEPARTMENT)));
+
                 task.setSrno(d.getString(d.getColumnIndex(KEY_SRNO)));
                 task.setDno(d.getString(d.getColumnIndex(KEY_DNO)));
                 task.setRemark(d.getString(d.getColumnIndex(KEY_REMARK)));
@@ -2996,264 +2964,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     // Insert Leave Balance Data to table
-
-    public String insertLeaveBalance() {
-
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-
-        deleteleaveBalance();
-
-
-        try {
-
-
-            param.add(new BasicNameValuePair("pernr", userModel.uid));
-
-            obj_leave_balance = CustomHttpClient.executeHttpPost1(SapUrl.leave_balance, param);
-
-            Log.d("use_per", "" + userModel.uid);
-
-            Log.d("leavebal", "" + obj_leave_balance);
-
-            JSONArray ja_mat = new JSONArray(obj_leave_balance);
-
-            Log.d("json55", "" + ja_mat);
-
-
-            for (int i = 0; i < ja_mat.length(); i++) {
-
-                JSONObject jo_matnr = ja_mat.getJSONObject(i);
-
-
-                leavetype = jo_matnr.getString("leaveType");
-/*                ename = jo_matnr.getString("ename");
-                btext = jo_matnr.getString("btext");*/
-
-                createLeaveBalance(leavetype);
-
-            }
-
-        } catch (Exception e) {
-            /* progressBarStatus = 40 ;*/
-            Log.d("msg", "" + e);
-        }
-
-        return obj_leave_balance;
-    }
-
-
-    public void insertAttendanceData(String att_emp) {
-
-        deleteattendance();
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
-        StrictMode.setThreadPolicy(policy);
-
-        al = new ArrayList<>();
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-        param.clear();
-        Log.d("att_emp", att_emp);
-
-        param.add(new BasicNameValuePair("PERNR", att_emp));
-
-
-        try {
-            String obj = CustomHttpClient.executeHttpPost1(SapUrl.attendance_report, param);
-
-            Log.d("att_emp_obj", obj);
-
-            if (obj != null) {
-
-                JSONObject jsonObj = new JSONObject(obj);
-                JSONArray ja = jsonObj.getJSONArray("attendance");
-
-
-                deleteattendance();
-
-                for (int i = 0; i < ja.length(); i++) {
-
-                    JSONObject jo = ja.getJSONObject(i);
-                    // login = jo.getString("LOGIN");
-
-
-                    insertAttendance(att_emp,
-                            jo.getString("begdat"),
-                            jo.getString("indz"),
-                            jo.getString("iodz"),
-                            jo.getString("totdz"),
-                            jo.getString("atn_status"),
-                            jo.getString("leave_typ"));
-                }
-
-            }
-
-
-        } catch (Exception E) {
-
-        }
-
-    }
-
-
-    public void insertLeaveData(String att_emp) {
-
-        deleteleave();
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
-        StrictMode.setThreadPolicy(policy);
-
-        al = new ArrayList<>();
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-        param.clear();
-        Log.d("lev_emp", att_emp);
-
-        param.add(new BasicNameValuePair("PERNR", att_emp));
-
-
-        try {
-            String obj = CustomHttpClient.executeHttpPost1(SapUrl.leave_report, param);
-
-            Log.d("lev_emp_obj", obj);
-
-            if (obj != null) {
-
-                JSONObject jsonObj = new JSONObject(obj);
-                JSONArray ja = jsonObj.getJSONArray("leave");
-
-
-                deleteleave();
-
-                for (int i = 0; i < ja.length(); i++) {
-
-                    JSONObject jo = ja.getJSONObject(i);
-                    // login = jo.getString("LOGIN");
-
-
-                    insertLeave(att_emp,
-                            jo.getString("leav_no"),
-                            jo.getString("horo"),
-                            jo.getString("lev_frm"),
-                            jo.getString("lev_to"),
-                            jo.getString("lev_typ"),
-                            jo.getString("apphod"),
-                            jo.getString("dele"),
-                            jo.getString("reason"));
-                }
-
-            }
-
-
-        } catch (Exception E) {
-
-        }
-
-    }
-
-
-    public void insertODData(String att_emp) {
-
-        deleteod();
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
-        StrictMode.setThreadPolicy(policy);
-
-        al = new ArrayList<>();
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-        param.clear();
-        Log.d("od_emp", att_emp);
-
-        param.add(new BasicNameValuePair("pernr", att_emp));
-
-
-        try {
-            String obj = CustomHttpClient.executeHttpPost1(SapUrl.od_report, param);
-
-            Log.d("od_emp_obj", obj);
-
-            if (obj != null) {
-
-                JSONObject jsonObj = new JSONObject(obj);
-                JSONArray ja = jsonObj.getJSONArray("od");
-                deleteod();
-
-                for (int i = 0; i < ja.length(); i++) {
-
-                    JSONObject jo = ja.getJSONObject(i);
-                    // login = jo.getString("LOGIN");
-
-                    insertOD(att_emp,
-                            jo.getString("odno"),
-                            jo.getString("horo"),
-                            jo.getString("approved"),
-                            jo.getString("odstdate_c"),
-                            jo.getString("odedate_c"),
-                            jo.getString("atn_status"),
-                            jo.getString("vplace"),
-                            jo.getString("purpose1"));
-                }
-
-            }
-
-
-        } catch (Exception E) {
-
-        }
-
-    }
-
-
-    public void insertEmployeedata(String att_emp) {
-
-        deleteempinfo();
-
-        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
-        StrictMode.setThreadPolicy(policy);
-
-        al = new ArrayList<>();
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-        param.clear();
-        Log.d("emp", att_emp);
-
-        param.add(new BasicNameValuePair("pernr", att_emp));
-
-
-        try {
-            String obj = CustomHttpClient.executeHttpPost1(SapUrl.employee_info, param);
-
-            Log.d("emp_obj", obj);
-
-            if (obj != null) {
-
-                JSONObject jsonObj = new JSONObject(obj);
-                JSONArray ja = jsonObj.getJSONArray("emp");
-                deleteod();
-
-                for (int i = 0; i < ja.length(); i++) {
-
-                    JSONObject jo = ja.getJSONObject(i);
-                    // login = jo.getString("LOGIN");
-
-                    insertEmployeeInfo(att_emp,
-                            jo.getString("btrtlTxt"),
-                            jo.getString("perskTxt"),
-                            jo.getString("telnr"),
-                            jo.getString("emailShkt"),
-                            jo.getString("hodEname"),
-                            jo.getString("address"),
-                            jo.getString("birth1"),
-                            jo.getString("bankn"),
-                            jo.getString("bankTxt"));
-                }
-
-            }
-
-
-        } catch (Exception E) {
-
-        }
-
-    }
-
 
     /**********************  insert login detail ************************************/
     public void insertLoginData(
@@ -3373,7 +3083,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
     /*********************************** select login data  ***************************************/
-
+    @SuppressLint("Range")
     public boolean getLogin() {
         long t = 0;
         SQLiteDatabase db = null;
@@ -3448,7 +3158,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    //
+    @SuppressLint("Range")
     public AttendanceBean getMarkAttendanceByDate(String date, Context mContext) {
         AttendanceBean array_list = new AttendanceBean();
         Cursor res = null;
@@ -3531,6 +3241,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /*   get all attendance */
 
+    @SuppressLint("Range")
     public ArrayList<AttendanceBean> getAllAttendance() {
         ArrayList<AttendanceBean> array_list = new ArrayList<AttendanceBean>();
         SQLiteDatabase db = null;
@@ -3652,7 +3363,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return t;
     }
 
-
+    @SuppressLint("Range")
     //Dom Expenses Data
     public TravelEntryDomDocBean getDomTravelEntryInformation(String enq_docno, String serialno) {
 
@@ -3714,17 +3425,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
 
 
-
-    public LocalConvenienceBean getLocalConvinienceData(String date ,String pernr,String time) {
+    @SuppressLint("Range")
+    public LocalConvenienceBean getLocalConvinienceData(String endat ,String endtm) {
 
         LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean();
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = null;
+        Cursor cursordom;
         db.beginTransactionNonExclusive();
         try {
 
-            selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_PERNR + " = '" + pernr + "'" + " AND " + KEY_BEGDA + " = '" + date + "'" + " AND " + KEY_FROM_TIME + " = '" + time + "'";
+            selectQuery = "SELECT * FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_ENDDA + " = '" + endat + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'";
 
             cursordom = db.rawQuery(selectQuery, null);
 
@@ -3747,6 +3459,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         localConvenienceBean.setStart_loc(cursordom.getString(cursordom.getColumnIndex(KEY_START_LOC)));
                         localConvenienceBean.setEnd_loc(cursordom.getString(cursordom.getColumnIndex(KEY_END_LOC)));
                         localConvenienceBean.setDistance(cursordom.getString(cursordom.getColumnIndex(KEY_DISTANCE)));
+                        localConvenienceBean.setPhoto1(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO1)));
+                        localConvenienceBean.setPhoto2(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO2)));
 
 
                         cursordom.moveToNext();
@@ -3770,16 +3484,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
     public LocalConvenienceBean getLocalConvinienceData() {
 
         LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean();
         SQLiteDatabase db = this.getReadableDatabase();
 
         String selectQuery = null;
+        Cursor cursordom;
         db.beginTransactionNonExclusive();
         try {
 
-            selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE;
+            selectQuery = "SELECT * FROM " + TABLE_LOCAL_CONVENIENCE;
 
             cursordom = db.rawQuery(selectQuery, null);
 
@@ -3802,6 +3518,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         localConvenienceBean.setStart_loc(cursordom.getString(cursordom.getColumnIndex(KEY_START_LOC)));
                         localConvenienceBean.setEnd_loc(cursordom.getString(cursordom.getColumnIndex(KEY_END_LOC)));
                         localConvenienceBean.setDistance(cursordom.getString(cursordom.getColumnIndex(KEY_DISTANCE)));
+                        localConvenienceBean.setPhoto1(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO1)));
+                        localConvenienceBean.setPhoto2(cursordom.getString(cursordom.getColumnIndex(KEY_PHOTO2)));
 
 
                         cursordom.moveToNext();
@@ -3825,7 +3543,57 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    @SuppressLint("Range")
+    public WayPoints getWayPointsData(String begda, String from_time) {
 
+        WayPoints wayPoints = new WayPoints();
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        String selectQuery = null;
+        Cursor cursordom;
+        db.beginTransactionNonExclusive();
+        try {
+
+
+            selectQuery = "SELECT * FROM " + TABLE_WayPoints + " WHERE " + KEY_BEGDA + " = '" + begda + "'" + " AND " + KEY_FROM_TIME + " = '" + from_time + "'";
+
+
+            cursordom = db.rawQuery(selectQuery, null);
+
+            Log.e("COUNTSIZE", "%%%%%" + cursordom.getCount());
+
+            if (cursordom.getCount() > 0) {
+                if (cursordom.moveToFirst()) {
+                    while (!cursordom.isAfterLast()) {
+                        wayPoints = new WayPoints();
+                        wayPoints.setPernr(cursordom.getString(cursordom.getColumnIndex(KEY_PERNR)));
+                        wayPoints.setBegda(cursordom.getString(cursordom.getColumnIndex(KEY_BEGDA)));
+                        wayPoints.setEndda(cursordom.getString(cursordom.getColumnIndex(KEY_ENDDA)));
+                        wayPoints.setFrom_time(cursordom.getString(cursordom.getColumnIndex(KEY_FROM_TIME)));
+                        wayPoints.setTo_time(cursordom.getString(cursordom.getColumnIndex(KEY_TO_TIME)));
+                        wayPoints.setWayPoints(cursordom.getString(cursordom.getColumnIndex(KEY_WayPoints)));
+
+                        cursordom.moveToNext();
+
+                    }
+                }
+                db.setTransactionSuccessful();
+            }
+
+        } catch (SQLiteException e) {
+            e.printStackTrace();
+
+        } finally {
+            db.endTransaction();
+            // End the transaction.
+            db.close();
+            // Close database
+        }
+
+        return wayPoints;
+    }
+
+    @SuppressLint("Range")
     public ArrayList<LocalConvenienceBean> getLocalConveyance() {
 
         LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean();
@@ -3836,7 +3604,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.beginTransactionNonExclusive();
         try {
 
-            String selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " +  KEY_ENDDA +  " != '" +  "" + "'" + " AND " + KEY_TO_TIME + " != '" + "" + "'" ;
+            String selectQuery = "SELECT  *  FROM " + TABLE_LOCAL_CONVENIENCE;
 
 
             Cursor cursor = db.rawQuery(selectQuery, null);
@@ -3860,7 +3628,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                         localConvenienceBean.setStart_loc(cursor.getString(cursor.getColumnIndex(KEY_START_LOC)));
                         localConvenienceBean.setEnd_loc(cursor.getString(cursor.getColumnIndex(KEY_END_LOC)));
                         localConvenienceBean.setDistance(cursor.getString(cursor.getColumnIndex(KEY_DISTANCE)));
-
+                        localConvenienceBean.setPhoto1(cursor.getString(cursor.getColumnIndex(KEY_PHOTO1)));
+                        localConvenienceBean.setPhoto2(cursor.getString(cursor.getColumnIndex(KEY_PHOTO2)));
 
                         list_document.add(localConvenienceBean);
 
@@ -3885,70 +3654,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list_document;
     }
 
-   /* //Dom Expenses Data
-    public ArrayList<TravelTripDomDocBean> getDomTravelEntryInformation2(String enq_docno,String reinr) {
-        ArrayList<TravelTripDomDocBean> travelTripDomDocBeanArrayList = new ArrayList<TravelTripDomDocBean>();
-       //TravelTripDomDocBean travelTripDomDocBean = new TravelTripDomDocBean();
-        SQLiteDatabase db = this.getReadableDatabase();
 
-        String selectQuery = null;
-        db.beginTransactionNonExclusive();
-        try {
-
-            selectQuery = "SELECT  *  FROM " + TABLE_TRAVEL_DOM_EXPENSES1 + " WHERE " + PERNR + "='" + enq_docno + "'" + " AND " + REINR + " = '" + reinr + "'";
-
-            cursordom2 = db.rawQuery(selectQuery, null);
-
-            Log.e("COUNTSIZE123", "%%%%%" + cursordom2.getCount());
-
-            if (cursordom2.getCount() > 0) {
-                if (cursordom2.moveToFirst()) {
-                    while (!cursordom2.isAfterLast()) {
-
-                            TravelTripDomDocBean travelTripDomDocBean = new TravelTripDomDocBean();
-
-                            travelTripDomDocBean.setPernr(cursordom2.getString(cursordom2.getColumnIndex(PERNR)));
-                            travelTripDomDocBean.setSerialno(cursordom2.getString(cursordom2.getColumnIndex(SERIALNO)));
-                            travelTripDomDocBean.setStart_date(cursordom2.getString(cursordom2.getColumnIndex(START_DATE)));
-                            travelTripDomDocBean.setEnd_date(cursordom2.getString(cursordom2.getColumnIndex(END_DATE)));
-                            travelTripDomDocBean.setCountry(cursordom2.getString(cursordom2.getColumnIndex(COUNTRY_NAME)));
-                            travelTripDomDocBean.setLocation(cursordom2.getString(cursordom2.getColumnIndex(LOCATION)));
-                            travelTripDomDocBean.setExpenses_type(cursordom2.getString(cursordom2.getColumnIndex(EXPENSES_TYPE)));
-                            Log.e("EXPTYPE1", "&&&&" + cursordom2.getString(cursordom2.getColumnIndex(EXPENSES_TYPE)));
-                            travelTripDomDocBean.setAmount(cursordom2.getString(cursordom2.getColumnIndex(AMOUNT)));
-                            Log.e("AMTTYPE1", "&&&&" + cursordom2.getString(cursordom2.getColumnIndex(AMOUNT)));
-                            travelTripDomDocBean.setCurrency(cursordom2.getString(cursordom2.getColumnIndex(CURRENCY)));
-                            travelTripDomDocBean.setTax_code(cursordom2.getString(cursordom2.getColumnIndex(TAX_CODE)));
-                            travelTripDomDocBean.setFrom_date(cursordom2.getString(cursordom2.getColumnIndex(FROM_DATE)));
-                            travelTripDomDocBean.setTo_date(cursordom2.getString(cursordom2.getColumnIndex(TO_DATE)));
-                            travelTripDomDocBean.setRegion(cursordom2.getString(cursordom2.getColumnIndex(REGION)));
-                            travelTripDomDocBean.setDescription(cursordom2.getString(cursordom2.getColumnIndex(DESCRIPTION)));
-                            travelTripDomDocBean.setLocation1(cursordom2.getString(cursordom2.getColumnIndex(LOCATION1)));
-                            travelTripDomDocBean.setType(cursordom2.getString(cursordom2.getColumnIndex(TRAV_TYPE)));
-                            travelTripDomDocBean.setReinr(cursordom2.getString(cursordom2.getColumnIndex(REINR)));
-                            travelTripDomDocBean.setGstin_no(cursordom2.getString(cursordom2.getColumnIndex(GSTIN_NO)));
-                            travelTripDomDocBeanArrayList.add(travelTripDomDocBean);
-                            cursordom2.moveToNext();
-
-                    }
-                }
-                db.setTransactionSuccessful();
-            }
-
-
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-
-        } finally {
-            db.endTransaction();
-            // End the transaction.
-            db.close();
-            // Close database
-        }
-
-        return travelTripDomDocBeanArrayList;
-    }*/
-
+    @SuppressLint("Range")
     public TravelEntryDomDocBean getDomTravelEntryInformation1(String enq_docno) {
 
         TravelEntryDomDocBean travelEntryDomDocBean = new TravelEntryDomDocBean();
@@ -4007,6 +3714,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return travelEntryDomDocBean;
     }
 
+    @SuppressLint("Range")
     public List<TravelTripDomDocBean> getDomTravelEntryInformation3(String enq_docno, String reinr) {
 
         List<TravelTripDomDocBean> travelTripDomDocBeanArrayList = new ArrayList<TravelTripDomDocBean>();
@@ -4082,7 +3790,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-    //Dom Expenses Data
+    @SuppressLint("Range")
     public TravelEntryExpDocBean getExpTravelEntryInformation(String enq_docno, String serialno) {
 
         TravelEntryExpDocBean travelEntryDomDocBean = new TravelEntryExpDocBean();
@@ -4141,65 +3849,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return travelEntryDomDocBean;
     }
 
-   /* //Dom Expenses Data
-    public TravelTripExpDocBean getExpTravelEntryInformation2(String enq_docno, String serialno, String reinr) {
 
-        TravelTripExpDocBean travelTripExpDocBean = new TravelTripExpDocBean();
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        String selectQuery = null;
-        db.beginTransactionNonExclusive();
-        try {
-
-            selectQuery = "SELECT  *  FROM " + TABLE_TRAVEL_DOM_EXPENSES1 + " WHERE " + PERNR + "='" + enq_docno + "'" + " AND " + REINR + " = '" + reinr + "'";
-            cursorexp2 = db.rawQuery(selectQuery, null);
-
-            Log.e("COUNTSIZE","%%%%%"+cursorexp2.getCount());
-
-            if (cursorexp2.getCount() > 0) {
-                if (cursorexp2.moveToFirst()) {
-                    while (!cursorexp2.isAfterLast()) {
-                        travelTripExpDocBean = new TravelTripExpDocBean();
-
-                        travelTripExpDocBean.setPernr(cursorexp2.getString(cursorexp2.getColumnIndex(PERNR)));
-                        travelTripExpDocBean.setSerialno(cursorexp2.getString(cursorexp2.getColumnIndex(SERIALNO)));
-                        travelTripExpDocBean.setStart_date(cursorexp2.getString(cursorexp2.getColumnIndex(START_DATE)));
-                        travelTripExpDocBean.setEnd_date(cursorexp2.getString(cursorexp2.getColumnIndex(END_DATE)));
-                        travelTripExpDocBean.setCountry(cursorexp2.getString(cursorexp2.getColumnIndex(COUNTRY_NAME)));
-                        travelTripExpDocBean.setLocation(cursorexp2.getString(cursorexp2.getColumnIndex(LOCATION)));
-                        travelTripExpDocBean.setExpenses_type(cursorexp2.getString(cursorexp2.getColumnIndex(EXPENSES_TYPE)));
-                        travelTripExpDocBean.setAmount(cursorexp2.getString(cursorexp2.getColumnIndex(AMOUNT)));
-                        travelTripExpDocBean.setCurrency(cursorexp2.getString(cursorexp2.getColumnIndex(CURRENCY)));
-                        travelTripExpDocBean.setTax_code(cursorexp2.getString(cursorexp2.getColumnIndex(TAX_CODE)));
-                        travelTripExpDocBean.setFrom_date(cursorexp2.getString(cursorexp2.getColumnIndex(FROM_DATE)));
-                        travelTripExpDocBean.setTo_date(cursorexp2.getString(cursorexp2.getColumnIndex(TO_DATE)));
-                        travelTripExpDocBean.setRegion(cursorexp2.getString(cursorexp2.getColumnIndex(COUNTRY_NAME1)));
-                        travelTripExpDocBean.setDescription(cursorexp2.getString(cursorexp2.getColumnIndex(DESCRIPTION)));
-                        travelTripExpDocBean.setLocation1(cursorexp2.getString(cursorexp2.getColumnIndex(LOCATION1)));
-                        travelTripExpDocBean.setType(cursorexp2.getString(cursorexp2.getColumnIndex(TRAV_TYPE)));
-                        travelTripExpDocBean.setReinr(cursorexp2.getString(cursorexp2.getColumnIndex(REINR)));
-                        travelTripExpDocBean.setCardinfo(cursorexp2.getString(cursorexp2.getColumnIndex(CARDINFO)));
-
-                        cursorexp2.moveToNext();
-
-                    }
-                }
-                db.setTransactionSuccessful();
-            }
-
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-
-        } finally {
-            db.endTransaction();
-            // End the transaction.
-            db.close();
-            // Close database
-        }
-
-        return travelTripExpDocBean;
-    }*/
-
+    @SuppressLint("Range")
     public TravelEntryExpDocBean getExpTravelEntryInformation1(String enq_docno) {
 
         TravelEntryExpDocBean travelEntryDomDocBean = new TravelEntryExpDocBean();
@@ -4258,6 +3909,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return travelEntryDomDocBean;
     }
 
+    @SuppressLint("Range")
     public List<TravelTripExpDocBean> getExpTravelEntryInformation3(String enq_docno, String reinr) {
 
         List<TravelTripExpDocBean> travelTripExpDocBeanArrayList = new ArrayList<TravelTripExpDocBean>();
@@ -4324,6 +3976,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /**************************update mark atendnace ********************************************/
 
+    @SuppressLint("Range")
     public boolean updateMarkAttendance(AttendanceBean attendanceBean, Context context) {
 
         SQLiteDatabase db = null;
@@ -4384,71 +4037,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
-  /*  public int getTableCount() {
-        String countQuery = "SELECT  * FROM " + TABLE_TRAVEL_DOM_EXPENSES;
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(countQuery, null);
-        int count = cursor.getCount();
-        cursor.close();
-        return count;
-    }*/
-
-
-    /**************************update Task Created Synced ********************************************/
-
-    public boolean updateTaskCreated() {
-
-        SQLiteDatabase db = null;
-        ContentValues contentValues = new ContentValues();
-        try {
-
-            db = this.getWritableDatabase();
-
-
-            contentValues.put(KEY_SYNC, "X");
-
-            long t = db.update(TABLE_TASK_CREATE, contentValues, KEY_SYNC + "=''", null);
-
-
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        } finally {
-
-            db.close();
-        }
-
-        return true;
-    }
-
     /**************************update Task Completed Synced ********************************************/
-
-    public boolean updateTaskCompleted() {
-
-        SQLiteDatabase db = null;
-        ContentValues contentValues = new ContentValues();
-        try {
-
-            db = this.getWritableDatabase();
-
-
-            contentValues.put(KEY_SYNC, "X");
-
-            long t = db.update(TABLE_TASK_PENDING, contentValues, KEY_SYNC + "='' AND " + KEY_CHECKER + "<>''", null);
-
-
-        } catch (SQLiteException e) {
-            e.printStackTrace();
-        } finally {
-
-            db.close();
-        }
-
-        return true;
-    }
-
-
-    /**************************update Task Completed Synced ********************************************/
-
+    @SuppressLint("Range")
     public boolean updatePendingTaskToComplete(String checker_id, String dno, String srno, String remark) {
 
         SQLiteDatabase db = null;
@@ -4476,6 +4066,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return true;
     }
 
+    @SuppressLint("Range")
     public Integer getPendinLeaveCount() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -4491,6 +4082,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+
+    @SuppressLint("Range")
     public Integer getPendinGatePassCount() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -4506,7 +4099,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
-
+    @SuppressLint("Range")
     public Integer getPendingOdCount() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -4522,6 +4115,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     }
 
+
+    @SuppressLint("Range")
     public Integer getPendinTaskCount() {
 
         SQLiteDatabase db = this.getReadableDatabase();
@@ -4585,7 +4180,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     /*********************************** get Travel Head  *****************************/
-
+    @SuppressLint("Range")
     public ArrayList<TravelHeadBean> getTravelHead(Context context) {
 
 
@@ -4641,7 +4236,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     /*********************************** select employee gps activity  *****************************/
 
-
+    @SuppressLint("Range")
     public ArrayList<EmployeeGPSActivityBean> getEmployeeGpsActivity(Context context) {
         LoginBean lb = new LoginBean();
         String userid = LoginBean.getUseid();
@@ -4709,11 +4304,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list_employeeGPSActivity;
     }
 
-
-    public void insertLeaveCreate() {
-
-
-    }
 }
 
 

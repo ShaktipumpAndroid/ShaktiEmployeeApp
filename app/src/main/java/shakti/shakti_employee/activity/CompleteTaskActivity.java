@@ -329,7 +329,7 @@ public class CompleteTaskActivity extends AppCompatActivity {
                 dataHelper.deleteExpTravelData();
                 dataHelper.deleteTaskCompleted();
                 dataHelper.deleteLocalconvenienceDetail();
-
+                dataHelper.deleteWayPointsDetail();
                 // Goto Login Activity
                 Intent intent = new Intent(CompleteTaskActivity.this, LoginActivity.class);
                 startActivity(intent);

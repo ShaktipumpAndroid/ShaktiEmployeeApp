@@ -12,21 +12,9 @@ import java.io.Serializable;
  */
 public class LocalConvenienceBean {
 
+    private String pernr = "", begda = "", endda = "", from_time = "", to_time = "", from_lat = "", to_lat = "", from_lng = "", to_lng = "", start_loc = "",
+     end_loc = "", distance = "", photo1 = "", photo2 = "";
 
-
-
-    private String pernr = "";
-    private String begda = "";
-    private String endda = "";
-    private String from_time = "";
-    private String to_time = "";
-    private String from_lat = "";
-    private String to_lat = "";
-    private String from_lng = "";
-    private String to_lng = "";
-    private String start_loc = "";
-    private String end_loc = "";
-    private String distance = "";
 
 
 
@@ -36,7 +24,7 @@ public class LocalConvenienceBean {
     }
 
 
-    public LocalConvenienceBean(String pernr, String begda, String endda, String from_time, String to_time, String from_lat, String to_lat, String from_lng, String to_lng, String start_loc, String end_loc, String distance) {
+    public LocalConvenienceBean(String pernr, String begda, String endda, String from_time, String to_time, String from_lat, String to_lat, String from_lng, String to_lng, String start_loc, String end_loc, String distance, String photo1, String photo2) {
 
         this.pernr = pernr;
         this.begda = begda;
@@ -50,6 +38,8 @@ public class LocalConvenienceBean {
         this.start_loc = start_loc;
         this.end_loc = end_loc;
         this.distance = distance;
+        this.photo1 = photo1;
+        this.photo2 = photo2;
 
     }
 
@@ -147,5 +137,21 @@ public class LocalConvenienceBean {
 
     public void setDistance(String distance) {
         this.distance = distance;
+    }
+
+    public String getPhoto1() {
+        return photo1;
+    }
+
+    public void setPhoto1(String photo1) {
+        this.photo1 = photo1;
+    }
+
+    public String getPhoto2() {
+        return photo2;
+    }
+
+    public void setPhoto2(String photo2) {
+        this.photo2 = photo2;
     }
 }

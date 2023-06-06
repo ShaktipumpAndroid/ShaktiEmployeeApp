@@ -1,5 +1,8 @@
 package shakti.shakti_employee.activity;
 
+import static shakti.shakti_employee.other.AndroidService.isNotificationServiceRunning;
+import static shakti.shakti_employee.other.TimeService.isTimeServiceRunning;
+
 import android.app.ActivityManager;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -36,16 +39,18 @@ import shakti.shakti_employee.fragment.AttendanceFragment;
 import shakti.shakti_employee.fragment.HomeFragment;
 import shakti.shakti_employee.fragment.LeaveFragment;
 import shakti.shakti_employee.fragment.LeaveRequestFragment;
-import shakti.shakti_employee.fragment.LocationUpdatesService;
 import shakti.shakti_employee.fragment.OfficialDutyFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.AndroidService;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SAPWebService;
 import shakti.shakti_employee.other.SyncDataService;
+import shakti.shakti_employee.other.SyncDataToSAP_New;
 import shakti.shakti_employee.other.TimeService;
+import shakti.shakti_employee.services.LocationUpdateService;
+import shakti.shakti_employee.utility.Constant;
 
-public class DashboardActivity extends AppCompatActivity implements HomeFragment.OnFragmentInteractionListener {
+public class DashboardActivity extends AppCompatActivity  {
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     protected static final String TAG = "LocationOnOff";
@@ -88,7 +93,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
     private Context mContext;
     private LeaveRequestFragment mBaseFragment;
     private final boolean mBound = false;
-    private final LocationUpdatesService mService = null;
+
 
 
     @Override
@@ -169,15 +174,19 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
             }
 
-            if (!isTrackingServiceRunning()) {
+            if (!isTimeServiceRunning) {
                 Log.d("tracking_service", "Tracking Service Started");
                 startService(new Intent(DashboardActivity.this, TimeService.class));
             }
         } else {
-            downloadDataFromSap();
+            if(CustomUtility.isOnline(getApplicationContext())) {
+                downloadDataFromSap();
+            }else {
+                CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet),getApplicationContext());
+            }
         }
-        //    }
-        notificationload();
+
+
     }
 
     /***
@@ -245,14 +254,6 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
     }
 
-    private void notificationload() {
-
-        HomeFragment frag = HomeFragment.GetInstance();
-        if (frag != null) {
-            frag.testing();
-            frag.setNotification();
-        }
-    }
 
     private Fragment getHomeFragment() {
         switch (navItemIndex) {
@@ -410,19 +411,12 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_logout) {
 
             if (CustomUtility.isInternetOn(getApplicationContext())) {
                 Toast.makeText(getApplicationContext(), "Logout user!", Toast.LENGTH_LONG).show();
-
-                // Delete Data from DB
-
                 dataHelper = new DatabaseHelper(DashboardActivity.this);
                 dataHelper.deleteLoginDetail();
                 dataHelper.deletependingleave();
@@ -440,11 +434,20 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 dataHelper.deleteExpTravelData();
                 dataHelper.deleteTaskCompleted();
                 dataHelper.deleteLocalconvenienceDetail();
-                CustomUtility.setSharedPreference(mContext, "localconvenience", "0");
+                dataHelper.deleteWayPointsDetail();
+                dataHelper.deleteVendorcodeData();
+                dataHelper.deleteOpenGatePassData();
+                stopService(new Intent(getApplicationContext(), TimeService.class));
+                stopService(new Intent(getApplicationContext(), SyncDataService.class));
+                stopService(new Intent(getApplicationContext(), AndroidService.class));
+                stopService(new Intent(getApplicationContext(), LocationUpdateService.class));
+
+                CustomUtility.setSharedPreference(mContext, Constant.LocalConveyance, "0");
+                CustomUtility.clearSharedPreference(mContext);
                 // Goto Login Activity
                 Intent intent = new Intent(DashboardActivity.this, LoginActivity.class);
                 startActivity(intent);
-                this.finish();
+                finish();
                 return true;
             } else {
                 Toast.makeText(DashboardActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
@@ -452,53 +455,38 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
         }
 
-        // Sync Data Manually
-
         if (id == R.id.action_sync) {
             Toast.makeText(getApplicationContext(), "Downloading Data!!", Toast.LENGTH_LONG).show();
             con = new SAPWebService();
 
             //SyncDataFromSap();
-            downloadDataFromSap();
+            if(CustomUtility.isOnline(getApplicationContext())) {
+                downloadDataFromSap();
+            }else {
+                CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet),getApplicationContext());
+            }
 
             return true;
         }
 
-
-        // Sync Offline Data Manually
-        if (userModel.mob_atnd.equalsIgnoreCase("Y")) {
-
-            if (id == R.id.action_sync_offline) {
-                Toast.makeText(getApplicationContext(), "Synchronizing Offline Data!!", Toast.LENGTH_LONG).show();
-                con = new SAPWebService();
-                SyncAttendanceInBackground();
-                Toast.makeText(getApplicationContext(), "Offline Data Sync Successfully", Toast.LENGTH_LONG).show();
+        if (id == R.id.action_sync_offline) {
+            if(CustomUtility.isOnline(getApplicationContext())) {
+            new SyncDataToSAP_New().SendAllDataToSAP(getApplicationContext());
+            }else {
+                CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet),getApplicationContext());
+            }
                 return true;
             }
-        }
-        else {
-            Toast.makeText(getApplicationContext(), "Data already send to Server ", Toast.LENGTH_LONG).show();
 
-        }
-
-        // user is in notifications fragment
-        // and selected 'Mark all as Read'
         if (id == R.id.action_mark_all_read) {
             Toast.makeText(getApplicationContext(), "All notifications marked as read!", Toast.LENGTH_LONG).show();
         }
 
-        // user is in notifications fragment
-        // and selected 'Clear All'
         if (id == R.id.action_clear_notifications) {
             Toast.makeText(getApplicationContext(), "Clear all notifications!", Toast.LENGTH_LONG).show();
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onFragmentInteraction(Uri uri) {
-
     }
 
 
@@ -521,11 +509,14 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
             while (progressBarStatus < 100)
             {
-                progressBarHandler.post(() -> progressBar.setProgress(5));
+                progressBarHandler.post(() -> progressBar.setProgress(2));
 
                 try {
                     //Get All Data
                     progressBarStatus = con.getActiveEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getGatePass(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
                     progressBarStatus = con.getLeaveBalance(DashboardActivity.this,userModel.uid);
@@ -570,6 +561,11 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                     progressBarStatus = con.getTaxcode(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
+                    progressBarStatus = con.getVendorCode(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+
+
                     progressBarStatus = con.getExpenses(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
@@ -590,7 +586,7 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
                 // close the progress bar dialog
                 progressBar.dismiss();
 
-                if (!isTrackingServiceRunning()) {
+                if (!isTimeServiceRunning) {
                     Log.d("tracking_service", "Tracking Service Started");
                     startService(new Intent(DashboardActivity.this, TimeService.class));
                 }
@@ -602,25 +598,10 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
 
 
-    public void SyncAttendanceInBackground() {
-        Intent i = new Intent(this, SyncDataService.class);
-        this.startService(i);
-    }
-
 
     public void tracking_enabled() {
 
-
-//      // Make sure that GPS is enabled on the device
-//      LocationManager mlocManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-//      boolean enabled = mlocManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-//
-//      if(!enabled) {
-//          Log.d("gps", "GPS OFF");
-//          enableLoc();
-//      }
-
-        if (!isNotificationServiceRunning()) {
+        if (!isNotificationServiceRunning) {
             // call service for gps notification
             startService(new Intent(DashboardActivity.this, AndroidService.class));
         }
@@ -628,25 +609,8 @@ public class DashboardActivity extends AppCompatActivity implements HomeFragment
 
 
 
-    private boolean isNotificationServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("other.AndroidService".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    private boolean isTrackingServiceRunning() {
-        ActivityManager manager = (ActivityManager) getSystemService(ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if ("other.TimeService".equals(service.service.getClassName())) {
-                return true;
-            }
-        }
-        return false;
-    }
+
 
     @Override
     protected void onPause() {

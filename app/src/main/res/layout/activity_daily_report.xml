@@ -1,0 +1,560 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/white"
+    tools:context=".activity.DailyReportActivity">
+
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"
+            app:title="@string/daily_report"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/appbar"
+        android:layout_above="@+id/submitBtn"
+        android:layout_margin="@dimen/_10sdp">
+
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <RadioGroup
+                    android:id="@+id/radioGroup"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center">
+
+                    <RadioButton
+                        android:id="@+id/vendorRadio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor"
+                        android:layout_gravity="center_horizontal"
+                        android:checked="true"
+                        android:textSize="@dimen/_12sdp" />
+
+                    <RadioButton
+                        android:id="@+id/prospectiveVendorRadio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/prospective_vendor"
+                        android:layout_gravity="center_horizontal"
+                        android:checked="false"
+                        android:textSize="@dimen/_12sdp"
+                        android:backgroundTint="@color/colorPrimary"
+                        android:layout_marginRight="@dimen/_10sdp"/>
+
+
+                </RadioGroup>
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor_code"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/vendorCodeExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_vendor_code"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:inputType="number"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:maxLength="10"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/vendorCodeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:visibility="gone"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor_name"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <TextView
+                        android:id="@+id/vendorNameExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_vendor_name"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:maxLength="30"
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor_address"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/vendorAddressExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_vendor_address"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:inputType="text"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"
+                        android:importantForAutofill="no" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor_contact_no"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/vendorNumberExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_vendor_contact_number"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:inputType="number"
+                        android:maxLines="1"
+                        android:maxLength="15"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/current_date"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <TextView
+                        android:id="@+id/currentDateTxt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/visit_at"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <Spinner
+                        android:id="@+id/visitAtSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:entries="@array/spinner_visitAt"
+                        android:spinnerMode="dropdown"
+                        android:padding="@dimen/_5sdp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/responsible_person"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/responsiblePersonExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_sap_code"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:maxLength="12"
+                        android:inputType="number"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/responsible_person_2"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/responsiblePerson2Ext"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_sap_code"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:maxLength="10"
+                        android:inputType="number"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/responsible_person_3"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/responsiblePerson3Ext"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_sap_code"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:maxLength="10"
+                        android:inputType="number"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/agenda"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/agendaExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_70sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_agenda"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:inputType="text"
+                        android:imeOptions="actionNext"
+                        android:gravity="start"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/discussion_points"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/discussionPointExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_70sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_discussion_points"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:inputType="text"
+                        android:imeOptions="actionDone"
+                        android:gravity="start"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/target_date"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <TextView
+                        android:id="@+id/targetDateTxt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:hint="@string/select_target_date"
+                        android:fontFamily="sans-serif-medium"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginTop="@dimen/_10sdp">
+
+                    <TextView
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/status"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <Spinner
+                        android:id="@+id/statusSpinner"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:entries="@array/spinner_status"
+                        android:spinnerMode="dropdown"
+                        android:padding="@dimen/_5sdp" />
+
+                </LinearLayout>
+
+                 <LinearLayout
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:orientation="vertical"
+                     android:layout_marginTop="@dimen/_10sdp">
+                     <TextView
+
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:text="@string/meeting_with_vendor_img"
+                         android:textColor="@color/colorPrimary"
+                         android:fontFamily="sans-serif-condensed-medium"
+                         android:textSize="@dimen/_14sdp"/>
+
+                     <androidx.recyclerview.widget.RecyclerView
+                         android:id="@+id/recyclerview"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"
+                         android:layout_marginTop="@dimen/_10sdp"
+                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
+
+                 </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/GatePassLinear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginTop="@dimen/_10sdp">
+                    <TextView
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/selectOpenGatePass"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/openGatePassList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </androidx.core.widget.NestedScrollView>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/submitBtn"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/_40sdp"
+        android:gravity="center"
+        android:text="@string/submit"
+        android:background="@drawable/blue_btn_round"
+        android:layout_alignParentBottom="true"
+        android:fontFamily="sans-serif-medium"
+        android:textColor="@color/white"
+        android:textSize="@dimen/_14sdp"/>
+
+
+
+</RelativeLayout>

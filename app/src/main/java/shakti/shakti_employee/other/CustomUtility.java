@@ -1,27 +1,42 @@
 package shakti.shakti_employee.other;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
+import androidx.core.content.ContextCompat;
+
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import java.io.ByteArrayOutputStream;
+import java.lang.reflect.Type;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
+
+import shakti.shakti_employee.bean.ImageModel;
 
 
 /**
@@ -93,36 +108,40 @@ public class CustomUtility {
         return formatedDate;
     }
 
-    public static String formateDate1(String date) {
-        String formatedDate = "";
-        try {
-            SimpleDateFormat formate = new SimpleDateFormat("dd.MM.yyyy",Locale.US);
-            Date mDate = formate.parse(date);
-//            SimpleDateFormat appFormate = new SimpleDateFormat("dd MMM, yyyy");
-            SimpleDateFormat appFormate = new SimpleDateFormat("yyyyMMdd",Locale.US);
-            formatedDate = appFormate.format(mDate);
-            Log.i("Result", "mDate " + formatedDate);
+    public static String formateDate1(String parseDare) {
+        String inputPattern = "yyyyMMdd";
+        String outputPattern = "dd-MMM-yyyy";
+        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
 
-        } catch (Exception e) {
+        Date date = null;
+        String str = null;
+
+        try {
+            date = inputFormat.parse(parseDare);
+            str = outputFormat.format(date);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-        return formatedDate;
+        return str;
     }
 
-    public static String formateTime1(String time) {
-        String formatedDate = "";
-        try {
-            SimpleDateFormat formate = new SimpleDateFormat("HH:mm:ss",Locale.getDefault());
-            Date mDate = formate.parse(time);
-//            SimpleDateFormat appFormate = new SimpleDateFormat("dd MMM, yyyy");
-            SimpleDateFormat appFormate = new SimpleDateFormat("HHmmss",Locale.getDefault());
-            formatedDate = appFormate.format(mDate);
-            Log.i("Result", "mDate " + formatedDate);
+    public static String formateTime1(String parseDare) {
+        String inputPattern = "HHmmss";
+        String outputPattern = "HH:mm:ss";
+        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
+        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
 
-        } catch (Exception e) {
+        Date date = null;
+        String str = null;
+
+        try {
+            date = inputFormat.parse(parseDare);
+            str = outputFormat.format(date);
+        } catch (ParseException e) {
             e.printStackTrace();
         }
-        return formatedDate;
+        return str;
     }
 
     public static void showSettingsAlert(final Context mContext) {
@@ -239,9 +258,7 @@ public class CustomUtility {
             NetworkInfo[] info = connectivity.getAllNetworkInfo();
             if (info != null) {
                 for (int i = 0; i < info.length; i++) {
-                    Log.e("INTERNET:", String.valueOf(i));
                     if (info[i].getState() == NetworkInfo.State.CONNECTED) {
-                        Log.e("INTERNET123:", "connected!");
                         return true;
                     }
                 }
@@ -316,8 +333,17 @@ public class CustomUtility {
         SharedPreferences settings = context.getSharedPreferences(PREFERENCE, 0);
         return settings.getString(name, "");
     }
+    public static void removeFromSharedPreference(Context context,String name){
+        SharedPreferences settings = context.getSharedPreferences(PREFERENCE, 0);
+        settings.edit().remove(name).apply();
+    }
+    public static void clearSharedPreference(Context context){
+        SharedPreferences settings = context.getSharedPreferences(PREFERENCE, 0);
+        settings.edit().clear().apply();
+    }
 
-    public String getCurrentDate() {
+
+    public  String getCurrentDate() {
         simpleDateFormat = new SimpleDateFormat("yyyyMMdd", Locale.getDefault());
         current_date = simpleDateFormat.format(new Date());
         return current_date.trim();
@@ -344,6 +370,74 @@ public class CustomUtility {
         return current_time.trim();
     }
 
+    public static boolean isOnline(Context mContext) {
+        ConnectivityManager connectivity =
+                (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (connectivity != null) {
+            NetworkInfo[] info = connectivity.getAllNetworkInfo();
+            if (info != null) {
+                for (NetworkInfo networkInfo : info)
+                    if (networkInfo.getState() == NetworkInfo.State.CONNECTED) {
+                        return true;
+                    }
+            }
+        }
+        return false;
+    }
+    public static boolean checkLocationPermission(final Context context) {
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+        if (currentAPIVersion >= Build.VERSION_CODES.TIRAMISU) {
+            return (ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED);
+
+        } else {
+            return true;
+        }
+    }
+    public static void saveArrayList(Context context, List<ImageModel> list, String name){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+        Gson gson = new Gson();
+        String json = gson.toJson(list);
+        editor.putString(name, json);
+        editor.apply();
+
+    }
 
 
+    public static ArrayList<ImageModel> getArrayList(Context context, String name){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        Gson gson = new Gson();
+        String json = prefs.getString(name, null);
+        Type type = new TypeToken<ArrayList<ImageModel>>() {}.getType();
+        return gson.fromJson(json, type);
+    }
+
+    public static void deleteArrayList(Context context,String name){
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        prefs.edit().remove(name).commit();
+
+    }
+
+    public static String getBase64FromBitmap(String Imagepath) {
+        String imageString="";
+        try {
+            Bitmap bitmap = BitmapFactory.decodeFile(Imagepath);
+
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 50, byteArrayOutputStream);
+            byte[] imageBytes = byteArrayOutputStream.toByteArray();
+            imageString = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+        return imageString;
+
+    }
+
+    public static boolean isValidMobile(String phone) {
+        if(!Pattern.matches("[a-zA-Z]+", phone)) {
+            return phone.length() > 6 && phone.length() <= 13;
+        }
+        return false;
+    }
 }

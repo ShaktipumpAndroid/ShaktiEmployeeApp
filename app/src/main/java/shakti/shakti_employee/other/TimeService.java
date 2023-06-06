@@ -3,17 +3,16 @@ package shakti.shakti_employee.other;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.RingtoneManager;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
@@ -49,6 +48,7 @@ public class TimeService extends Service {
     private Handler mHandler = new Handler();
     // timer handling
     private Timer mTimer = null;
+    public static boolean isTimeServiceRunning;
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -58,57 +58,28 @@ public class TimeService extends Service {
     @Override
     public void onCreate() {
 
-
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O)
-        {
+        isTimeServiceRunning = true;
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
             startMyOwnForeground();
-        }
-
-        else
-        {
+        } else {
             startForeground(1, new Notification());
         }
-
-
-        // cancel if already existed
         if (mTimer != null) {
-//            Toast.makeText(this, "already running", Toast.LENGTH_LONG).show();
 
             mTimer.cancel();
         } else {
-            // recreate new
-//            Toast.makeText(this, "create new command", Toast.LENGTH_LONG).show();
             mTimer = new Timer();
 
             employeeGPSActivityBeen = new ArrayList<EmployeeGPSActivityBean>();
             db = new DatabaseHelper(getApplicationContext());
-
-
         }
-        // schedule task
-
 
         mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
-
-
     }
 
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//
-//                mTimer.scheduleAtFixedRate(new TimeDisplayTimerTask(), 0, NOTIFY_INTERVAL);
-//            }
-//        }).start();
-
-
-        // stopSelf();
-        // return START_NOT_STICKY;
-        //Toast.makeText(this, "start command", Toast.LENGTH_LONG).show();
 
         return Service.START_STICKY;
     }
@@ -116,9 +87,8 @@ public class TimeService extends Service {
 
     @Override
     public void onDestroy() {
-        //  isRunning = false;
+        isTimeServiceRunning = false;
         mTimer.cancel();
-        // Toast.makeText(this, "MyService Completed or Stopped.", Toast.LENGTH_SHORT).show();
     }
 
 
@@ -194,17 +164,11 @@ public class TimeService extends Service {
             String data = null;
 
             try {
-
-                // sync employee gps data to sap every 15 min
-//               if (CustomUtility.isInternetOn()) {
-
-                    new SyncDataToSAP_New().SendAllDataToSAP(getApplicationContext());
-//                                 new SyncDataToSAP_New().SendEmployeeGPS(getApplicationContext());
-//                                 new SyncDataToSAP_New().SendTaskCreated(getApplicationContext());
-//                }
-
-
+                if (CustomUtility.isOnline(TimeService.this)) {
+                    new SyncDataToSAP_New().SendAllDataToSAP(TimeService.this);
+                }
             } catch (Exception e) {
+                e.printStackTrace();
             }
             return data;
         }
@@ -212,11 +176,11 @@ public class TimeService extends Service {
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-//            Log.i("SomeTag", System.currentTimeMillis() / 1000L
-//                    + " post execute \n" + result);
+
         }
 
 
     }
+
 
 }

@@ -1,10 +1,10 @@
 package shakti.shakti_employee.fragment;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Message;
 import android.util.Log;
@@ -17,6 +17,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -34,70 +35,26 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 import shakti.shakti_employee.R;
-import shakti.shakti_employee.activity.DashboardActivity;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.SapUrl;
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link GPRequestFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link GPRequestFragment#newInstance} factory method to
- * create an instance of this fragment.
- */
 public class GPRequestFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
     String gp_request_msg = null;
-    //    ImageButton bt_od_frm,bt_od_to;
-//    AutoCompleteTextView od_workplace;
-//    EditText od_from,od_to,od_visitplace,od_purpose1,od_purpose2,od_purpose3,od_remark;
-//    AutoCompleteTextView od_charge;
+
     int index;
-    Spinner gp_type;
-    Spinner req_type;
+
     EditText gp_date, gp_time, gp_exp_date, gp_exp_time, gp_visitplace, gp_purpose;
     AutoCompleteTextView gp_charge;
     ArrayList<String> languages = new ArrayList<String>();
     DatabaseHelper dataHelper = null;
-    //    String od_status ;
-    String[] workplace = {
-            "State Bank of India-01",
-            "State Bank of Indore-02",
-            "Other Bank-03",
-            "Income Tax Office-04",
-            "Central Excise Office-05",
-            "Sales Tax Office-06",
-            "High Court-07",
-            "District Court-08",
-            "Labour Court-09",
-            "ICD-10",
-            "Indore Godown-11",
-            "Nagar Nigam-12",
-            "Pollution Control Board-13",
-            "MPAKVN Indore-14",
-            "SPIL Industries-15",
-            "SEZ Plant-16",
-            "SEZ Office-17",
-            "MPFC-18",
-            "Exhibition-19",
-            "Seminar-20",
-            "Others-21",
-            "Sales Office-22",
-            "Business Tour-23",
-            "Traning-24",
-            "Vendor visit-25",
-            "Vendor Mtl. inspection & Dispatch-26"
-    };
+
     String req_type_string, gp_type_string;
+    @SuppressLint("HandlerLeak")
     android.os.Handler mHandler = new android.os.Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -106,47 +63,23 @@ public class GPRequestFragment extends Fragment {
             getActivity().finish();
         }
     };
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private OnFragmentInteractionListener mListener;
-    // User defined types
+
     private LoggedInUser userModel;
     private Context mContext;
     private ProgressDialog progressDialog;
-    private DashboardActivity dashboardActivity;
+
+    LinearLayout expectedComebackDate,expectedComebackTime;
 
     public GPRequestFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @return A new instance of fragment ODRequestFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static GPRequestFragment newInstance() {
-        GPRequestFragment fragment = new GPRequestFragment();
-        Bundle args = new Bundle();
 
-        fragment.setArguments(args);
-        return fragment;
-    }
 
-    public void setDashBoard(DashboardActivity dashBoard) {
-        this.dashboardActivity = dashBoard;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-
         mContext = getActivity();
     }
 
@@ -169,14 +102,12 @@ public class GPRequestFragment extends Fragment {
         gp_visitplace = (EditText) v.findViewById(R.id.gp_visitplace);
         gp_purpose = (EditText) v.findViewById(R.id.gp_purpose);
         gp_charge = (AutoCompleteTextView) v.findViewById(R.id.gp_charge);
-
-
         gp_date_img = (ImageButton) v.findViewById(R.id.gp_date_img);
         gp_time_img = (ImageButton) v.findViewById(R.id.gp_time_img);
-
         gp_exp_date_img = (ImageButton) v.findViewById(R.id.gp_exp_date_img);
         gp_exp_time_img = (ImageButton) v.findViewById(R.id.gp_exp_time_img);
-
+        expectedComebackDate = v.findViewById(R.id.expectedComebackDate);
+        expectedComebackTime = v.findViewById(R.id.expectedComebackTime);
 
         languages = dataHelper.getDiscription();
         Log.d("languages", " " + languages);
@@ -374,8 +305,16 @@ public class GPRequestFragment extends Fragment {
 
             @Override
             public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+
                 index = arg0.getSelectedItemPosition();
                 gp_type_string = finalSpinner2.getSelectedItem().toString();
+                if(gp_type_string.equals("Returnable")){
+                    expectedComebackDate.setVisibility(View.VISIBLE);
+                    expectedComebackTime.setVisibility(View.VISIBLE);
+                }else {
+                    expectedComebackDate.setVisibility(View.GONE);
+                    expectedComebackTime.setVisibility(View.GONE);
+                }
             }
 
             @Override
@@ -449,42 +388,12 @@ public class GPRequestFragment extends Fragment {
 
             }
         });
-//
-//
-//        /////////// code for Auto Complete text //////////
-//
-//        /*Toast.makeText(getActivity(),"Leave Request get data activ emp", Toast.LENGTH_SHORT).show();*/
-//        od_workplace=(AutoCompleteTextView)v.findViewById(R.id.od_workplace);
-//        ArrayAdapter adapter11 = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,workplace);
-//        od_workplace.setAdapter(adapter11);
-//        od_workplace.setThreshold(1);
-
 
         return v;
 
     }
 
 
-
-   /* public String parseDateToddMMyyyy(String time) {
-        String inputPattern = "dd/MM/yyyy";
-        String outputPattern = "yyyyMMdd";
-        SimpleDateFormat inputFormat = new SimpleDateFormat(inputPattern);
-        SimpleDateFormat outputFormat = new SimpleDateFormat(outputPattern);
-
-        Date date = null;
-        String str = null;
-
-        try {
-            date = inputFormat.parse(time);
-            fromdate_txt = outputFormat.format(date);
-            Log.e("Out","put"+fromdate_txt);
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        return str;
-    }
-*/
     private void submitForm() {
 
 
@@ -569,43 +478,8 @@ public class GPRequestFragment extends Fragment {
         }.start();
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-/*        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }*/
-    }
 
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
 
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
-    }
 
 }

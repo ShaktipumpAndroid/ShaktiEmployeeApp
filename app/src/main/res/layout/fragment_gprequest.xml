@@ -156,13 +156,13 @@
 
 
             <LinearLayout
+                android:id="@+id/expectedComebackDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/pos_od_status"
                 android:layout_alignParentStart="false"
                 android:layout_alignParentLeft="false"
-                android:baselineAligned="false"
-                android:paddingTop="0dp">
+                android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="10dp"
@@ -195,14 +195,13 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/pos_od_to"
+                android:id="@+id/expectedComebackTime"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/pos_od_from"
                 android:layout_alignParentStart="false"
                 android:layout_alignParentLeft="false"
-                android:baselineAligned="false"
-                android:paddingTop="0dp">
+                android:baselineAligned="false">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="10dp"
@@ -255,7 +254,7 @@
                         android:id="@+id/gp_visitplace"
                         style="@style/under_line_et"
                         android:drawableRight="@drawable/ic_mendotry"
-                        android:hint="Place To Visit"
+                        android:hint="@string/place_to_visit"
                         android:padding="10dp"
                         android:singleLine="true"
                         android:textColorHint="@color/colorPrimary" />

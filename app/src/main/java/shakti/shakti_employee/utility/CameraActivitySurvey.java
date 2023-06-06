@@ -277,6 +277,7 @@ public class CameraActivitySurvey extends Activity {
                         public float textSize;
                         private CustomProgressDialog progressDialog;
 
+                        @SuppressLint("StaticFieldLeak")
                         @Override
                         protected void onPreExecute() {
                             super.onPreExecute();
