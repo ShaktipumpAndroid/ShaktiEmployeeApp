@@ -17,6 +17,7 @@ import models.VendorListModel;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
+import shakti.shakti_employee.model.GatePassModel;
 
 /**
  * Created by shakti on 1/23/2017.
@@ -295,7 +296,51 @@ public class SAPWebService {
 
             }
 
-            progressBarStatus = 10;
+            progressBarStatus = 4;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return progressBarStatus;
+    }
+
+    public int getGatePass(Context context, String pernr) {
+
+
+        dataHelper = new DatabaseHelper(context);
+        dataHelper.deleteTaxcodeData();
+
+        int progressBarStatus= 0;
+
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+        StrictMode.setThreadPolicy(policy);
+
+        final ArrayList<NameValuePair> param = new ArrayList<>();
+        param.clear();
+        Log.d("emp", pernr);
+
+        param.add(new BasicNameValuePair("pernr", pernr));
+
+        try {
+
+            String obj = CustomHttpClient.executeHttpPost1(SapUrl.OpenGatePassList,param);
+
+
+            if (!obj.isEmpty()) {
+
+                Log.e("obj====>",obj.trim());
+
+                GatePassModel gatePassModel = new Gson().fromJson(obj,GatePassModel.class);
+
+                for (int i = 0; i < gatePassModel.getResponse().size(); i++) {
+
+                    dataHelper.inserGatePassData(gatePassModel.getResponse().get(i));
+                }
+
+            }
+            progressBarStatus = 8;
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -1022,7 +1067,7 @@ public class SAPWebService {
         param.clear();
         Log.d("emp", pernr);
 
-        param.add(new BasicNameValuePair("pernr", "1882"));
+        param.add(new BasicNameValuePair("pernr", pernr));
 
         try {
 
@@ -1037,8 +1082,7 @@ public class SAPWebService {
 
                 for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
 
-                    dataHelper.insertVendorcode(vendorListModel.getResponse().get(i).getLifnr(), vendorListModel.getResponse().get(i).getName1(),
-                            vendorListModel.getResponse().get(i).getAdd());
+                    dataHelper.insertVendorcode(vendorListModel.getResponse().get(i));
                 }
 
             }

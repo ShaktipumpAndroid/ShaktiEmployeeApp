@@ -224,21 +224,24 @@
     <string name="select_MinimumImages">Please attach minimum 2 images!</string>
     <string name="submit">Submit</string>
     <string name="meeting_with_vendor_img">Click Meeting with vendor Images</string>
+    <string name="selectOpenGatePass">Select open gatepass</string>
     <string name="reportSubmittedSuccessfully">Report Submitted Successfully</string>
     <string name="somethingWentWrong">Something Went Wrong</string>
+    <string name="take_photo">Take Photo</string>
+    <string name="Click_Again">Image not clicked properly, please click again</string>
 
 
     <string-array name="spinner_status">
         <item>Select Status</item>
-        <item>Online</item>
-        <item>In-progress</item>
-        <item>Offline</item>
+        <item>Open</item>
+        <item>In Process</item>
+        <item>Close</item>
     </string-array>
 
     <string-array name="spinner_visitAt">
         <item>Select Visit At</item>
-        <item>On Shakti Premises</item>
-        <item>Vendor Premises</item>
+        <item>Supplier Premises</item>
+        <item>Shakti H.O</item>
     </string-array>
 
 </resources>

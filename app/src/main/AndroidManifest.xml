@@ -17,6 +17,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.hardware.camera2.full"/>
+
     <uses-permission
         android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" />
@@ -41,12 +43,19 @@
         android:supportsRtl="true"
         android:theme="@style/ShaktiEmployee"
         android:usesCleartextTraffic="true">
+
+        <activity
+            android:name=".activity.CameraActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
         <activity
             android:name=".activity.DailyReportActivity"
+            android:screenOrientation="portrait"
             android:exported="false" />
 
         <activity
             android:name=".activity.ShowDocument"
+            android:screenOrientation="portrait"
             android:exported="false" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
@@ -198,7 +207,7 @@
             android:name=".other.TimeService"
             android:enabled="true"
             android:exported="true"
-            android:stopWithTask="true" />
+            android:stopWithTask="false" />
         <service
             android:name=".other.TimeServiceDownloadData"
             android:enabled="true"

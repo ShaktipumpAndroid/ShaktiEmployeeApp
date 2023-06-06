@@ -435,6 +435,8 @@ public class DashboardActivity extends AppCompatActivity  {
                 dataHelper.deleteTaskCompleted();
                 dataHelper.deleteLocalconvenienceDetail();
                 dataHelper.deleteWayPointsDetail();
+                dataHelper.deleteVendorcodeData();
+                dataHelper.deleteOpenGatePassData();
                 stopService(new Intent(getApplicationContext(), TimeService.class));
                 stopService(new Intent(getApplicationContext(), SyncDataService.class));
                 stopService(new Intent(getApplicationContext(), AndroidService.class));
@@ -507,11 +509,14 @@ public class DashboardActivity extends AppCompatActivity  {
 
             while (progressBarStatus < 100)
             {
-                progressBarHandler.post(() -> progressBar.setProgress(5));
+                progressBarHandler.post(() -> progressBar.setProgress(2));
 
                 try {
                     //Get All Data
                     progressBarStatus = con.getActiveEmployee(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+                    progressBarStatus = con.getGatePass(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
                     progressBarStatus = con.getLeaveBalance(DashboardActivity.this,userModel.uid);
@@ -558,6 +563,8 @@ public class DashboardActivity extends AppCompatActivity  {
 
                     progressBarStatus = con.getVendorCode(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+
+
 
                     progressBarStatus = con.getExpenses(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));

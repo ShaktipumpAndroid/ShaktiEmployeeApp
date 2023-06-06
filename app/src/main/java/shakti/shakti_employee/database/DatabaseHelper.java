@@ -30,6 +30,7 @@ import shakti.shakti_employee.bean.TravelTripDomDocBean;
 import shakti.shakti_employee.bean.TravelTripExpDocBean;
 import shakti.shakti_employee.bean.WayPoints;
 import shakti.shakti_employee.connect.CustomHttpClient;
+import shakti.shakti_employee.model.GatePassModel;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.Country;
 import shakti.shakti_employee.other.Currency;
@@ -206,6 +207,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public static final String KEY_VENDOR_NAME = "vendorName";
 
     public static final String KEY_VENDOR_ADDRESS = "vendorAddress";
+
+    public static final String KEY_VENDOR_CONTACT_NO = "vendorContact";
+    public static final String KEY_VENDOR_STREET_ADDRESS = "streetAddress";
+    public static final String KEY_VENDOR_REGION  = "vendorRegion";
+    public static final String KEY_VENDOR_CITY = "vendorCITY";
+
+
+    public static final String KEY_GATEPASS_NO = "gatepassno";
+    public static final String KEY_GATEPASS_VISITORNAME = "visitorName";
+
+
     public static final String KEY_TAXCODE = "tax_code";
     public static final String KEY_TEXT = "text";
     //exp field
@@ -249,6 +261,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String TABLE_TEHSIL = "tbl_tehsil";
     private static final String TABLE_TAXCODE = "tbl_taxcode";
     private static final String TABLE_VENDORCODE = "tbl_vendorcode";
+
+    private static final String TABLE_OPEN_GATE_PASS = "tbl_opengatepass";
     private static final String TABLE_EXPTYPE = "tbl_exptype";
     private static final String TABLE_CURRENCY = "tbl_curr";
 
@@ -627,7 +641,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             + TABLE_VENDORCODE + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_VENDOR_CODE + " TEXT,"
             + KEY_VENDOR_NAME + " TEXT,"
-            + KEY_VENDOR_ADDRESS + " TEXT)";
+            + KEY_VENDOR_ADDRESS + " TEXT,"
+            + KEY_VENDOR_CONTACT_NO + " TEXT,"
+            + KEY_VENDOR_STREET_ADDRESS + " TEXT,"
+            + KEY_VENDOR_REGION + " TEXT,"
+            + KEY_VENDOR_CITY + " TEXT)";
+
+
+    private static final String CREATETABLE_OPENGATEPASS = "CREATE TABLE IF NOT EXISTS "
+            + TABLE_OPEN_GATE_PASS + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_GATEPASS_NO + " TEXT,"
+            + KEY_GATEPASS_VISITORNAME + " TEXT)";
     //  region table
     private static final String CREATE_EXPTYPE = "CREATE TABLE IF NOT EXISTS "
             + TABLE_EXPTYPE + "(" + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
@@ -706,6 +730,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL(CREATE_TABLE_LOCAL_CONVENIENCE);
         db.execSQL(CREATE_TABLE_WayPoints);
         db.execSQL(CREATETABLE_VENDORCODE);
+        db.execSQL(CREATETABLE_OPENGATEPASS);
     }
 
 
@@ -744,6 +769,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_CURRENCY);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_LOCAL_CONVENIENCE);
             db.execSQL("DROP TABLE IF EXISTS " + TABLE_WayPoints);
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_OPEN_GATE_PASS);
 
 
             // create new tables
@@ -993,6 +1019,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void deleteVendorcodeData() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(TABLE_VENDORCODE, null, null);
+        db.close();
+    }
+
+    public void deleteOpenGatePassData() {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.delete(TABLE_OPEN_GATE_PASS, null, null);
         db.close();
     }
 
@@ -2139,14 +2171,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
        db.insert(TABLE_TAXCODE, null, values);
     }
 
-    public void insertVendorcode(String code, String name, String address) {
+    public void insertVendorcode(VendorListModel.Response response) {
 
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
-        values.put(KEY_VENDOR_CODE, code);
-        values.put(KEY_VENDOR_NAME, name);
-        values.put(KEY_VENDOR_ADDRESS, address);
+        values.put(KEY_VENDOR_CODE, response.getLifnr());
+        values.put(KEY_VENDOR_NAME, response.getName1());
+        values.put(KEY_VENDOR_ADDRESS, response.getAdd());
+        values.put(KEY_VENDOR_CONTACT_NO, response.getTelf1());
+        values.put(KEY_VENDOR_STREET_ADDRESS, response.getStras());
+        values.put(KEY_VENDOR_REGION, response.getOrt01());
+        values.put(KEY_VENDOR_CITY, response.getOrt02());
         db.insert(TABLE_VENDORCODE, null, values);
+    }
+
+    public void inserGatePassData(GatePassModel.Response response) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put(KEY_GATEPASS_NO, response.getDocno());
+        values.put(KEY_GATEPASS_VISITORNAME, response.getNameVisitor());
+        db.insert(TABLE_OPEN_GATE_PASS, null, values);
     }
 
     public void insertExpenses(String spkzl, String sptxt) {
@@ -2491,20 +2536,44 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public ArrayList<VendorListModel.Response> getVendorcode(String code) {
         SQLiteDatabase db = this.getReadableDatabase();
         String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_CODE + " LIKE '%" + code + "%'";
-        Cursor d = db.rawQuery(selectQuery, null);
+        Cursor cursor = db.rawQuery(selectQuery, null);
         ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
                 VendorListModel.Response vendorListModel = new VendorListModel.Response();
-                vendorListModel.setLifnr(d.getString(d.getColumnIndex(KEY_VENDOR_CODE)));
-                vendorListModel.setName1(d.getString(d.getColumnIndex(KEY_VENDOR_NAME)));
-                vendorListModel.setAdd(d.getString(d.getColumnIndex(KEY_VENDOR_ADDRESS)));
+                vendorListModel.setLifnr(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CODE)));
+                vendorListModel.setName1(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_NAME)));
+                vendorListModel.setAdd(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_ADDRESS)));
+                vendorListModel.setTelf1(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CONTACT_NO)));
+                vendorListModel.setStras(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_STREET_ADDRESS)));
+                vendorListModel.setOrt01(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_REGION)));
+                vendorListModel.setOrt02(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CITY)));
                 taxcodeArrayList.add(vendorListModel);
-                d.moveToNext();
+                cursor.moveToNext();
             }
         }
         return taxcodeArrayList;
     }
+
+
+    @SuppressLint("Range")
+    public ArrayList<GatePassModel.Response> gatePassList() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String selectQuery = "SELECT  * FROM " + TABLE_OPEN_GATE_PASS;
+        Cursor cursor = db.rawQuery(selectQuery, null);
+        ArrayList<GatePassModel.Response> taxcodeArrayList = new ArrayList<GatePassModel.Response>();
+        if (cursor.moveToFirst()) {
+            while (!cursor.isAfterLast()) {
+                GatePassModel.Response gatePassModel = new GatePassModel.Response();
+                gatePassModel.setDocno(cursor.getString(cursor.getColumnIndex(KEY_GATEPASS_NO)));
+                gatePassModel.setNameVisitor(cursor.getString(cursor.getColumnIndex(KEY_GATEPASS_VISITORNAME)));
+                taxcodeArrayList.add(gatePassModel);
+                cursor.moveToNext();
+            }
+        }
+        return taxcodeArrayList;
+    }
+
 
     @SuppressLint("Range")
     public ArrayList<Expenses> getExpenses() {

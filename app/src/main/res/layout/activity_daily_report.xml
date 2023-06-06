@@ -48,6 +48,15 @@
                     android:gravity="center">
 
                     <RadioButton
+                        android:id="@+id/vendorRadio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor"
+                        android:layout_gravity="center_horizontal"
+                        android:checked="true"
+                        android:textSize="@dimen/_12sdp" />
+
+                    <RadioButton
                         android:id="@+id/prospectiveVendorRadio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -58,14 +67,7 @@
                         android:backgroundTint="@color/colorPrimary"
                         android:layout_marginRight="@dimen/_10sdp"/>
 
-                    <RadioButton
-                        android:id="@+id/vendorRadio"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/vendor"
-                        android:layout_gravity="center_horizontal"
-                        android:checked="true"
-                        android:textSize="@dimen/_12sdp" />
+
                 </RadioGroup>
 
 
@@ -124,7 +126,7 @@
                         android:fontFamily="sans-serif-condensed-medium"
                         android:textSize="@dimen/_14sdp"/>
 
-                    <EditText
+                    <TextView
                         android:id="@+id/vendorNameExt"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_30sdp"
@@ -506,6 +508,34 @@
 
 
                  </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/GatePassLinear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone"
+                    android:layout_marginTop="@dimen/_10sdp">
+                    <TextView
+
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/selectOpenGatePass"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/openGatePassList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_10sdp"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+
+
+                </LinearLayout>
 
 
             </LinearLayout>
