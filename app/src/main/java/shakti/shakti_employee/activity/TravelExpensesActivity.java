@@ -28,7 +28,7 @@ import shakti.shakti_employee.fragment.TravelExpFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 
-public class TravelExpensesActivity extends AppCompatActivity {
+public class TravelExpensesActivity extends BaseActivity {
 
     // tags used to attach the fragments
     private static final String TAG_HOME = "home";

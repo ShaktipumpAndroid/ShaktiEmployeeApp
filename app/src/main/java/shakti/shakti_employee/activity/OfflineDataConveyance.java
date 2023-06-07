@@ -43,7 +43,7 @@ import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.utility.CameraUtils;
 
 
-public class OfflineDataConveyance extends AppCompatActivity {
+public class OfflineDataConveyance extends BaseActivity {
 
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     public static final int BITMAP_SAMPLE_SIZE = 8;

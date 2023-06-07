@@ -1,58 +1,65 @@
 package shakti.shakti_employee.activity;
 
 import android.app.Application;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.os.Bundle;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
 import shakti.shakti_employee.R;
+import shakti.shakti_employee.database.DatabaseHelper;
+import shakti.shakti_employee.services.RetrieveFirestoreData;
+import shakti.shakti_employee.utility.Constant;
+import shakti.shakti_employee.utility.CustomUtility;
 
 
-public class BaseActivity extends Application {
+public abstract class  BaseActivity extends AppCompatActivity {
+    DatabaseHelper databaseHelper;
+    AlertDialog alertDialog;
 
-    private static BaseActivity instance;
 
-    public static BaseActivity getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(BaseActivity instance) {
-        BaseActivity.instance = instance;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        registerReceiver(SwVersionConfigBroadcastReceiver, new IntentFilter(Constant.SwVersionConfig));
     }
 
     @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(base);
-        setInstance(this);
-        // The following line triggers the initialization of ACRA
-       // ACRA.init(this);
+    protected void onResume() {
+        super.onResume();
+        getFirestoreData();
+    }
 
-        Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
+    private void getFirestoreData() {
+        databaseHelper = new DatabaseHelper(this);
+        if (databaseHelper.getLogin() )  {
 
-            @Override
-            public void uncaughtException(Thread thread, Throwable ex) {
-                handleUncaughtException(thread, ex);
-
+            if (!RetrieveFirestoreData.isServiceRunning) {
+                Intent intent = new Intent(getApplicationContext(), RetrieveFirestoreData.class);
+                startService(intent);
             }
-        });
-    }
-
-
-    public void handleUncaughtException (Thread thread, Throwable e)
-    {
-        String stackTrace = Log.getStackTraceString(e);
-        String message = e.getMessage();
-
-        Intent intent = new Intent (Intent.ACTION_SEND);
-        intent.setType("message/rfc822");
-        intent.putExtra (Intent.EXTRA_EMAIL, new String[] {"vikas.gothi@shaktipumps.com"});
-        intent.putExtra (Intent.EXTRA_SUBJECT, R.string.crash_toast_text);
-        intent.putExtra (Intent.EXTRA_TEXT, stackTrace);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); // required when starting from Application
-        startActivity(intent);
-
+        }
 
     }
 
+    BroadcastReceiver SwVersionConfigBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (alertDialog != null && alertDialog.isShowing()) {
+                alertDialog.dismiss();
+                alertDialog = null;
+            }
+            Log.e("broadcastReceive====>","true");
+            Intent intent1 = new Intent(getApplicationContext(),SwVersionCheckActivity.class);
+            startActivity(intent1);
+            finish();
 
+        }
+    };
 }

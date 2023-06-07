@@ -28,7 +28,7 @@ import shakti.shakti_employee.R;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.SapUrl;
 
-public class PayslipActivity extends AppCompatActivity {
+public class PayslipActivity extends BaseActivity {
 
     private Toolbar mToolbar;
     //  PhotoViewAttacher mAttacher;

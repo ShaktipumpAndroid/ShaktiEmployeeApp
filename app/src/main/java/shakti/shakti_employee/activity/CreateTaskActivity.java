@@ -29,7 +29,7 @@ import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.TimeServiceDownloadData;
 
-public class CreateTaskActivity extends AppCompatActivity {
+public class CreateTaskActivity extends BaseActivity {
 
     // tags used to attach the fragments
     private static final String TAG_HOME = "home";

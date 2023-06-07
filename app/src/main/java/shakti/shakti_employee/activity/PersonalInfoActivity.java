@@ -17,7 +17,7 @@ import shakti.shakti_employee.R;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.model.LoggedInUser;
 
-public class PersonalInfoActivity extends AppCompatActivity {
+public class PersonalInfoActivity extends BaseActivity {
 
     DatabaseHelper dataHelper = null;
     TextView pi_dept_val,pi_sap_val,pi_name_val, pi_desig_val, pi_dob_val, pi_add_val, pi_mob_val, pi_email_val, pi_hod_val;

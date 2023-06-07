@@ -13,7 +13,7 @@ import androidx.appcompat.widget.Toolbar;
 import shakti.shakti_employee.R;
 
 
-public class ShowDocument extends AppCompatActivity {
+public class ShowDocument extends BaseActivity {
 
     Context context;
     ImageView imageView;

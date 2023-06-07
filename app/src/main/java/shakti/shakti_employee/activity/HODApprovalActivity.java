@@ -27,7 +27,7 @@ import shakti.shakti_employee.fragment.OfficialDutyFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 
-public class HODApprovalActivity extends AppCompatActivity {
+public class HODApprovalActivity extends BaseActivity {
 
     // tags used to attach the fragments
     private static final String TAG_HOME = "home";

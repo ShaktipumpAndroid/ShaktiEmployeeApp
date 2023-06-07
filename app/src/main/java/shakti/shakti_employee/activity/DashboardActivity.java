@@ -50,7 +50,7 @@ import shakti.shakti_employee.other.TimeService;
 import shakti.shakti_employee.services.LocationUpdateService;
 import shakti.shakti_employee.utility.Constant;
 
-public class DashboardActivity extends AppCompatActivity  {
+public class DashboardActivity extends BaseActivity  {
 
     public static final int REQUEST_ID_MULTIPLE_PERMISSIONS = 1;
     protected static final String TAG = "LocationOnOff";

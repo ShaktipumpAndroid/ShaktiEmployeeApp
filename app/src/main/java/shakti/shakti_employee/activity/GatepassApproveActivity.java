@@ -29,7 +29,7 @@ import shakti.shakti_employee.fragment.OfficialDutyFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 
-public class GatepassApproveActivity extends AppCompatActivity {
+public class GatepassApproveActivity extends BaseActivity {
 
 
     // tags used to attach the fragments

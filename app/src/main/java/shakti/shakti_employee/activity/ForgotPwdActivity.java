@@ -28,7 +28,7 @@ import shakti.shakti_employee.R;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.other.SapUrl;
 
-public class ForgotPwdActivity extends AppCompatActivity {
+public class ForgotPwdActivity extends BaseActivity {
 
 
     EditText textview_login_id, textview_mobno, textview_dob;

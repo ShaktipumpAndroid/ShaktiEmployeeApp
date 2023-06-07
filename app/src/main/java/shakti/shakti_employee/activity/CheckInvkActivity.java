@@ -67,7 +67,7 @@ import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.os.Environment.getExternalStorageDirectory;
 import static android.os.Environment.getExternalStoragePublicDirectory;
 
-public class CheckInvkActivity extends AppCompatActivity {
+public class CheckInvkActivity extends BaseActivity {
 
     DatabaseHelper db;
     DatabaseHelper dataHelper;

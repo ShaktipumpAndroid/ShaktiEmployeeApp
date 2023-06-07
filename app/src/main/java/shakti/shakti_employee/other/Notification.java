@@ -12,8 +12,9 @@ import android.provider.Settings;
 import androidx.appcompat.app.AppCompatActivity;
 
 import shakti.shakti_employee.R;
+import shakti.shakti_employee.activity.BaseActivity;
 
-public class Notification extends AppCompatActivity {
+public class Notification extends BaseActivity {
     Context mContext;
 
     @Override
