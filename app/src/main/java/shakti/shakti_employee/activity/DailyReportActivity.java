@@ -75,7 +75,7 @@ import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.utility.Constant;
 
 
-public class DailyReportActivity extends AppCompatActivity implements View.OnClickListener, ImageSelectionAdapter.ImageSelectionListener, VendorListAdapter.ImageSelectionListener, GatePassListAdapter.GatePassSelectionListener {
+public class DailyReportActivity extends BaseActivity implements View.OnClickListener, ImageSelectionAdapter.ImageSelectionListener, VendorListAdapter.ImageSelectionListener, GatePassListAdapter.GatePassSelectionListener {
 
     public static int REQUEST_CODE_PERMISSION = 1;
     public static int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 2;

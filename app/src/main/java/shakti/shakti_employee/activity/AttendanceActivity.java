@@ -33,7 +33,7 @@ import shakti.shakti_employee.other.CustomUtility;
 /**
  * Created by Rahul on 25-Nov-17.
  */
-public class AttendanceActivity extends AppCompatActivity {
+public class AttendanceActivity extends BaseActivity {
 
     // tags used to attach the fragments
     private static final String TAG_HOME = "home";

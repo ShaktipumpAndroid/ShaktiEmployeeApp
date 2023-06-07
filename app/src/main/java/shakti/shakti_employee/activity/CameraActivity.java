@@ -46,7 +46,7 @@ import java.util.Locale;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.other.CustomUtility;
 
-public class CameraActivity extends AppCompatActivity implements SurfaceHolder.Callback, Camera.PictureCallback {
+public class CameraActivity extends BaseActivity implements SurfaceHolder.Callback, Camera.PictureCallback {
 
     private static final String GALLERY_DIRECTORY_NAME_COMMON = "EmployeeCamera";
     public static int RESULT_CODE = 1, REQUEST_CODE = 1;

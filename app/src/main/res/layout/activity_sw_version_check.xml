@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context="activity.SwVersionCheckActivity">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_centerInParent="true">
+
+
+        <TextView
+            android:id="@+id/messagetxt"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:padding="@dimen/_14sdp"
+            android:fontFamily="sans-serif-medium"
+            android:text="@string/Employee_app_updation"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/_12sdp" />
+
+
+
+        <TextView
+            android:id="@+id/okbtn"
+            android:layout_width="@dimen/_100sdp"
+            android:layout_height="@dimen/_30sdp"
+            android:layout_gravity="center"
+            android:padding="@dimen/_5sdp"
+            android:fontFamily="sans-serif-condensed-medium"
+            android:background="@drawable/blue_btn_round"
+            android:gravity="center"
+            android:text="@string/ok"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+</RelativeLayout>

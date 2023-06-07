@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import shakti.shakti_employee.R;
 
-public class UpdateActivity extends AppCompatActivity {
+public class UpdateActivity extends BaseActivity {
     TextView tv_click;
 
     @Override

@@ -11,6 +11,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -34,20 +35,34 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import shakti.shakti_employee.BuildConfig;
 import shakti.shakti_employee.R;
 import shakti.shakti_employee.database.DatabaseHelper;
+import shakti.shakti_employee.model.AppConfig;
+import shakti.shakti_employee.utility.Constant;
+import shakti.shakti_employee.utility.CustomUtility;
 import shakti.shakti_employee.utility.Utility;
 
 
 public class SplashActivity extends AppCompatActivity {
+
+    private final String TAG = "RetrieveFirestoreData";
+    public static DocumentReference appConfigRef;
+
+    private final int REQUEST_CODE_PERMISSION = 123;
     ImageView imageView;
     DatabaseHelper databaseHelper;
     Intent i;
     String versionName = "0.0";
     String newVersion = "0.0";
     private Context mContext;
-    private final int REQUEST_CODE_PERMISSION = 123;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,24 +71,68 @@ public class SplashActivity extends AppCompatActivity {
         mContext = this;
 
 
-        imageView = findViewById(R.id.imageSplash);
+        Init();
 
-        versionName = BuildConfig.VERSION_NAME;
 
+    }
+
+    private void Init() {
         databaseHelper = new DatabaseHelper(SplashActivity.this);
+        FirebaseApp.initializeApp(this);
+        versionName = BuildConfig.VERSION_NAME;
+        imageView = findViewById(R.id.imageSplash);
 
         if (!checkPermission()) {
             requestPermission();
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                askNotificationPermission();
-            } else {
-                checkLoginStatus();
-            }
+            retriveFirestoreData();
         }
 
+    }
+
+    private void retriveFirestoreData() {
+
+        appConfigRef = FirebaseFirestore.getInstance().collection("Setting").document("AppConfig");
+        appConfigRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                if (documentSnapshot != null && documentSnapshot.exists()) {
+                    AppConfig appConfig = documentSnapshot.toObject(AppConfig.class);
+
+                    if (appConfig != null) {
+                        try {
+                            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+                            if (pInfo != null && appConfig.getMinEmployeeAppVersion() != null
+                                    && !appConfig.getMinEmployeeAppVersion().toString().isEmpty()) {
+
+                                if (pInfo.versionCode < Integer.parseInt(appConfig.getMinEmployeeAppVersion())) {
+                                    CustomUtility.setSharedPreference(getApplicationContext(), Constant.APPURL, appConfig.getEmployeeAppUrl());
+                                    Intent intent = new Intent(SplashActivity.this, SwVersionCheckActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                } else {
+                                    checkLoginStatus();
+                                }
+                            }
+                        } catch (Exception exception) {
+                            exception.printStackTrace();
+                        }
+                    }
+
+                } else {
+                    Log.d(TAG, "Current data: null");
+                }
+            }
+        });
 
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        finish();
+    }
+
 
     private void checkLoginStatus() {
         new Handler().postDelayed(() -> {

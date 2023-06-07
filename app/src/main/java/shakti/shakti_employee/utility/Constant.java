@@ -7,4 +7,7 @@ public class Constant {
     public static final String DistanceInMeter = "DistanceInMeter";
 
     public static final String DailyRoutineImage = "DailyRoutineImage";
+
+    public static  String SwVersionConfig = "SwVersionConfig";
+    public static  String APPURL = "APPURL";
 }

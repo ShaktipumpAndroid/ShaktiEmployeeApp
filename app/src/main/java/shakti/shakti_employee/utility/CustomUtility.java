@@ -168,10 +168,10 @@ public class CustomUtility {
         }
     }
 
-    public static boolean isInternetOn() {
+    public static boolean isInternetOn(Context context) {
 
 
-        ConnectivityManager connectivity = (ConnectivityManager) BaseActivity.getInstance().getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (connectivity != null) {
             NetworkInfo[] info = connectivity.getAllNetworkInfo();
             if (info != null) {

@@ -27,7 +27,7 @@ import shakti.shakti_employee.fragment.WebViewFragment;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 
-public class webViewActivity extends AppCompatActivity {
+public class webViewActivity extends BaseActivity {
 
     // tags used to attach the fragments
     private static final String TAG_HOME = "home";

@@ -120,6 +120,8 @@
     <string name="start_photo">Start Photo</string>
     <string name="notification_permission">Notification access required</string>
     <string name="notification_permission_txt">Please give access to receive notification for \nnew updates.</string>
+    <string name="Employee_app_updation">Latest Employee app is live on playstore, please update it first and enjoy!</string>
+
 
 
     <!-- For MRC Type Spinner -->
