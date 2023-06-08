@@ -92,9 +92,9 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
     Toolbar mToolbar;
     RadioButton prospectiveVendorRadio, vendorRadio;
-    EditText vendorCodeExt, vendorAddressExt, vendorNumberExt, responsiblePersonExt, responsiblePerson2Ext, responsiblePerson3Ext,
+    EditText vendorCodeExt,vendorNameExt, vendorAddressExt, vendorNumberExt, responsiblePersonExt, responsiblePerson2Ext, responsiblePerson3Ext,
             agendaExt, discussionPointExt;
-    TextView currentDateTxt, targetDateTxt, submitBtn, vendorNameTxt;
+    TextView currentDateTxt, targetDateTxt, submitBtn;
     Spinner visitAtSpinner, statusSpinner;
     RecyclerView recyclerview, vendorCodeList, openGatePassList;
 
@@ -141,7 +141,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
         prospectiveVendorRadio = findViewById(R.id.prospectiveVendorRadio);
         vendorRadio = findViewById(R.id.vendorRadio);
-        vendorNameTxt = findViewById(R.id.vendorNameExt);
+        vendorNameExt = findViewById(R.id.vendorNameExt);
         vendorCodeExt = findViewById(R.id.vendorCodeExt);
         vendorAddressExt = findViewById(R.id.vendorAddressExt);
         vendorNumberExt = findViewById(R.id.vendorNumberExt);
@@ -220,7 +220,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() > 2) {
+                if (s.length() > 1) {
                     setVendorList(s.toString());
                 } else {
                     vendorCodeList.setVisibility(View.GONE);
@@ -243,16 +243,22 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
     public void setVendorList(String code) {
 
-        vendorList = databaseHelper.getVendorcode(code);
-        if (vendorList.size() > 0) {
-            vendorCodeList.setVisibility(View.VISIBLE);
-            vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
-            vendorCodeList.setHasFixedSize(true);
-            vendorCodeList.setAdapter(vendorListAdapter);
-            vendorListAdapter.VendorSelection(this);
-        } else {
-            vendorCodeList.setVisibility(View.GONE);
-        }
+         runOnUiThread(new Runnable() {
+             @Override
+             public void run() {
+                 vendorList = databaseHelper.getVendorcode(code);
+                 if (vendorList.size() > 0) {
+                     vendorCodeList.setVisibility(View.VISIBLE);
+                     vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
+                     vendorCodeList.setHasFixedSize(true);
+                     vendorCodeList.setAdapter(vendorListAdapter);
+                     vendorListAdapter.VendorSelection(DailyReportActivity.this);
+                 } else {
+                     vendorCodeList.setVisibility(View.GONE);
+                 }
+             }
+         });
+
     }
 
     public void showGatePassList() {
@@ -364,7 +370,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
                     }
                 }, mYear, mMonth, mDay);
-        //datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         // datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() + 1000);//disable previous dates
         datePickerDialog.show();
     }
@@ -579,7 +585,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
         /*vendorNameExt ,vendorCodeExt,vendorAddressExt,vendorNumberExt ,responsiblePersonExt ,responsiblePerson2Ext ,responsiblePerson3Ext,
             agendaExt,discussionPointExt*/
-        if (vendorNameTxt.getText().toString().isEmpty()) {
+        if (vendorNameExt.getText().toString().isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.enter_vendor_name), getApplicationContext());
         } else if (vendorCodeExt.getText().toString().isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.enter_vendor_code), getApplicationContext());
@@ -633,7 +639,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             } else {
                 jsonObj.put("vendor", "");
             }
-            jsonObj.put("name", vendorNameTxt.getText().toString().trim());
+            jsonObj.put("name", vendorNameExt.getText().toString().trim());
             jsonObj.put("addres", vendorAddressExt.getText().toString().trim());
             jsonObj.put("TELF2", vendorNumberExt.getText().toString().trim());
             jsonObj.put("VISIT_AT", selectedVisitAt.trim());
@@ -720,7 +726,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
     public void VendorSelectionListener(VendorListModel.Response vendorList, int position) {
         vendorPosition = position;
         vendorCodeExt.setText(vendorList.getLifnr());
-        vendorNameTxt.setText(vendorList.getName1());
+        vendorNameExt.setText(vendorList.getName1());
         vendorAddressExt.setText(vendorList.getAdd());
         vendorNumberExt.setText(vendorList.getTelf1());
         vendorCodeList.setVisibility(View.GONE);

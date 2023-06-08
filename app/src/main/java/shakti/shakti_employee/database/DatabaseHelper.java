@@ -34,6 +34,7 @@ import shakti.shakti_employee.model.GatePassModel;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.Country;
 import shakti.shakti_employee.other.Currency;
+import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.District;
 import shakti.shakti_employee.other.Expenses;
 import shakti.shakti_employee.other.Gatepass;
@@ -782,274 +783,319 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     public void deleteLoginDetail() {
         SQLiteDatabase db = this.getWritableDatabase();
+        if(CustomUtility.doesTableExist(db,TABLE_LOGIN)) {
         db.delete(TABLE_LOGIN, null, null);
+    }
     }
 
 
     public void deleteLocalconvenienceDetail() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_LOCAL_CONVENIENCE, null, null);
+        if(CustomUtility.doesTableExist(db,TABLE_LOCAL_CONVENIENCE)) {
+            db.delete(TABLE_LOCAL_CONVENIENCE, null, null);
+        }
     }
 
     public void deleteLocalconvenienceDetail1(String enddt,String endtm) {
         SQLiteDatabase db = this.getWritableDatabase();
+        if(CustomUtility.doesTableExist(db,TABLE_LOCAL_CONVENIENCE)) {
         db.execSQL("DELETE FROM " + TABLE_LOCAL_CONVENIENCE + " WHERE " + KEY_ENDDA + "='" + enddt + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'");
-    }
+    }}
     public void deleteWayPointsDetail() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_WayPoints);
+        if(CustomUtility.doesTableExist(db,TABLE_WayPoints)) {
+            db.execSQL("DELETE FROM " + TABLE_WayPoints);
+        }
     }
     public void deleteWayPointsDetail1(String enddt,String endtm) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_WayPoints + " WHERE " + KEY_ENDDA + "='" + enddt + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'");
-
+        if(CustomUtility.doesTableExist(db,TABLE_WayPoints)) {
+            db.execSQL("DELETE FROM " + TABLE_WayPoints + " WHERE " + KEY_ENDDA + "='" + enddt + "'" + " AND " + KEY_TO_TIME + " = '" + endtm + "'");
+        }
     }
 
 
     public void deleteTravelHeadData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TRAVEL_HEAD, null, null);
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_HEAD)) {
+            db.delete(TABLE_TRAVEL_HEAD, null, null);
+        }
     }
 
     public void deleteDomTravelData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        //db.delete(TABLE_TRAVEL_DOM_EXPENSES, null, null);
-        db.execSQL("delete from " + TABLE_TRAVEL_DOM_EXPENSES);
-        String selectQuery = "SELECT  *  FROM " + TABLE_TRAVEL_DOM_EXPENSES;
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_DOM_EXPENSES)) {
+            db.execSQL("delete from " + TABLE_TRAVEL_DOM_EXPENSES);
+            String selectQuery = "SELECT  *  FROM " + TABLE_TRAVEL_DOM_EXPENSES;
 
-        cursorexp3 = db.rawQuery(selectQuery, null);
+            cursorexp3 = db.rawQuery(selectQuery, null);
 
-        Log.e("DOMESTIC", "%%%%%" + cursorexp3.getCount());
-
+            Log.e("DOMESTIC", "%%%%%" + cursorexp3.getCount());
+        }
 
     }
 
     public void deleteDomTravelData1() {
         SQLiteDatabase db = this.getWritableDatabase();
-        //db.delete(TABLE_TRAVEL_DOM_EXPENSES, null, null);
-        db.execSQL("delete from " + TABLE_TRAVEL_DOM_EXPENSES1);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_DOM_EXPENSES1)) {
+            db.execSQL("delete from " + TABLE_TRAVEL_DOM_EXPENSES1);
+            db.close();
+        }
     }
 
     public void deleteExpTravelData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        //db.delete(TABLE_TRAVEL_EXP_EXPENSES, null, null);
-        db.execSQL("delete from " + TABLE_TRAVEL_EXP_EXPENSES);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_EXP_EXPENSES)) {
+            db.execSQL("delete from " + TABLE_TRAVEL_EXP_EXPENSES);
+            db.close();
+        }
 
     }
 
     public void deleteExpTravelData1() {
         SQLiteDatabase db = this.getWritableDatabase();
-        //db.delete(TABLE_TRAVEL_EXP_EXPENSES, null, null);
-        db.execSQL("delete from " + TABLE_TRAVEL_EXP_EXPENSES1);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_EXP_EXPENSES1)) {
+            db.execSQL("delete from " + TABLE_TRAVEL_EXP_EXPENSES1);
+            db.close();
+        }
     }
 
 
     public void deleteActiveEmployee() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_ACTIVE_EMPLOYEE, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_ACTIVE_EMPLOYEE)) {
+            db.delete(TABLE_ACTIVE_EMPLOYEE, null, null);
+            db.close();
+        }
     }
 
     public void deleteleaveBalance() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_LEAVE_BALANCE, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_LEAVE_BALANCE)) {
+            db.delete(TABLE_LEAVE_BALANCE, null, null);
+            db.close();
+        }
     }
 
     public void deletependingleave() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_PENDING_LEAVE, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_LEAVE)) {
+            db.delete(TABLE_PENDING_LEAVE, null, null);
+            db.close();
+        }
     }
 
     public void deletependingod() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_PENDING_OD, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_OD)) {
+            db.delete(TABLE_PENDING_OD, null, null);
+            db.close();
+        }
     }
 
     public void deleteattendance() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_ATTENDANCE, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_ATTENDANCE)) {
+            db.delete(TABLE_ATTENDANCE, null, null);
+            db.close();
+        }
     }
 
     public void deleteleave() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_LEAVE, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_LEAVE)) {
+            db.delete(TABLE_LEAVE, null, null);
+            db.close();
+        }
     }
 
     public void deletePendingLeaveWhere(String del_lev) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_PENDING_LEAVE + " WHERE " + KEY_LEV_NO + "='" + del_lev + "'");
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_LEAVE)) {
+            db.execSQL("DELETE FROM " + TABLE_PENDING_LEAVE + " WHERE " + KEY_LEV_NO + "='" + del_lev + "'");
+            db.close();
+        }
     }
 
     public void deletePendingLeave() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_PENDING_LEAVE);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_LEAVE)) {
+            db.execSQL("DELETE FROM " + TABLE_PENDING_LEAVE);
+            db.close();
+        }
 
     }
 
     public void deletePendingGatepass() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_PENDING_GATEPASS);
-        db.close();
-
-    }
-
-    public void deleteTravelParameters() {
-        SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_TRAVEL_PARAMETERS);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_GATEPASS)) {
+            db.execSQL("DELETE FROM " + TABLE_PENDING_GATEPASS);
+            db.close();
+        }
     }
 
 
     public void deletePendingOdWhere(String del_od) {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_PENDING_OD + " WHERE " + KEY_OD_NO + "='" + del_od + "'");
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_OD)) {
+            db.execSQL("DELETE FROM " + TABLE_PENDING_OD + " WHERE " + KEY_OD_NO + "='" + del_od + "'");
+            db.close();
+        }
     }
 
     public void deletePendingOd() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_PENDING_OD);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_OD)) {
+            db.execSQL("DELETE FROM " + TABLE_PENDING_OD);
+            db.close();
+        }
     }
 
     public void deleteSyncedCreatedTaskWhere() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_TASK_CREATE + " WHERE " + KEY_SYNC + "='X'");
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_TASK_CREATE)) {
+            db.execSQL("DELETE FROM " + TABLE_TASK_CREATE + " WHERE " + KEY_SYNC + "='X'");
+            db.close();
+        }
     }
 
     public void deleteSyncedCompletedTaskWhere() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.execSQL("DELETE FROM " + TABLE_TASK_PENDING + " WHERE " + KEY_SYNC + "='X'");
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_TASK_PENDING)) {
+            db.execSQL("DELETE FROM " + TABLE_TASK_PENDING + " WHERE " + KEY_SYNC + "='X'");
+            db.close();
+        }
     }
 
 
     public void deleteod() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_OD, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_OD)) {
+            db.delete(TABLE_OD, null, null);
+            db.close();
+        }
     }
 
 
     public void deleteempinfo() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_EMPLOYEE_INFO, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_EMPLOYEE_INFO)) {
+            db.delete(TABLE_EMPLOYEE_INFO, null, null);
+            db.close();
+        }
     }
 
 
     public void deletemarkattendance() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_MARK_ATTENDANCE, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_MARK_ATTENDANCE)) {
+            db.delete(TABLE_MARK_ATTENDANCE, null, null);
+            db.close();
+        }
     }
 
 
     public void deleteEmployeeGPSActivity() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_EMPLOYEE_GPS_ACTIVITY, null, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_EMPLOYEE_GPS_ACTIVITY)) {
+            db.delete(TABLE_EMPLOYEE_GPS_ACTIVITY, null, null);
+            db.close();
+        }
     }
 
     public void deletePendingTask() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TASK_PENDING, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TASK_PENDING)) {
+            db.delete(TABLE_TASK_PENDING, null, null);
+            db.close();
+        }
     }
 
     public void deleteCountryData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_COUNTRY, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_COUNTRY)) {
+            db.delete(TABLE_COUNTRY, null, null);
+            db.close();
+        }
     }
 
 
     public void deleteRegionData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_REGION, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_REGION)) {
+            db.delete(TABLE_REGION, null, null);
+            db.close();
+        }
     }
 
 
     public void deleteDistrictData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_DISTRICT, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_DISTRICT)) {
+            db.delete(TABLE_DISTRICT, null, null);
+            db.close();
+        }
     }
 
 
     public void deleteTehsilData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TEHSIL, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TEHSIL)) {
+            db.delete(TABLE_TEHSIL, null, null);
+            db.close();
+        }
     }
 
     public void deleteTaxcodeData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TAXCODE, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TAXCODE)) {
+            db.delete(TABLE_TAXCODE, null, null);
+            db.close();
+        }
     }
 
     public void deleteVendorcodeData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_VENDORCODE, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_VENDORCODE)) {
+            db.delete(TABLE_VENDORCODE, null, null);
+            db.close();
+        }
     }
 
     public void deleteOpenGatePassData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_OPEN_GATE_PASS, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_OPEN_GATE_PASS)) {
+            db.delete(TABLE_OPEN_GATE_PASS, null, null);
+            db.close();
+        }
     }
 
     public void deleteExpensesData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_EXPTYPE, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_EXPTYPE)) {
+            db.delete(TABLE_EXPTYPE, null, null);
+            db.close();
+        }
     }
 
     public void deleteCurrencyData() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_CURRENCY, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_CURRENCY)) {
+            db.delete(TABLE_CURRENCY, null, null);
+            db.close();
+        }
     }
 
     public void deleteDomTravelEntry(String value) {
 
         String where = "";
-
         SQLiteDatabase db = this.getWritableDatabase();
 
         where = SERIALNO + "='" + value + "'";
-
-        db.delete(TABLE_TRAVEL_DOM_EXPENSES, where, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_DOM_EXPENSES)) {
+            db.delete(TABLE_TRAVEL_DOM_EXPENSES, where, null);
+            db.close();
+        }
 
     }
 
@@ -1059,10 +1105,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String where = "";
 
         where = SERIALNO + "='" + value + "'";
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_DOM_EXPENSES1)) {
 
-
-        db.delete(TABLE_TRAVEL_DOM_EXPENSES1, where, null);
-        db.close();
+            db.delete(TABLE_TRAVEL_DOM_EXPENSES1, where, null);
+            db.close();
+        }
 
     }
 
@@ -1073,9 +1120,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         where = SERIALNO + "='" + value + "'";
 
-
-        db.delete(TABLE_TRAVEL_EXP_EXPENSES, where, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_EXP_EXPENSES)) {
+            db.delete(TABLE_TRAVEL_EXP_EXPENSES, where, null);
+            db.close();
+        }
 
     }
 
@@ -1086,23 +1134,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         where = SERIALNO + "='" + value + "'";
 
-
-        db.delete(TABLE_TRAVEL_EXP_EXPENSES1, where, null);
-        db.close();
-
+        if(CustomUtility.doesTableExist(db,TABLE_TRAVEL_EXP_EXPENSES1)) {
+            db.delete(TABLE_TRAVEL_EXP_EXPENSES1, where, null);
+            db.close();
+        }
     }
 
 
     public void deleteTaskCreate() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TASK_CREATE, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TASK_CREATE)) {
+            db.delete(TABLE_TASK_CREATE, null, null);
+            db.close();
+        }
     }
 
     public void deleteTaskCompleted() {
         SQLiteDatabase db = this.getWritableDatabase();
-        db.delete(TABLE_TASK_PENDING, null, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TASK_PENDING)) {
+            db.delete(TABLE_TASK_PENDING, null, null);
+            db.close();
+        }
     }
 
     public void deleteTaskCompletedEntry(String value) {
@@ -1112,9 +1164,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         where = KEY_DNO + "='" + value + "'";
 
-
-        db.delete(TABLE_TASK_PENDING, where, null);
-        db.close();
+        if(CustomUtility.doesTableExist(db,TABLE_TASK_PENDING)) {
+            db.delete(TABLE_TASK_PENDING, where, null);
+            db.close();
+        }
 
     }
 
@@ -1945,21 +1998,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // Insert Leave
 
-    public void insertLeave(
-            String pernr,
-            String leav_no,
-            String horo,
-            String lev_frm,
-            String lev_to,
-            String lev_typ,
-            String apphod,
-            String dele,
-            String reason) {
+    public void insertLeave(String pernr, String leav_no, String horo, String lev_frm, String lev_to, String lev_typ,
+            String apphod, String dele, String reason) {
 
         SQLiteDatabase db = this.getWritableDatabase();
-
         ContentValues values = new ContentValues();
-
         values.put(LEV_KEY_PERNR, pernr);
         values.put(LEV_KEY_LEV_NO, leav_no);
         values.put(LEV_KEY_HORO, horo);
@@ -1969,7 +2012,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(LEV_KEY_APPHOD, apphod);
         values.put(LEV_KEY_DELE, dele);
         values.put(LEV_KEY_REASON, reason);
-
         // insert row
         Log.d("data_of_values_leave", " " + values);
 
@@ -2261,16 +2303,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         discription.add("Select Person");
 
-
-        if (c.moveToFirst()) {
-            while (!c.isAfterLast()) {
-                /*  Log.d("discription",c.getString(c.getColumnIndex(KEY_ENAME)));*/
-                discription.add(c.getString(c.getColumnIndex(KEY_ENAME)));
-                c.moveToNext();
+        if(CustomUtility.doesTableExist(db,TABLE_ACTIVE_EMPLOYEE)) {
+            if (c.moveToFirst()) {
+                while (!c.isAfterLast()) {
+                    /*  Log.d("discription",c.getString(c.getColumnIndex(KEY_ENAME)));*/
+                    discription.add(c.getString(c.getColumnIndex(KEY_ENAME)));
+                    c.moveToNext();
+                }
             }
-        }
 
-        Log.d("discription", "" + discription);
+            Log.d("discription", "" + discription);
+        }
         return discription;
     }
 
@@ -2288,66 +2331,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Cursor d = db.rawQuery(selectQuery, null);
 
-        //Log.d("res_of_leavetype", " " + d.getCount());
 
         ArrayList<String> leavebalance = new ArrayList<String>();
 
         leavebalance.add("Select Leave Type");
+        if(CustomUtility.doesTableExist(db,TABLE_LEAVE_BALANCE)) {
 
-
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
-                /*  Log.d("discription",c.getString(c.getColumnIndex(KEY_ENAME)));*/
-                leavebalance.add(d.getString(d.getColumnIndex(KEY_LEAVETYPE)));
-                d.moveToNext();
+            if (d.moveToFirst()) {
+                while (!d.isAfterLast()) {
+                    leavebalance.add(d.getString(d.getColumnIndex(KEY_LEAVETYPE)));
+                    d.moveToNext();
+                }
             }
-        }
 
-        Log.d("leavebalance", "" + leavebalance);
+            Log.d("leavebalance", "" + leavebalance);
+        }
         return leavebalance;
     }
 
-
-    // Insert Active employee Data to table
-
-    public String saveActiveEmployee() {
-
-        final ArrayList<NameValuePair> param = new ArrayList<NameValuePair>();
-
-        deleteActiveEmployee();
-
-        try {
-
-            /*String obj = CustomHttpClient.executeHttpPost1(SapUrl.active_employee, param);*/
-            obj_active_employee = CustomHttpClient.executeHttpPost1(SapUrl.active_employee, param);
-
-            JSONArray ja_matnr = new JSONArray(obj_active_employee);
-
-            Log.d("json55", "" + ja_matnr);
-
-
-            for (int i = 0; i < ja_matnr.length(); i++) {
-
-                JSONObject jo_matnr = ja_matnr.getJSONObject(i);
-
-
-                pernr = jo_matnr.getString("pernr");
-                ename = jo_matnr.getString("ename");
-                btext = jo_matnr.getString("btext");
-
-                BeanActiveEmployee beanActiveEmployee = new BeanActiveEmployee(pernr, ename, btext);
-                insertActiveEmployee(beanActiveEmployee);
-
-            }
-            /*activeemp = obj;*/
-        } catch (Exception e) {
-            /* progressBarStatus = 40 ;*/
-            Log.d("msg", "" + e);
-        }
-
-
-        return obj_active_employee;
-    }
 
 
     // Select Pending Leave Direct Reporting data from database table and put into array
@@ -2365,23 +2366,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ArrayList<States> pendingLeaveList = new ArrayList<States>();
 
-
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
-                States state = new States();
-                state.setCode(d.getString(d.getColumnIndex(KEY_LEV_NO)));
-                state.setHoro(d.getString(d.getColumnIndex(HORO)));
-                state.setName(d.getString(d.getColumnIndex(ENAME)));
-                state.setLeave_type(d.getString(d.getColumnIndex(LEV_TYP)));
-                state.setLeave_from(d.getString(d.getColumnIndex(LEV_FRM)));
-                state.setLeave_to(d.getString(d.getColumnIndex(LEV_TO)));
-                state.setLeave_reason(d.getString(d.getColumnIndex(REASON)));
-                pendingLeaveList.add(state);
-                d.moveToNext();
+        if(CustomUtility.doesTableExist(db,TABLE_PENDING_LEAVE)) {
+            if (d.moveToFirst()) {
+                while (!d.isAfterLast()) {
+                    States state = new States();
+                    state.setCode(d.getString(d.getColumnIndex(KEY_LEV_NO)));
+                    state.setHoro(d.getString(d.getColumnIndex(HORO)));
+                    state.setName(d.getString(d.getColumnIndex(ENAME)));
+                    state.setLeave_type(d.getString(d.getColumnIndex(LEV_TYP)));
+                    state.setLeave_from(d.getString(d.getColumnIndex(LEV_FRM)));
+                    state.setLeave_to(d.getString(d.getColumnIndex(LEV_TO)));
+                    state.setLeave_reason(d.getString(d.getColumnIndex(REASON)));
+                    pendingLeaveList.add(state);
+                    d.moveToNext();
+                }
             }
-        }
 
-        Log.d("pending_leave_list", "" + pendingLeaveList);
+            Log.d("pending_leave_list", "" + pendingLeaveList);
+        }
         return pendingLeaveList;
     }
 
@@ -2399,19 +2401,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ArrayList<Country> countryArrayList = new ArrayList<Country>();
 
+        if(CustomUtility.doesTableExist(db,TABLE_COUNTRY)) {
+            if (d.moveToFirst()) {
+                while (!d.isAfterLast()) {
+                    Country country = new Country();
+                    country.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
+                    country.setLandx(d.getString(d.getColumnIndex(KEY_LANDX)));
 
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
-                Country country = new Country();
-                country.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
-                country.setLandx(d.getString(d.getColumnIndex(KEY_LANDX)));
-
-                countryArrayList.add(country);
-                d.moveToNext();
+                    countryArrayList.add(country);
+                    d.moveToNext();
+                }
             }
-        }
 
-        Log.d("country_list", "" + countryArrayList);
+            Log.d("country_list", "" + countryArrayList);
+        }
         return countryArrayList;
     }
 
@@ -2428,21 +2431,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         ArrayList<Region> regionArrayList = new ArrayList<Region>();
 
+        if(CustomUtility.doesTableExist(db,TABLE_REGION)) {
+            if (d.moveToFirst()) {
+                while (!d.isAfterLast()) {
+                    Region region = new Region();
+                    region.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
+                    region.setBland(d.getString(d.getColumnIndex(KEY_BLAND)));
+                    region.setRegio(d.getString(d.getColumnIndex(KEY_REGIO)));
+                    region.setBezei(d.getString(d.getColumnIndex(KEY_BEZEI)));
 
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
-                Region region = new Region();
-                region.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
-                region.setBland(d.getString(d.getColumnIndex(KEY_BLAND)));
-                region.setRegio(d.getString(d.getColumnIndex(KEY_REGIO)));
-                region.setBezei(d.getString(d.getColumnIndex(KEY_BEZEI)));
-
-                regionArrayList.add(region);
-                d.moveToNext();
+                    regionArrayList.add(region);
+                    d.moveToNext();
+                }
             }
-        }
 
-        Log.d("region_list", "" + regionArrayList);
+            Log.d("region_list", "" + regionArrayList);
+        }
         return regionArrayList;
     }
 
@@ -2456,26 +2460,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         Cursor d = db.rawQuery(selectQuery, null);
 
-        //Log.d("res_district", " " + d.getCount());
-
         ArrayList<District> districtArrayList = new ArrayList<District>();
 
+        if(CustomUtility.doesTableExist(db,TABLE_DISTRICT)) {
+            if (d.moveToFirst()) {
+                while (!d.isAfterLast()) {
+                    District district = new District();
+                    district.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
+                    district.setRegio(d.getString(d.getColumnIndex(KEY_REGIO)));
+                    district.setCityc(d.getString(d.getColumnIndex(KEY_CITYC)));
+                    district.setBezei(d.getString(d.getColumnIndex(KEY_BEZEI)));
 
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
-                District district = new District();
-                district.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
-                district.setRegio(d.getString(d.getColumnIndex(KEY_REGIO)));
-                district.setCityc(d.getString(d.getColumnIndex(KEY_CITYC)));
-                district.setBezei(d.getString(d.getColumnIndex(KEY_BEZEI)));
-
-                districtArrayList.add(district);
-                d.moveToNext();
+                    districtArrayList.add(district);
+                    d.moveToNext();
+                }
             }
+
+            Log.d("district_list", "" + districtArrayList);
         }
-
-        Log.d("district_list", "" + districtArrayList);
-
         return districtArrayList;
     }
 
@@ -2488,27 +2490,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT  * FROM " + TABLE_TEHSIL + " WHERE " + KEY_DISTRICT + "='" + cityc + "'";
 
         Cursor d = db.rawQuery(selectQuery, null);
-
-        // Log.d("res_tehsil", " " + d.getCount());
-
         ArrayList<Tehsil> tehsilArrayList = new ArrayList<Tehsil>();
 
+        if(CustomUtility.doesTableExist(db,TABLE_TEHSIL)) {
+            if (d.moveToFirst()) {
+                while (!d.isAfterLast()) {
+                    Tehsil tehsil = new Tehsil();
+                    tehsil.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
+                    tehsil.setRegio(d.getString(d.getColumnIndex(KEY_REGIO)));
+                    tehsil.setDistrict(d.getString(d.getColumnIndex(KEY_DISTRICT)));
+                    tehsil.setTehsil(d.getString(d.getColumnIndex(KEY_TEHSIL)));
+                    tehsil.setTehsil_txt(d.getString(d.getColumnIndex(KEY_TEHSIL_TEXT)));
 
-        if (d.moveToFirst()) {
-            while (!d.isAfterLast()) {
-                Tehsil tehsil = new Tehsil();
-                tehsil.setLand1(d.getString(d.getColumnIndex(KEY_LAND1)));
-                tehsil.setRegio(d.getString(d.getColumnIndex(KEY_REGIO)));
-                tehsil.setDistrict(d.getString(d.getColumnIndex(KEY_DISTRICT)));
-                tehsil.setTehsil(d.getString(d.getColumnIndex(KEY_TEHSIL)));
-                tehsil.setTehsil_txt(d.getString(d.getColumnIndex(KEY_TEHSIL_TEXT)));
-
-                tehsilArrayList.add(tehsil);
-                d.moveToNext();
+                    tehsilArrayList.add(tehsil);
+                    d.moveToNext();
+                }
             }
-        }
 
-        Log.d("tehsil_list", "" + tehsilArrayList);
+            Log.d("tehsil_list", "" + tehsilArrayList);
+        }
         return tehsilArrayList;
     }
 
@@ -2534,10 +2534,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @SuppressLint("Range")
     public ArrayList<VendorListModel.Response> getVendorcode(String code) {
+
         SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
+        if(CustomUtility.doesTableExist(db,TABLE_VENDORCODE)){
         String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_CODE + " LIKE '%" + code + "%'";
         Cursor cursor = db.rawQuery(selectQuery, null);
-        ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
+
         if (cursor.moveToFirst()) {
             while (!cursor.isAfterLast()) {
                 VendorListModel.Response vendorListModel = new VendorListModel.Response();
@@ -2551,6 +2554,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 taxcodeArrayList.add(vendorListModel);
                 cursor.moveToNext();
             }
+        }
         }
         return taxcodeArrayList;
     }

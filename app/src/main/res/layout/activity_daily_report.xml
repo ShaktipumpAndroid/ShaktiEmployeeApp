@@ -126,7 +126,7 @@
                         android:fontFamily="sans-serif-condensed-medium"
                         android:textSize="@dimen/_14sdp"/>
 
-                    <TextView
+                    <EditText
                         android:id="@+id/vendorNameExt"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_30sdp"
