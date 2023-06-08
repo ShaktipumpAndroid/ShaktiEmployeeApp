@@ -138,7 +138,6 @@
                         android:padding="@dimen/_5sdp"
                         android:singleLine="true"
                         android:maxLines="1"
-                        android:maxLength="30"
                         android:inputType="textPersonName"
                         android:imeOptions="actionNext"
                         android:fontFamily="sans-serif-medium"/>
