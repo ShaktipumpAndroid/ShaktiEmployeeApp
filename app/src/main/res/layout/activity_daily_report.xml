@@ -126,7 +126,7 @@
                         android:fontFamily="sans-serif-condensed-medium"
                         android:textSize="@dimen/_14sdp"/>
 
-                    <TextView
+                    <EditText
                         android:id="@+id/vendorNameExt"
                         android:layout_width="match_parent"
                         android:layout_height="@dimen/_30sdp"
@@ -138,7 +138,6 @@
                         android:padding="@dimen/_5sdp"
                         android:singleLine="true"
                         android:maxLines="1"
-                        android:maxLength="30"
                         android:inputType="textPersonName"
                         android:imeOptions="actionNext"
                         android:fontFamily="sans-serif-medium"/>
