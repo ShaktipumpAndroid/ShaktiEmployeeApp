@@ -118,8 +118,9 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
     private static HomeFragment instance;
     // For Leave Balance
     DatabaseHelper dataHelper;
-    String fullAddress = null, fullAddress1 = null, distance1 = null, from_lat, from_lng, to_lat, to_lng, start_photo_text, end_photo_text,
-            value, mTravel, mHod, current_start_date, current_end_date, current_start_time, current_end_time, startphoto, allLatLong, totalWayPoint = "";
+    String fullAddress = "", fullAddress1 = "", distance1 = "", from_lat = "", from_lng = "", to_lat = "", to_lng = "", start_photo_text="", end_photo_text="",
+            value = "", mTravel = "", mHod = "", current_start_date = "", current_end_date = "", current_start_time = "",
+            current_end_time = "", startphoto = "", allLatLong = "", totalWayPoint = "";
 
     CustomUtility customutility = null;
     View view, view1;
