@@ -12,6 +12,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import models.VendorListModel;
 import shakti.shakti_employee.bean.BeanActiveEmployee;
@@ -1055,7 +1056,6 @@ public class SAPWebService {
 
     public int getVendorCode(Context context, String pernr) {
 
-
         dataHelper = new DatabaseHelper(context);
         dataHelper.deleteTaxcodeData();
 
@@ -1082,6 +1082,7 @@ public class SAPWebService {
 
                 VendorListModel vendorListModel = new Gson().fromJson(obj,VendorListModel.class);
                 if(vendorListModel.getResponse()!=null && vendorListModel.getResponse().size()>0) {
+
                     for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
 
                         dataHelper.insertVendorcode(vendorListModel.getResponse().get(i));
@@ -1096,6 +1097,56 @@ public class SAPWebService {
 
         return progressBarStatus;
     }
+
+
+    public  ArrayList<VendorListModel.Response>  getVendorCodeList(Context context, String pernr) {
+
+        ArrayList<VendorListModel.Response> vendorListModelsArraylist = new ArrayList<VendorListModel.Response>();
+        dataHelper = new DatabaseHelper(context);
+        dataHelper.deleteTaxcodeData();
+
+        int progressBarStatus= 0;
+
+
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+        StrictMode.setThreadPolicy(policy);
+
+        final ArrayList<NameValuePair> param = new ArrayList<>();
+        param.clear();
+        Log.d("emp", pernr);
+
+        param.add(new BasicNameValuePair("pernr", pernr));
+
+        try {
+
+            String obj = CustomHttpClient.executeHttpPost1(SapUrl.VendorList,param);
+
+
+            if (!obj.isEmpty()) {
+
+                Log.e("obj====>",obj.trim());
+
+                VendorListModel vendorListModel = new Gson().fromJson(obj,VendorListModel.class);
+                if(vendorListModel.getResponse()!=null && vendorListModel.getResponse().size()>0) {
+
+                    for (int i = 0; i < vendorListModel.getResponse().size(); i++) {
+                        vendorListModelsArraylist.add(vendorListModel.getResponse().get(i));
+
+                        Log.e("size","VendorCode" + vendorListModelsArraylist.size());
+
+                        // dataHelper.insertVendorcode(vendorListModel.getResponse().get(i));
+                    }
+                }
+            }
+            progressBarStatus = 98;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return vendorListModelsArraylist;
+    }
+
 
     public int getExpenses(Context context, String att_emp) {
 

@@ -27,7 +27,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -42,7 +41,6 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -70,7 +68,9 @@ import shakti.shakti_employee.bean.ImageModel;
 import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.database.DatabaseHelper;
 import shakti.shakti_employee.model.GatePassModel;
+import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
+import shakti.shakti_employee.other.SAPWebService;
 import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.utility.Constant;
 
@@ -78,7 +78,7 @@ import shakti.shakti_employee.utility.Constant;
 public class DailyReportActivity extends BaseActivity implements View.OnClickListener, ImageSelectionAdapter.ImageSelectionListener, VendorListAdapter.ImageSelectionListener, GatePassListAdapter.GatePassSelectionListener {
 
     public static int REQUEST_CODE_PERMISSION = 1;
-    public static int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 2;
+    Context context;
 
     public String TAG = "DailyReportActivity";
 
@@ -96,10 +96,10 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             agendaExt, discussionPointExt;
     TextView currentDateTxt, targetDateTxt, submitBtn;
     Spinner visitAtSpinner, statusSpinner;
-    RecyclerView recyclerview, vendorCodeList, openGatePassList;
-
+    RecyclerView recyclerview, vendorCodeList, vendorNameList, openGatePassList;
+    SAPWebService con = null;
     LinearLayout GatePassLinear;
-
+    private LoggedInUser userModel;
     ImageSelectionAdapter customAdapter;
 
     VendorListAdapter vendorListAdapter;
@@ -132,6 +132,8 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
     @SuppressLint("SimpleDateFormat")
     private void Init() {
 
+        context =this;
+        con = new SAPWebService();
         progressDialog = new ProgressDialog(this);
         databaseHelper = new DatabaseHelper(this);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -156,11 +158,13 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         statusSpinner = findViewById(R.id.statusSpinner);
         recyclerview = findViewById(R.id.recyclerview);
         vendorCodeList = findViewById(R.id.vendorCodeList);
+        vendorNameList =findViewById(R.id.vendorNameList);
         openGatePassList = findViewById(R.id.openGatePassList);
         GatePassLinear = findViewById(R.id.GatePassLinear);
         submitBtn = findViewById(R.id.submitBtn);
         simpleDateFormat = new SimpleDateFormat(dateFormat);
         currentDateTxt.setText(simpleDateFormat.format(new Date()));
+        userModel = new LoggedInUser(context);
     }
 
     private void listner() {
@@ -225,6 +229,30 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                 } else {
                     vendorCodeList.setVisibility(View.GONE);
                 }
+                Log.e("Username",""+ userModel.uid);
+            }
+
+
+        });
+
+        vendorNameExt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                if (s.length() > 1) {
+                    setVendorNameList(s.toString());
+                } else {
+                    vendorNameList.setVisibility(View.GONE);
+                }
             }
         });
 
@@ -241,12 +269,33 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         });*/
     }
 
+    private void setVendorNameList(String searchValue) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                vendorList = databaseHelper.getVendorName(searchValue);
+                if (vendorList.size() > 0) {
+                    vendorNameList.setVisibility(View.VISIBLE);
+                    vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
+                    vendorNameList.setHasFixedSize(true);
+                    vendorNameList.setAdapter(vendorListAdapter);
+                    vendorListAdapter.VendorSelection(DailyReportActivity.this);
+                } else {
+                    vendorNameList.setVisibility(View.GONE);
+                }
+            }
+        });
+
+    }
+
     public void setVendorList(String code) {
 
          runOnUiThread(new Runnable() {
              @Override
              public void run() {
                  vendorList = databaseHelper.getVendorcode(code);
+              //   vendorList = con.getVendorCodeList( context,userModel.uid);
+
                  if (vendorList.size() > 0) {
                      vendorCodeList.setVisibility(View.VISIBLE);
                      vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);

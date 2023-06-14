@@ -10,10 +10,6 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
-import org.apache.http.NameValuePair;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,7 +25,6 @@ import shakti.shakti_employee.bean.TravelHeadBean;
 import shakti.shakti_employee.bean.TravelTripDomDocBean;
 import shakti.shakti_employee.bean.TravelTripExpDocBean;
 import shakti.shakti_employee.bean.WayPoints;
-import shakti.shakti_employee.connect.CustomHttpClient;
 import shakti.shakti_employee.model.GatePassModel;
 import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.Country;
@@ -41,7 +36,6 @@ import shakti.shakti_employee.other.Gatepass;
 import shakti.shakti_employee.other.OD;
 import shakti.shakti_employee.other.PersonalInfo;
 import shakti.shakti_employee.other.Region;
-import shakti.shakti_employee.other.SapUrl;
 import shakti.shakti_employee.other.States;
 import shakti.shakti_employee.other.TaskCreated;
 import shakti.shakti_employee.other.TaskPending;
@@ -4308,6 +4302,32 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return list_employeeGPSActivity;
     }
 
+    @SuppressLint("Range")
+    public List<VendorListModel.Response> getVendorName(String searchValue) {
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
+        if(CustomUtility.doesTableExist(db,TABLE_VENDORCODE)){
+            String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_NAME + " LIKE '%" + searchValue + "%'";
+            Cursor cursor = db.rawQuery(selectQuery, null);
+
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    VendorListModel.Response vendorListModel = new VendorListModel.Response();
+                    vendorListModel.setLifnr(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CODE)));
+                    vendorListModel.setName1(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_NAME)));
+                    vendorListModel.setAdd(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_ADDRESS)));
+                    vendorListModel.setTelf1(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CONTACT_NO)));
+                    vendorListModel.setStras(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_STREET_ADDRESS)));
+                    vendorListModel.setOrt01(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_REGION)));
+                    vendorListModel.setOrt02(cursor.getString(cursor.getColumnIndex(KEY_VENDOR_CITY)));
+                    taxcodeArrayList.add(vendorListModel);
+                    cursor.moveToNext();
+                }
+            }
+        }
+        return taxcodeArrayList;
+    }
 }
 
 

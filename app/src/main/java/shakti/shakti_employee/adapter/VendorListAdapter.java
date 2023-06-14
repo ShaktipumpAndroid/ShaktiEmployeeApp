@@ -5,7 +5,6 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -16,7 +15,6 @@ import java.util.List;
 
 import models.VendorListModel;
 import shakti.shakti_employee.R;
-import shakti.shakti_employee.bean.ImageModel;
 
 public class VendorListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private List<VendorListModel.Response> vendorList;

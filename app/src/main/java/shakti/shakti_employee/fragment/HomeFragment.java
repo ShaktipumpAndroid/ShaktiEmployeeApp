@@ -107,6 +107,7 @@ import shakti.shakti_employee.utility.RestUtil;
 import shakti.shakti_employee.utility.Utility;
 
 
+@SuppressWarnings("deprecation")
 public class HomeFragment extends Fragment implements View.OnClickListener {
     public static final int REQUEST_CODE_PERMISSION = 1;
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
@@ -387,51 +388,43 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                     }
                                 });
 
-                                etcncl.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        dialog.dismiss();
-                                    }
-                                });
+                                etcncl.setOnClickListener(v -> dialog.dismiss());
 
-                                etconfm.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View v) {
-                                        LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid),
-                                                current_start_date,
-                                                "",
-                                                current_start_time,
-                                                "",
-                                                from_lat,
-                                                "",
-                                                from_lng,
-                                                "",
-                                                "",
-                                                "",
-                                                "",
-                                                start_photo_text,
-                                                ""
-                                        );
-                                        dataHelper.insertLocalconvenienceData(localConvenienceBean);
+                                etconfm.setOnClickListener(v -> {
+                                    LocalConvenienceBean localConvenienceBean = new LocalConvenienceBean(String.valueOf(userModel.uid),
+                                            current_start_date,
+                                            "",
+                                            current_start_time,
+                                            "",
+                                            from_lat,
+                                            "",
+                                            from_lng,
+                                            "",
+                                            "",
+                                            "",
+                                            "",
+                                            start_photo_text,
+                                            ""
+                                    );
+                                    dataHelper.insertLocalconvenienceData(localConvenienceBean);
 
-                                        String latlng = "via:" + from_lat + "," + from_lng;
-                                        Log.e("latlng=====>", latlng);
-                                        WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
-                                                "",
-                                                current_start_time,
-                                                "", latlng);
-                                        dataHelper.insertWayPointsData(wayPoints);
-                                        CustomUtility.setSharedPreference(getActivity(), Constant.LocalConveyance, "1");
-                                        CustomUtility.setSharedPreference(getActivity(), Constant.FromLatitude, from_lat);
-                                        CustomUtility.setSharedPreference(getActivity(), Constant.FromLongitude, from_lng);
-                                        CustomUtility.setSharedPreference(getActivity(), Constant.DistanceInMeter, "0");
-                                        changeButtonVisibility(false, 0.5f, start_travel);
-                                        changeButtonVisibility(true, 1f, end_travel);
-                                        startLocationService();
-                                        Toast.makeText(getActivity(), getResources().getString(R.string.YourJourney), Toast.LENGTH_LONG).show();
-                                        dialog.dismiss();
+                                    String latlng = "via:" + from_lat + "," + from_lng;
+                                    Log.e("latlng=====>", latlng);
+                                    WayPoints wayPoints = new WayPoints(String.valueOf(userModel.uid), current_start_date,
+                                            "",
+                                            current_start_time,
+                                            "", latlng);
+                                    dataHelper.insertWayPointsData(wayPoints);
+                                    CustomUtility.setSharedPreference(getActivity(), Constant.LocalConveyance, "1");
+                                    CustomUtility.setSharedPreference(getActivity(), Constant.FromLatitude, from_lat);
+                                    CustomUtility.setSharedPreference(getActivity(), Constant.FromLongitude, from_lng);
+                                    CustomUtility.setSharedPreference(getActivity(), Constant.DistanceInMeter, "0");
+                                    changeButtonVisibility(false, 0.5f, start_travel);
+                                    changeButtonVisibility(true, 1f, end_travel);
+                                    startLocationService();
+                                    Toast.makeText(getActivity(), getResources().getString(R.string.YourJourney), Toast.LENGTH_LONG).show();
+                                    dialog.dismiss();
 
-                                    }
                                 });
                                 dialog.show();
                             } else {
@@ -719,19 +712,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     ettxt1.setText(getResources().getString(R.string.localconveniencedetails));
                     ettxt2.setText(getResources().getString(R.string.endyourJourney));
 
-                    photo2.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (end_photo_text == null || end_photo_text.isEmpty()) {
+                    photo2.setOnClickListener(v -> {
+                        if (end_photo_text == null || end_photo_text.isEmpty()) {
 
-                                if (checkPermission()) {
-                                    openCamera();
-                                } else {
-                                    requestPermission();
-                                }
-
-
+                            if (checkPermission()) {
+                                openCamera();
+                            } else {
+                                requestPermission();
                             }
+
+
                         }
                     });
 
@@ -820,7 +810,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
         });
     }
 
-
     public void showConfirmationGallery(final String keyimage, final String name) {
 
         final CharSequence[] items = {getResources().getString(R.string.take), getResources().getString(R.string.cancel)};
@@ -868,22 +857,16 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             final AlertDialog.Builder builder = new AlertDialog.Builder(context);
             builder.setMessage("Please turn on the GPRS and keep it on while traveling on tour/trip.")
                     .setCancelable(false)
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        public void onClick(@SuppressWarnings("unused") final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
+                    .setPositiveButton("Yes", (dialog, id) -> {
 
-                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                            startLocationUpdates();
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                        startLocationUpdates();
 
-                            dialog.dismiss();
+                        dialog.dismiss();
 
 
-                        }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        public void onClick(final DialogInterface dialog, @SuppressWarnings("unused") final int id) {
-                            dialog.cancel();
-                        }
-                    });
+                    .setNegativeButton("No", (dialog, id) -> dialog.cancel());
             final AlertDialog alert = builder.create();
             alert.show();
         } else {
@@ -976,7 +959,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                     photo2.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.right_mark_icn_green, 0);
                 }
                 break;
-
 
         }
 

@@ -8,6 +8,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 import static android.os.Build.VERSION.SDK_INT;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -59,6 +60,7 @@ import shakti.shakti_employee.model.LoggedInUser;
 import shakti.shakti_employee.other.CustomUtility;
 import shakti.shakti_employee.other.SapUrl;
 
+@SuppressWarnings("deprecation")
 public class LoginActivity extends AppCompatActivity {
 
     private AppUpdateManager appUpdateManager;
@@ -66,8 +68,8 @@ public class LoginActivity extends AppCompatActivity {
     private final int REQUEST_CODE_PERMISSION = 123;
     EditText textview_login_id, textview_pwd;
     DatabaseHelper dataHelper;
-    ProgressDialog progressBar;
-    String obj;  // For Login request to SAP
+    String obj;
+    @SuppressLint("HandlerLeak")
     android.os.Handler mHandler = new android.os.Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -75,12 +77,11 @@ public class LoginActivity extends AppCompatActivity {
             Toast.makeText(LoginActivity.this, mString, Toast.LENGTH_LONG).show();
         }
     };
-    private String mFromAddress, mToAddress, mAmount, mDescription, mLocation1, mRegion, mGSTIN, mSerialNo, mStartDate, mEndDate, mLocation, mCountry, mType, mUserID;
-    private String mExpenses1, mCurrency1, mTaxcode1;
+
     private LoggedInUser mloggedInModel;
     private LoggedInUser mModel;
     private Context mContext;
-    private Handler progressBarHandler = new Handler();
+
     private ProgressDialog progressDialog;
     //    SAPWebService con = null;
     private String st_pass1;
@@ -107,39 +108,31 @@ public class LoginActivity extends AppCompatActivity {
         TextView forgotpassword = (TextView) findViewById(R.id.forgotpassword);
 
 
-        forgotpassword.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                Toast.makeText(LoginActivity.this, "You clicked forgot password", Toast.LENGTH_SHORT).show();
-                gotoforgotpwd();
-            }
+        forgotpassword.setOnClickListener(view -> {
+            Toast.makeText(LoginActivity.this, "You clicked forgot password", Toast.LENGTH_SHORT).show();
+            gotoforgotpwd();
         });
 
 
-        TextView btn_login = (TextView) findViewById(R.id.btn_login);
-        btn_login.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
+        TextView btn_login =  findViewById(R.id.btn_login);
+        btn_login.setOnClickListener(view -> {
 
 
-                if (CustomUtility.isInternetOn(mContext)) {
-                    if(checkPermission()) {
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            askNotificationPermission();
-                        } else {
-                            submitForm();
-                        }
-                    }else {
-                        requestPermission();
+            if (CustomUtility.isInternetOn(mContext)) {
+                if(checkPermission()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        askNotificationPermission();
+                    } else {
+                        submitForm();
                     }
-                } else {
-                    Toast.makeText(LoginActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
+                }else {
+                    requestPermission();
                 }
-
-
+            } else {
+                Toast.makeText(LoginActivity.this, "No Internet Connection", Toast.LENGTH_SHORT).show();
             }
+
+
         });
 
         appUpdateManager = AppUpdateManagerFactory.create(LoginActivity.this);

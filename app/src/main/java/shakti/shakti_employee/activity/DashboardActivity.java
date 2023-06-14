@@ -565,7 +565,6 @@ public class DashboardActivity extends BaseActivity  {
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
 
-
                     progressBarStatus = con.getExpenses(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
