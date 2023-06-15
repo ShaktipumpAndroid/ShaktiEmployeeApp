@@ -103,13 +103,6 @@
                         android:fontFamily="sans-serif-medium"/>
 
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/vendorCodeList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:visibility="gone"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
                 </LinearLayout>
 
@@ -141,6 +134,14 @@
                         android:inputType="textPersonName"
                         android:imeOptions="actionNext"
                         android:fontFamily="sans-serif-medium"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/vendorCodeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:visibility="gone"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
                 </LinearLayout>
 

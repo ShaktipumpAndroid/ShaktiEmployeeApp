@@ -27,7 +27,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -36,17 +35,16 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.gson.Gson;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -78,9 +76,6 @@ import shakti.shakti_employee.utility.Constant;
 public class DailyReportActivity extends BaseActivity implements View.OnClickListener, ImageSelectionAdapter.ImageSelectionListener, VendorListAdapter.ImageSelectionListener, GatePassListAdapter.GatePassSelectionListener {
 
     public static int REQUEST_CODE_PERMISSION = 1;
-    public static int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 2;
-
-    public String TAG = "DailyReportActivity";
 
     List<ImageModel> imageArrayList = new ArrayList<>();
     List<ImageModel> imageList = new ArrayList<>();
@@ -92,7 +87,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
     Toolbar mToolbar;
     RadioButton prospectiveVendorRadio, vendorRadio;
-    EditText vendorCodeExt,vendorNameExt, vendorAddressExt, vendorNumberExt, responsiblePersonExt, responsiblePerson2Ext, responsiblePerson3Ext,
+    EditText vendorCodeExt, vendorNameExt, vendorAddressExt, vendorNumberExt, responsiblePersonExt, responsiblePerson2Ext, responsiblePerson3Ext,
             agendaExt, discussionPointExt;
     TextView currentDateTxt, targetDateTxt, submitBtn;
     Spinner visitAtSpinner, statusSpinner;
@@ -105,18 +100,16 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
     VendorListAdapter vendorListAdapter;
 
     GatePassListAdapter gatePassListAdapter;
-    int mYear, mMonth, mDay, selectedIndex, vendorPosition,imgCount=0;
+    int mYear, mMonth, mDay, selectedIndex, vendorPosition, imgCount = 0;
     SimpleDateFormat simpleDateFormat;
     String dateFormat = "dd-MM-yyyy", dateFormat2 = "yyyyMMdd", selectedTargetDate = "",
-            selectedVisitAt = "", selectedStatus = "", photoTxt = "",selectedGatePass="";
+            selectedVisitAt = "", selectedStatus = "", photoTxt = "", selectedGatePass = "";
     Uri fileUri;
     ProgressDialog progressDialog;
 
     JSONArray jsonArray = null;
 
     DatabaseHelper databaseHelper;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +120,6 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         listner();
         setAdapter();
     }
-
 
     @SuppressLint("SimpleDateFormat")
     private void Init() {
@@ -175,10 +167,10 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                 if (position != 0) {
                     selectedVisitAt = parent.getItemAtPosition(position).toString().trim();
 
-                    if(selectedVisitAt.equals("Shakti H.O")){
+                    if (selectedVisitAt.equals("Shakti H.O")) {
                         GatePassLinear.setVisibility(View.VISIBLE);
                         showGatePassList();
-                    }else {
+                    } else {
                         GatePassLinear.setVisibility(View.GONE);
                     }
                 }
@@ -207,7 +199,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             }
         });
 
-        vendorCodeExt.addTextChangedListener(new TextWatcher() {
+        vendorNameExt.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -228,36 +220,64 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             }
         });
 
-        /*prospectiveVendorRadio.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    GatePassLinear.setVisibility(View.VISIBLE);
-                    showGatePassList();
-                }else {
-                    GatePassLinear.setVisibility(View.GONE);
-                }
-            }
-        });*/
     }
 
-    public void setVendorList(String code) {
 
-         runOnUiThread(new Runnable() {
-             @Override
-             public void run() {
-                 vendorList = databaseHelper.getVendorcode(code);
-                 if (vendorList.size() > 0) {
-                     vendorCodeList.setVisibility(View.VISIBLE);
-                     vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
-                     vendorCodeList.setHasFixedSize(true);
-                     vendorCodeList.setAdapter(vendorListAdapter);
-                     vendorListAdapter.VendorSelection(DailyReportActivity.this);
-                 } else {
-                     vendorCodeList.setVisibility(View.GONE);
-                 }
-             }
-         });
+    public void setVendorList(String name) {
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                vendorList = databaseHelper.getVendorName(name);
+                if (vendorList.size() > 0) {
+                    vendorCodeList.setVisibility(View.VISIBLE);
+                    setvendorListAdapter(vendorList);
+                   } else {
+                    getVendorDetail(name);
+                }
+            }
+        });
+
+    }
+
+    private void setvendorListAdapter(List<VendorListModel.Response> vendorList) {
+        vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
+        vendorCodeList.setHasFixedSize(true);
+        vendorCodeList.setAdapter(vendorListAdapter);
+        vendorListAdapter.VendorSelection(DailyReportActivity.this);
+
+    }
+
+
+    private void getVendorDetail(String name) {
+        showProgressDialogue();
+        StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+        StrictMode.setThreadPolicy(policy);
+
+        ArrayList<NameValuePair> param = new ArrayList<>();
+
+        Log.d("name", name);
+
+        param.add(new BasicNameValuePair("name", name));
+
+        try {
+            String obj = CustomHttpClient.executeHttpPost1(SapUrl.VendorDetailAll, param);
+            if (!obj.isEmpty()) {
+                stopProgressDialogue();
+                Log.e("obj====>", obj.trim());
+
+                VendorListModel vendorListModel = new Gson().fromJson(obj, VendorListModel.class);
+                if (vendorListModel.getResponse() != null && vendorListModel.getResponse().size() > 0) {
+                    vendorList = vendorListModel.getResponse();
+                }
+               setvendorListAdapter(vendorList);
+            }
+
+        } catch (Exception exception) {
+            stopProgressDialogue();
+            exception.printStackTrace();
+        }
+
 
     }
 
@@ -292,7 +312,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             imageArrayList.add(imageModel);
         }
 
-        CustomUtility.deleteArrayList(getApplicationContext(),Constant.DailyRoutineImage);
+        CustomUtility.deleteArrayList(getApplicationContext(), Constant.DailyRoutineImage);
         imageList = CustomUtility.getArrayList(DailyReportActivity.this, Constant.DailyRoutineImage);
 
         if (imageArrayList.size() > 0 && imageList != null && imageList.size() > 0) {
@@ -304,7 +324,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                     imageModel.setImagePath(imageList.get(j).getImagePath());
                     imageModel.setImageSelected(true);
                     imageArrayList.set(j, imageModel);
-                    imgCount = j+1;
+                    imgCount = j + 1;
                 }
             }
         }
@@ -339,14 +359,13 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
             case R.id.submitBtn:
                 if (CustomUtility.isInternetOn(getApplicationContext())) {
-                      submit();
+                    submit();
                 } else {
                     CustomUtility.ShowToast(getResources().getString(R.string.ConnectToInternet), getApplicationContext());
                 }
                 break;
         }
     }
-
 
     private void selectDate() {
         final Calendar c = Calendar.getInstance();
@@ -370,11 +389,10 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
                     }
                 }, mYear, mMonth, mDay);
-         datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+        datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
         // datePickerDialog.getDatePicker().setMaxDate(System.currentTimeMillis() + 1000);//disable previous dates
         datePickerDialog.show();
     }
-
 
     private boolean checkPermission() {
         int cameraPermission =
@@ -403,7 +421,6 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         }
 
     }
-
 
     private void requestPermission() {
         if (SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -461,7 +478,6 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             }
         }
     }
-
 
     @Override
     public void ImageSelectionListener(ImageModel imageModelList, int position) {
@@ -542,23 +558,19 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
     }
 
     ActivityResultLauncher<Intent> camraLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(),
-            new ActivityResultCallback<ActivityResult>() {
-                @Override
-                public void onActivityResult(ActivityResult result) {
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    if (result.getData() != null && result.getData().getExtras() != null) {
 
-                    if (result.getResultCode() == Activity.RESULT_OK) {
-                        if (result.getData() != null && result.getData().getExtras() != null) {
+                        Bundle bundle = result.getData().getExtras();
+                        Log.e("bundle====>", bundle.get("data").toString());
 
-                            Bundle bundle = result.getData().getExtras();
-                            Log.e("bundle====>", bundle.get("data").toString());
+                        photoTxt = bundle.get("data").toString();
+                        UpdateArrayList(photoTxt);
 
-                            photoTxt = bundle.get("data").toString();
-                            UpdateArrayList(photoTxt);
-
-
-                        }
 
                     }
+
                 }
             });
 
@@ -572,9 +584,9 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         imageArrayList.set(selectedIndex, imageModel);
         CustomUtility.saveArrayList(DailyReportActivity.this, imageArrayList, Constant.DailyRoutineImage);
 
-        if(imgCount==0){
+        if (imgCount == 0) {
             imgCount = 1;
-        }else if(imgCount==1){
+        } else if (imgCount == 1) {
             imgCount = 2;
         }
         Log.e("imgCount====>", String.valueOf(imgCount));
@@ -607,17 +619,17 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             CustomUtility.ShowToast(getResources().getString(R.string.select_target_date), getApplicationContext());
         } else if (selectedStatus.isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.select_StatusFirst), getApplicationContext());
-        }  else if (imgCount < 2) {
+        } else if (imgCount < 2) {
             CustomUtility.ShowToast(getResources().getString(R.string.select_MinimumImages), getApplicationContext());
-        }  else {
+        } else {
 
-            if(selectedVisitAt.equals("Shakti H.O")){
-                  if (selectedGatePass.isEmpty()) {
+            if (selectedVisitAt.equals("Shakti H.O")) {
+                if (selectedGatePass.isEmpty()) {
                     CustomUtility.ShowToast(getResources().getString(R.string.selectOpenGatePass), getApplicationContext());
-                }else {
-                      SubmitDailyReport();
-                  }
-            }else {
+                } else {
+                    SubmitDailyReport();
+                }
+            } else {
                 SubmitDailyReport();
             }
 
@@ -663,6 +675,15 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                 }
                 if (1 <= imageArrayList.size() && imageArrayList.get(1).isImageSelected()) {
                     jsonObj.put("photo2", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                }
+                if (2 <= imageArrayList.size() && imageArrayList.get(2).isImageSelected()) {
+                    jsonObj.put("photo3", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                }
+                if (3 <= imageArrayList.size() && imageArrayList.get(3).isImageSelected()) {
+                    jsonObj.put("photo4", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                }
+                if (4 <= imageArrayList.size() && imageArrayList.get(4).isImageSelected()) {
+                    jsonObj.put("photo5", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
                 }
             }
             jsonArray.put(jsonObj);
@@ -731,7 +752,6 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         vendorNumberExt.setText(vendorList.getTelf1());
         vendorCodeList.setVisibility(View.GONE);
     }
-
 
     @Override
     public void GatePassSelecListener(GatePassModel.Response gatePassList) {

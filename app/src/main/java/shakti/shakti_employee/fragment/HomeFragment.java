@@ -730,8 +730,6 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                                 } else {
                                     requestPermission();
                                 }
-
-
                             }
                         }
                     });
@@ -1210,6 +1208,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
 
         try {
 
+            totalWayPoint = totalWayPoint.replaceAll("via:","");
+
             jsonObj.put("pernr", param_invc.getPernr());
             jsonObj.put("begda", param_invc.getBegda());
             jsonObj.put("endda", param_invc.getEndda());
@@ -1221,6 +1221,8 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             jsonObj.put("end_lat", param_invc.getTo_lat());
             jsonObj.put("start_long", param_invc.getFrom_lng());
             jsonObj.put("end_long", param_invc.getTo_lng());
+
+            jsonObj.put("LAT1_LONG1", totalWayPoint);
             if (param_invc.getStart_loc() != null && !param_invc.getStart_loc().isEmpty()) {
                 jsonObj.put("start_location", param_invc.getStart_loc());
             } else {

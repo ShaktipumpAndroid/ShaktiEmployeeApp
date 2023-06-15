@@ -79,6 +79,8 @@ public class SapUrl {
 
     public static final String VendorList = BASEURL + "vendor_details.htm";
 
+    public static final String VendorDetailAll = BASEURL +  "vendor_details_all.htm";
+
     public static final String OpenGatePassList = BASEURL + "vendor_open_gatepass.htm";
 
 
