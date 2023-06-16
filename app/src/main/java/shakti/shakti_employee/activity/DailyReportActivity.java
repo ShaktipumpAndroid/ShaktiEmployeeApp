@@ -737,7 +737,10 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                             finish();
                         } else {
                             stopProgressDialogue();
-                            CustomUtility.ShowToast(getResources().getString(R.string.somethingWentWrong), getApplicationContext());
+
+                            Message msg = new Message();
+                            msg.obj = getResources().getString(R.string.somethingWentWrong);
+                            mHandler.sendMessage(msg);
                         }
 
                     } catch (JSONException e) {
