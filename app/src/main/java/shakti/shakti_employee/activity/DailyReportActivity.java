@@ -16,9 +16,11 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -104,7 +106,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
     SimpleDateFormat simpleDateFormat;
     String dateFormat = "dd-MM-yyyy", dateFormat2 = "yyyyMMdd", selectedTargetDate = "",
             selectedVisitAt = "", selectedStatus = "", photoTxt = "", selectedGatePass = "";
-    Uri fileUri;
+
     ProgressDialog progressDialog;
 
     JSONArray jsonArray = null;
@@ -212,8 +214,8 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (s.length() > 1) {
-                    setVendorList(s.toString());
+                if (s.length() > 3) {
+                    getVendorDetail(s.toString());
                 } else {
                     vendorCodeList.setVisibility(View.GONE);
                 }
@@ -232,7 +234,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                 if (vendorList.size() > 0) {
                     vendorCodeList.setVisibility(View.VISIBLE);
                     setvendorListAdapter(vendorList);
-                   } else {
+                } else {
                     getVendorDetail(name);
                 }
             }
@@ -241,10 +243,16 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
     }
 
     private void setvendorListAdapter(List<VendorListModel.Response> vendorList) {
-        vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
-        vendorCodeList.setHasFixedSize(true);
-        vendorCodeList.setAdapter(vendorListAdapter);
-        vendorListAdapter.VendorSelection(DailyReportActivity.this);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                vendorListAdapter = new VendorListAdapter(DailyReportActivity.this, vendorList);
+                vendorCodeList.setHasFixedSize(true);
+                vendorCodeList.setAdapter(vendorListAdapter);
+                vendorListAdapter.VendorSelection(DailyReportActivity.this);
+            }
+        });
+
 
     }
 
@@ -263,14 +271,20 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         try {
             String obj = CustomHttpClient.executeHttpPost1(SapUrl.VendorDetailAll, param);
             if (!obj.isEmpty()) {
-                stopProgressDialogue();
+
+                vendorCodeList.setVisibility(View.VISIBLE);
                 Log.e("obj====>", obj.trim());
 
                 VendorListModel vendorListModel = new Gson().fromJson(obj, VendorListModel.class);
-                if (vendorListModel.getResponse() != null && vendorListModel.getResponse().size() > 0) {
-                    vendorList = vendorListModel.getResponse();
+                if (vendorListModel.getStatus().equals("true")) {
+                    vendorList = new ArrayList<>();
+                    if (vendorListModel.getResponse() != null && vendorListModel.getResponse().size() > 0) {
+                        vendorList = vendorListModel.getResponse();
+                    }
+
+                    setvendorListAdapter(vendorList);
                 }
-               setvendorListAdapter(vendorList);
+                stopProgressDialogue();
             }
 
         } catch (Exception exception) {
@@ -589,14 +603,11 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         } else if (imgCount == 1) {
             imgCount = 2;
         }
-        Log.e("imgCount====>", String.valueOf(imgCount));
+
         customAdapter.notifyDataSetChanged();
     }
 
     private void submit() {
-
-        /*vendorNameExt ,vendorCodeExt,vendorAddressExt,vendorNumberExt ,responsiblePersonExt ,responsiblePerson2Ext ,responsiblePerson3Ext,
-            agendaExt,discussionPointExt*/
         if (vendorNameExt.getText().toString().isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.enter_vendor_name), getApplicationContext());
         } else if (vendorCodeExt.getText().toString().isEmpty()) {
@@ -605,8 +616,6 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
             CustomUtility.ShowToast(getResources().getString(R.string.enter_vendor_address), getApplicationContext());
         } else if (vendorNumberExt.getText().toString().isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.enter_vendor_contact_number), getApplicationContext());
-        } else if (!CustomUtility.isValidMobile(vendorNumberExt.getText().toString())) {
-            CustomUtility.ShowToast(getResources().getString(R.string.enter_valid_contact_number), getApplicationContext());
         } else if (selectedVisitAt.isEmpty()) {
             CustomUtility.ShowToast(getResources().getString(R.string.select_visitAt), getApplicationContext());
         } else if (responsiblePersonExt.getText().toString().isEmpty()) {
@@ -627,108 +636,130 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
                 if (selectedGatePass.isEmpty()) {
                     CustomUtility.ShowToast(getResources().getString(R.string.selectOpenGatePass), getApplicationContext());
                 } else {
-                    SubmitDailyReport();
+                    new SubmitDailyReport().execute();
                 }
             } else {
-                SubmitDailyReport();
+                new SubmitDailyReport().execute();
             }
 
         }
+
+
     }
 
-    private void SubmitDailyReport() {
-        jsonArray = new JSONArray();
-        JSONObject jsonObj = new JSONObject();
 
-        try {
-            if (prospectiveVendorRadio.isChecked()) {
-                jsonObj.put("pros_vendor", vendorCodeExt.getText().toString().trim());
-            } else {
-                jsonObj.put("pros_vendor", "");
-            }
-            if (vendorRadio.isChecked()) {
-                jsonObj.put("vendor", vendorCodeExt.getText().toString().trim());
-            } else {
-                jsonObj.put("vendor", "");
-            }
-            jsonObj.put("name", vendorNameExt.getText().toString().trim());
-            jsonObj.put("addres", vendorAddressExt.getText().toString().trim());
-            jsonObj.put("TELF2", vendorNumberExt.getText().toString().trim());
-            jsonObj.put("VISIT_AT", selectedVisitAt.trim());
+    private class SubmitDailyReport extends AsyncTask<String, String, String> {
+        String obj2="";
 
-            jsonObj.put("pernr1", responsiblePersonExt.getText().toString().trim());
-            jsonObj.put("pernr2", responsiblePerson2Ext.getText().toString().trim());
-            jsonObj.put("pernr3", responsiblePerson3Ext.getText().toString().trim());
-            jsonObj.put("ACTIVITY", agendaExt.getText().toString().trim());
-            jsonObj.put("DISC", discussionPointExt.getText().toString().trim());
-            jsonObj.put("TGTDATE", selectedTargetDate);
-            jsonObj.put("STATUS", selectedStatus.trim());
-            jsonObj.put("name", vendorList.get(vendorPosition).getName1());
-            jsonObj.put("STREET", vendorList.get(vendorPosition).getStras());
-            jsonObj.put("REGION", vendorList.get(vendorPosition).getOrt01());
-            jsonObj.put("CITY1", vendorList.get(vendorPosition).getOrt02());
-            jsonObj.put("CONTACT_P", vendorCodeExt.getText().toString().trim());
-            jsonObj.put("GATEPASS_NO", selectedGatePass);
-            if (imageArrayList.size() > 0) {
-                if (imageArrayList.get(0).isImageSelected()) {
-                    jsonObj.put("photo1", CustomUtility.getBase64FromBitmap(imageArrayList.get(0).getImagePath()));
-                }
-                if (1 <= imageArrayList.size() && imageArrayList.get(1).isImageSelected()) {
-                    jsonObj.put("photo2", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
-                }
-                if (2 <= imageArrayList.size() && imageArrayList.get(2).isImageSelected()) {
-                    jsonObj.put("photo3", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
-                }
-                if (3 <= imageArrayList.size() && imageArrayList.get(3).isImageSelected()) {
-                    jsonObj.put("photo4", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
-                }
-                if (4 <= imageArrayList.size() && imageArrayList.get(4).isImageSelected()) {
-                    jsonObj.put("photo5", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
-                }
-            }
-            jsonArray.put(jsonObj);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        @Override
+        protected void onPreExecute() {
+            showProgressDialogue();
         }
-        Log.e("URL=====>", SapUrl.DailyReportAPI + "?final=" + jsonArray.toString());
-        final ArrayList<NameValuePair> param1 = new ArrayList<NameValuePair>();
-        param1.add(new BasicNameValuePair("final", String.valueOf(jsonArray)));
-        showProgressDialogue();
-        try {
-            Log.e("SendDataToSap====>", String.valueOf(param1));
-            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
-            StrictMode.setThreadPolicy(policy);
-            String obj2 = CustomHttpClient.executeHttpPost1(SapUrl.DailyReportAPI, param1);
 
-            if (!obj2.isEmpty()) {
+        @Override
+        protected String doInBackground(String... params) {
 
-                try {
-                    JSONObject jsonObject = new JSONObject(obj2);
-                    Log.e("Response=====>", jsonObject.toString());
-                    JSONArray jsonArray1 = new JSONArray();
-                    jsonArray1 = jsonObject.getJSONArray("data_return");
-                    if (jsonArray1.getJSONObject(0).get("return").equals("SUCCESS")) {
+            jsonArray = new JSONArray();
+            JSONObject jsonObj = new JSONObject();
+
+            try {
+                if (prospectiveVendorRadio.isChecked()) {
+                    jsonObj.put("pros_vendor", vendorCodeExt.getText().toString().trim());
+                } else {
+                    jsonObj.put("pros_vendor", "");
+                }
+                if (vendorRadio.isChecked()) {
+                    jsonObj.put("vendor", vendorCodeExt.getText().toString().trim());
+                } else {
+                    jsonObj.put("vendor", "");
+                }
+                jsonObj.put("name", vendorNameExt.getText().toString().trim());
+                jsonObj.put("addres", vendorAddressExt.getText().toString().trim());
+                jsonObj.put("TELF2", vendorNumberExt.getText().toString().trim());
+                jsonObj.put("VISIT_AT", selectedVisitAt.trim());
+
+                jsonObj.put("pernr1", responsiblePersonExt.getText().toString().trim());
+                jsonObj.put("pernr2", responsiblePerson2Ext.getText().toString().trim());
+                jsonObj.put("pernr3", responsiblePerson3Ext.getText().toString().trim());
+                jsonObj.put("ACTIVITY", agendaExt.getText().toString().trim());
+                jsonObj.put("DISC", discussionPointExt.getText().toString().trim());
+                jsonObj.put("TGTDATE", selectedTargetDate);
+                jsonObj.put("STATUS", selectedStatus.trim());
+                jsonObj.put("name", vendorList.get(vendorPosition).getName1());
+                jsonObj.put("STREET", vendorList.get(vendorPosition).getStras());
+                jsonObj.put("REGION", vendorList.get(vendorPosition).getOrt01());
+                jsonObj.put("CITY1", vendorList.get(vendorPosition).getOrt02());
+                jsonObj.put("CONTACT_P", vendorCodeExt.getText().toString().trim());
+                jsonObj.put("GATEPASS_NO", selectedGatePass);
+                if (imageArrayList.size() > 0) {
+                    if (imageArrayList.get(0).isImageSelected()) {
+                        jsonObj.put("photo1", CustomUtility.getBase64FromBitmap(imageArrayList.get(0).getImagePath()));
+                    }
+                    if (1 <= imageArrayList.size() && imageArrayList.get(1).isImageSelected()) {
+                        jsonObj.put("photo2", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                    }
+                    if (2 <= imageArrayList.size() && imageArrayList.get(2).isImageSelected()) {
+                        jsonObj.put("photo3", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                    }
+                    if (3 <= imageArrayList.size() && imageArrayList.get(3).isImageSelected()) {
+                        jsonObj.put("photo4", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                    }
+                    if (4 <= imageArrayList.size() && imageArrayList.get(4).isImageSelected()) {
+                        jsonObj.put("photo5", CustomUtility.getBase64FromBitmap(imageArrayList.get(1).getImagePath()));
+                    }
+                }
+                jsonArray.put(jsonObj);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+             final ArrayList<NameValuePair> param1 = new ArrayList<NameValuePair>();
+            param1.add(new BasicNameValuePair("final", String.valueOf(jsonArray)));
+
+            try {
+
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().build();
+                StrictMode.setThreadPolicy(policy);
+                 obj2 = CustomHttpClient.executeHttpPost1(SapUrl.DailyReportAPI, param1);
+
+                if (!obj2.isEmpty()) {
+
+                    try {
+
+                        JSONObject jsonObject = new JSONObject(obj2);
+                        JSONArray jsonArray1 = new JSONArray();
+                        jsonArray1 = jsonObject.getJSONArray("data_return");
+                        if (jsonArray1.getJSONObject(0).get("return").equals("SUCCESS")) {
+                            stopProgressDialogue();
+                            CustomUtility.deleteArrayList(getApplicationContext(), Constant.DailyRoutineImage);
+                            Message msg = new Message();
+                            msg.obj = getResources().getString(R.string.reportSubmittedSuccessfully);
+                            mHandler.sendMessage(msg);
+                            finish();
+                        } else {
+                            stopProgressDialogue();
+                            CustomUtility.ShowToast(getResources().getString(R.string.somethingWentWrong), getApplicationContext());
+                        }
+
+                    } catch (JSONException e) {
                         stopProgressDialogue();
-                        CustomUtility.deleteArrayList(getApplicationContext(), Constant.DailyRoutineImage);
-                        CustomUtility.ShowToast(getResources().getString(R.string.reportSubmittedSuccessfully), getApplicationContext());
-                        onBackPressed();
-                    } else {
-                        stopProgressDialogue();
-                        CustomUtility.ShowToast(getResources().getString(R.string.somethingWentWrong), getApplicationContext());
+                        throw new RuntimeException(e);
                     }
 
-                } catch (JSONException e) {
-                    stopProgressDialogue();
-                    throw new RuntimeException(e);
+
                 }
-
-
+            } catch (Exception e) {
+                stopProgressDialogue();
+                e.printStackTrace();
             }
-        } catch (Exception e) {
+            return obj2;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
             stopProgressDialogue();
-            e.printStackTrace();
         }
     }
+
 
     public void showProgressDialogue() {
         progressDialog.setMessage(getResources().getString(R.string.loading));
@@ -751,6 +782,7 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         vendorAddressExt.setText(vendorList.getAdd());
         vendorNumberExt.setText(vendorList.getTelf1());
         vendorCodeList.setVisibility(View.GONE);
+        Log.e("vendorPosition====>", String.valueOf(vendorPosition));
     }
 
     @Override
@@ -758,6 +790,15 @@ public class DailyReportActivity extends BaseActivity implements View.OnClickLis
         Log.e("SelectedGatePass:- ", gatePassList.getDocno());
         selectedGatePass = gatePassList.getDocno();
     }
+
+    Handler mHandler = new android.os.Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            String mString = (String) msg.obj;
+            Toast.makeText(DailyReportActivity.this, mString, Toast.LENGTH_LONG).show();
+
+        }
+    };
 }
 
 

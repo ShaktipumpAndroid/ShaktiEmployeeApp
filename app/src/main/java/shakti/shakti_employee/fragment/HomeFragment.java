@@ -1142,8 +1142,12 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
                 break;
 
             case R.id.dailyReportLinear:
-                Intent intent1 = new Intent(context, DailyReportActivity.class);
-                startActivity(intent1);
+                if(CustomUtility.isInternetOn(context)) {
+                    Intent intent1 = new Intent(context, DailyReportActivity.class);
+                    startActivity(intent1);
+                }else {
+                    CustomUtility.ShowToast(getString(R.string.online_mode),context);
+                }
                 break;
         }
     }
