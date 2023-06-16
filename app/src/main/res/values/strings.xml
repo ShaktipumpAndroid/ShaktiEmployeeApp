@@ -231,6 +231,7 @@
     <string name="somethingWentWrong">Something Went Wrong</string>
     <string name="take_photo">Take Photo</string>
     <string name="Click_Again">Image not clicked properly, please click again</string>
+    <string name="online_mode">This functionality work only in online mode!</string>
 
 
     <string-array name="spinner_status">

@@ -561,8 +561,8 @@ public class DashboardActivity extends BaseActivity  {
                     progressBarStatus = con.getTaxcode(DashboardActivity.this,userModel.uid);
                     progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
 
-                    progressBarStatus = con.getVendorCode(DashboardActivity.this,userModel.uid);
-                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));
+                   /* progressBarStatus = con.getVendorCode(DashboardActivity.this,userModel.uid);
+                    progressBarHandler.post(() -> progressBar.setProgress(progressBarStatus));*/
 
 
 
