@@ -1226,7 +1226,7 @@ public class HomeFragment extends Fragment implements View.OnClickListener {
             jsonObj.put("start_long", param_invc.getFrom_lng());
             jsonObj.put("end_long", param_invc.getTo_lng());
 
-            jsonObj.put("LAT1_LONG1", totalWayPoint);
+            jsonObj.put("lat_long111", totalWayPoint);
             if (param_invc.getStart_loc() != null && !param_invc.getStart_loc().isEmpty()) {
                 jsonObj.put("start_location", param_invc.getStart_loc());
             } else {

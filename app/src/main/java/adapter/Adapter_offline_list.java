@@ -594,7 +594,7 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
             jsonObj.put("pernr", param_invc.getPernr());
             jsonObj.put("begda", param_invc.getBegda());
             jsonObj.put("endda", param_invc.getEndda());
-            jsonObj.put("LAT1_LONG1", totalWayPoint);
+            jsonObj.put("lat_long111", totalWayPoint);
             jsonObj.put("start_time", param_invc.getFrom_time());
             jsonObj.put("end_time", param_invc.getTo_time());
             jsonObj.put("start_lat", param_invc.getFrom_lat());
