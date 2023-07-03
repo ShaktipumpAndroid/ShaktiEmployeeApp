@@ -2527,12 +2527,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @SuppressLint("Range")
-    public ArrayList<VendorListModel.Response> getVendorcode(String code) {
+    public ArrayList<VendorListModel.Response> getVendorName(String name) {
 
         SQLiteDatabase db = this.getReadableDatabase();
         ArrayList<VendorListModel.Response> taxcodeArrayList = new ArrayList<VendorListModel.Response>();
         if(CustomUtility.doesTableExist(db,TABLE_VENDORCODE)){
-        String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_CODE + " LIKE '%" + code + "%'";
+        String selectQuery = "SELECT  * FROM " + TABLE_VENDORCODE+ " WHERE " + KEY_VENDOR_NAME + " LIKE '%" + name + "%'";
         Cursor cursor = db.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {

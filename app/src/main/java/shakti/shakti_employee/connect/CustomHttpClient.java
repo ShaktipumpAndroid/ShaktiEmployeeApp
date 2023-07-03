@@ -222,27 +222,6 @@ public class CustomHttpClient {
         Log.e("params  is....", postParameters+"");
 
         try {
-
-           /* HttpClient client = getHttpClient();
-
-            Log.d("output_client", String.valueOf(client));
-
-
-            HttpPost request = new HttpPost(url);
-
-            Log.d("output_url", String.valueOf(url));
-            Log.d("output_request", String.valueOf(request));
-
-            UrlEncodedFormEntity formEntity = new UrlEncodedFormEntity(postParameters);
-
-            Log.d("output_parameter", String.valueOf(postParameters));
-
-            request.setEntity(formEntity);
-
-            Log.d("output_parameter1", String.valueOf(formEntity));
-
-            HttpResponse response = client.execute(request);*/
-
             int TIMEOUT_MILLISEC = 150000; // = 12 seconds
             HttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams,
@@ -252,21 +231,9 @@ public class CustomHttpClient {
             HttpClient httpClient = new DefaultHttpClient();
             HttpPost httpPost = new HttpPost(url);
             httpPost.setEntity(new UrlEncodedFormEntity(postParameters));
-            // httpGet.setURI(new URI(url));
 
             HttpResponse httpResponse = httpClient.execute(httpPost);
             int status = httpResponse.getStatusLine().getStatusCode();
-
-
-           /* Log.d("output_reponse", String.valueOf(response));
-
-            in = new BufferedReader(new InputStreamReader(response.getEntity().getContent()));
-
-            StringBuffer sb = new StringBuffer("");
-
-            String line = "";
-
-            String NL = System.getProperty("line.separator");*/
 
             InputStream is = httpResponse.getEntity().getContent();
             reader = new BufferedReader(new InputStreamReader(
@@ -282,12 +249,6 @@ public class CustomHttpClient {
                 sb.append(line + "\n");
 
             }
-
-         /*   while ((line = in.readLine()) != null) {
-
-                sb.append(line + NL);
-
-            }*/
 
             is.close();
 

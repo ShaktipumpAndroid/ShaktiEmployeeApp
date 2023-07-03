@@ -493,8 +493,6 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
                                                     }
                                                 });
                                             }
-
-                                            ;
                                         }).start();
 
                                         dialog.dismiss();
@@ -590,25 +588,45 @@ public class Adapter_offline_list extends RecyclerView.Adapter<Adapter_offline_l
         JSONArray ja_invc_data = new JSONArray();
 
         JSONObject jsonObj = new JSONObject();
-
+        totalWayPoint = totalWayPoint.replaceAll("via:","");
         try {
 
             jsonObj.put("pernr", param_invc.getPernr());
             jsonObj.put("begda", param_invc.getBegda());
             jsonObj.put("endda", param_invc.getEndda());
-
+            jsonObj.put("lat_long111", totalWayPoint);
             jsonObj.put("start_time", param_invc.getFrom_time());
             jsonObj.put("end_time", param_invc.getTo_time());
             jsonObj.put("start_lat", param_invc.getFrom_lat());
             jsonObj.put("end_lat", param_invc.getTo_lat());
             jsonObj.put("start_long", param_invc.getFrom_lng());
             jsonObj.put("end_long", param_invc.getTo_lng());
-            jsonObj.put("start_location", param_invc.getStart_loc());
-            jsonObj.put("end_location", param_invc.getEnd_loc());
             jsonObj.put("distance", param_invc.getDistance());
             jsonObj.put("TRAVEL_MODE", mode);
-            jsonObj.put("PHOTO1", param_invc.getPhoto1());
-            jsonObj.put("PHOTO2", param_invc.getPhoto2());
+
+            if (param_invc.getStart_loc() != null && !param_invc.getStart_loc().isEmpty()) {
+                jsonObj.put("start_location", param_invc.getStart_loc());
+            } else {
+                jsonObj.put("start_location", Utility.retrieveAddress(param_invc.getFrom_lat(), param_invc.getFrom_lng(), context));
+            }
+
+            if (param_invc.getEnd_loc() != null && !param_invc.getEnd_loc().isEmpty()) {
+                jsonObj.put("end_location", param_invc.getEnd_loc());
+            } else {
+                jsonObj.put("end_location", Utility.retrieveAddress(param_invc.getTo_lat(), param_invc.getTo_lng(), context));
+            }
+            if (param_invc.getPhoto1() != null && !param_invc.getPhoto1().isEmpty()) {
+                jsonObj.put("PHOTO1", Utility.getBase64FromBitmap(context, param_invc.getPhoto1()));
+            } else {
+                jsonObj.put("PHOTO1", "");
+            }
+
+            if (param_invc.getPhoto2() != null && !param_invc.getPhoto2().isEmpty()) {
+                jsonObj.put("PHOTO2", Utility.getBase64FromBitmap(context, param_invc.getPhoto2()));
+            } else {
+                jsonObj.put("PHOTO2", "");
+            }
+
 
             ja_invc_data.put(jsonObj);
 

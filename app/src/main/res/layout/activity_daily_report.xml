@@ -70,6 +70,45 @@
 
                 </RadioGroup>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vendor_name"
+                        android:textColor="@color/colorPrimary"
+                        android:fontFamily="sans-serif-condensed-medium"
+                        android:textSize="@dimen/_14sdp"/>
+
+                    <EditText
+                        android:id="@+id/vendorNameExt"
+                        android:layout_width="match_parent"
+                        android:layout_height="@dimen/_30sdp"
+                        android:background="@drawable/blueborder"
+                        android:hint="@string/enter_vendor_name"
+                        android:textColor="@color/black"
+                        android:textSize="@dimen/_12sdp"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:padding="@dimen/_5sdp"
+                        android:singleLine="true"
+                        android:maxLines="1"
+                        android:inputType="textPersonName"
+                        android:imeOptions="actionNext"
+                        android:fontFamily="sans-serif-medium"/>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/vendorCodeList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/_5sdp"
+                        android:visibility="gone"
+                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
+
+                </LinearLayout>
+
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -103,56 +142,8 @@
                         android:fontFamily="sans-serif-medium"/>
 
 
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/vendorCodeList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:visibility="gone"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/vendor_name"
-                        android:textColor="@color/colorPrimary"
-                        android:fontFamily="sans-serif-condensed-medium"
-                        android:textSize="@dimen/_14sdp"/>
-
-                    <EditText
-                        android:id="@+id/vendorNameExt"
-                        android:layout_width="match_parent"
-                        android:layout_height="@dimen/_30sdp"
-                        android:background="@drawable/blueborder"
-                        android:hint="@string/enter_vendor_name"
-                        android:textColor="@color/black"
-                        android:textSize="@dimen/_12sdp"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:padding="@dimen/_5sdp"
-                        android:singleLine="true"
-                        android:maxLines="1"
-                        android:inputType="textPersonName"
-                        android:imeOptions="actionNext"
-                        android:fontFamily="sans-serif-medium"/>
-
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/vendorNameList"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/_5sdp"
-                        android:visibility="gone"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
-
-
-                </LinearLayout>
-
 
 
                 <LinearLayout
